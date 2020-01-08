@@ -1,0 +1,10 @@
+{
+  "demo": {
+    "deviceId": "5e06bfee334dd4f33759f5b3_demo",
+    "secret": "mysecret"
+  },
+  "testDevice2": {
+    "deviceId": "5df08775334dd4f3373a44a3_testDevice2",
+    "secret": "xxx"
+  }
+}

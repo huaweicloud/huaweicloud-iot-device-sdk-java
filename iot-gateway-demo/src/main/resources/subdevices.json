@@ -1,0 +1,9 @@
+{
+  "version": 0,
+  "subdevices": {
+    "subdev1": {
+      "node_id": "subdev1",
+      "device_id": "xxxxxx_subdev1"
+    }
+  }
+}
