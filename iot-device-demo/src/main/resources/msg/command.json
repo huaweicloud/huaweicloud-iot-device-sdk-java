@@ -1,0 +1,6 @@
+{
+  "service_id": "smoke",
+  "command_name": "turnoff",
+  "target_device_id": "ccc",
+  "paras": "abc"
+}
