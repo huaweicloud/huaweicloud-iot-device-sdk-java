@@ -16,6 +16,11 @@ public class RawMessage {
     private byte[] payload;
 
     /**
+     * qos,0或1，默认为1
+     */
+    private int qos;
+
+    /**
      * 构造函数
      *
      * @param topic   消息topic
@@ -24,8 +29,21 @@ public class RawMessage {
     public RawMessage(String topic, String payload) {
         this.topic = topic;
         this.payload = payload.getBytes();
+        this.qos = 1;
     }
 
+    /**
+     * 构造函数
+     *
+     * @param topic   消息topic
+     * @param payload 消息体
+     * @param qos qos,0或1
+     */
+    public RawMessage(String topic, String payload, int qos) {
+        this.qos = qos;
+        this.topic = topic;
+        this.payload = payload.getBytes();
+    }
 
     /**
      * 查询topic
@@ -64,6 +82,21 @@ public class RawMessage {
         this.payload = payload;
     }
 
+    /**
+     * 查询qos
+     * @return qos
+     */
+    public int getQos() {
+        return qos;
+    }
+
+    /**
+     * 设置qos，0或1
+     * @param qos qos
+     */
+    public void setQos(int qos) {
+        this.qos = qos;
+    }
 
     @Override
     public String toString() {

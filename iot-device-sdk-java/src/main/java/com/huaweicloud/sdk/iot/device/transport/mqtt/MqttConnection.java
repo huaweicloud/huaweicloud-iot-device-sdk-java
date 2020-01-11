@@ -39,7 +39,6 @@ public class MqttConnection implements Connection {
     private Logger log = Logger.getLogger(MqttConnection.class);
     private ClientConf clientConf;
     private boolean connectFinished = false;
-    private String connectionId = null;
     private MqttAsyncClient client;
     private ConnectListener connectListener;
     private RawMessageListener rawMessageListener;
@@ -116,8 +115,8 @@ public class MqttConnection implements Connection {
 
             DisconnectedBufferOptions bufferOptions = new DisconnectedBufferOptions();
             bufferOptions.setBufferEnabled(true);
-            if (clientConf.getBufferSize() != null) {
-                bufferOptions.setBufferSize(clientConf.getBufferSize());
+            if (clientConf.getOfflineBufferSize() != null) {
+                bufferOptions.setBufferSize(clientConf.getOfflineBufferSize());
             }
 
             client.setBufferOpts(bufferOptions);
@@ -199,8 +198,7 @@ public class MqttConnection implements Connection {
 
         try {
             MqttMessage mqttMessage = new MqttMessage(message.getPayload());
-            int qos = clientConf.getQos() == 0 ? 0 : DEFAULT_QOS;
-            mqttMessage.setQos(qos);
+            mqttMessage.setQos(message.getQos() == 0 ? 0 : DEFAULT_QOS);
 
             client.publish(message.getTopic(), mqttMessage, message.getTopic(), new IMqttActionListener() {
                 @Override
@@ -208,7 +206,6 @@ public class MqttConnection implements Connection {
                     if (listener != null) {
                         listener.onSuccess(null);
                     }
-
                 }
 
                 @Override
@@ -226,10 +223,6 @@ public class MqttConnection implements Connection {
         }
     }
 
-    @Override
-    public String getConnectionId() {
-        return connectionId;
-    }
 
     public void close() {
         try {

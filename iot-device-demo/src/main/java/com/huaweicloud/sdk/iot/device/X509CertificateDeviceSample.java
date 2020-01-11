@@ -3,7 +3,6 @@ package com.huaweicloud.sdk.iot.device;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 
-import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.HashMap;

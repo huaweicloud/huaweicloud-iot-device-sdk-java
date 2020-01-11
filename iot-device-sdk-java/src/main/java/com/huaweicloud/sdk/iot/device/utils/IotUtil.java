@@ -144,8 +144,7 @@ public class IotUtil {
 
     private static TrustManager[] getTrustManager() throws Exception {
 
-        File serverCert = new File(IotUtil.class.getClassLoader().getResource("ca.jks").getPath());
-        try (InputStream stream = new FileInputStream(serverCert)) {
+        try (InputStream stream = IotUtil.class.getClassLoader().getResourceAsStream("ca.jks") ) {
             KeyStore ts = KeyStore.getInstance("JKS");
             ts.load(stream, null);
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

@@ -48,15 +48,15 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 上报设备消息到平台(参见MessageSample)
 ```java
 
-       device.getClient().publishDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
+       device.getClient().reportDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
         @Override
         public void onSuccess(Object context) {
-            log.info("publishMessage success: ");
+            log.info("reportDeviceMessage success: ");
         }
 
         @Override
         public void onFailure(Object context, Throwable var2) {
-            log.error("publishMessage fail: "+var2);
+            log.error("reportDeviceMessage fail: "+var2);
         }
     });
 
@@ -270,10 +270,13 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword");
 ```
 
+## API Documentation
+敬请期待
 
-        
+## License
+SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
   
-[更多文档]()
+[更多文档](https://support.huaweicloud.com/usermanual-IoT/iot_01_0006.html)
 
 
 

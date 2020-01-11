@@ -44,7 +44,7 @@ public class MessageSample {
 
                 @Override
                 public void onFailure(Object context, Throwable var2) {
-                    log.error("publishMessage fail: " + var2);
+                    log.error("reportDeviceMessage fail: " + var2);
                 }
             });
 

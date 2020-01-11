@@ -32,8 +32,8 @@ public class SimpleGateway extends AbstractGateway {
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 
-    public SimpleGateway(SubDevicesPersistence subDevicesPersistence, ClientConf clientConf) {
-        super(subDevicesPersistence, clientConf);
+    public SimpleGateway(SubDevicesPersistence subDevicesPersistence,String serverUri, String deviceId, String deviceSecret) {
+        super(subDevicesPersistence, serverUri, deviceId, deviceSecret);
         this.nodeIdToSesseionMap = new ConcurrentHashMap<>();
         this.channelIdToSessionMap = new ConcurrentHashMap<>();
     }

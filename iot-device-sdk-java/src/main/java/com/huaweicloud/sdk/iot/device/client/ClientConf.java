@@ -1,10 +1,14 @@
 package com.huaweicloud.sdk.iot.device.client;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.security.KeyStore;
 
 /**
  * 客户端配置
  */
+
 public class ClientConf {
 
 
@@ -15,7 +19,7 @@ public class ClientConf {
 
 
     /**
-     * 设备秘钥
+     * 设备密码，使用密码认证时填写
      */
     String secret;
 
@@ -31,22 +35,25 @@ public class ClientConf {
     String bootstrapUri;
 
     /**
-     * 协议类型，MQTT或HTTP2，默认为MQTT
+     * 协议类型，当前仅支持mqtt
      */
     String protocol;
 
     /**
      * 离线消息缓存队列大小，默认5000，仅MQTT协议支持
      */
-    Integer bufferSize;
+    Integer offlineBufferSize;
 
-    String deviceCert;
-
-    String deviceCertKey;
-
-    String keyPassword;
-
+    /**
+     * keystore格式的证书，使用证书认证时传入keyStore和keyPassword
+     */
+    @JsonIgnore
     KeyStore keyStore;
+
+    /**
+     * 私钥密码
+     */
+    String keyPassword;
 
     /**
      * 客户端qos，0或1，默认1，仅MQTT协议支持
@@ -86,12 +93,12 @@ public class ClientConf {
         this.protocol = protocol;
     }
 
-    public Integer getBufferSize() {
-        return bufferSize;
+    public Integer getOfflineBufferSize() {
+        return offlineBufferSize;
     }
 
-    public void setBufferSize(Integer bufferSize) {
-        this.bufferSize = bufferSize;
+    public void setOfflineBufferSize(Integer offlineBufferSize) {
+        this.offlineBufferSize = offlineBufferSize;
     }
 
     public int getQos() {
@@ -108,22 +115,6 @@ public class ClientConf {
 
     public void setBootstrapUri(String bootstrapUri) {
         this.bootstrapUri = bootstrapUri;
-    }
-
-    public String getDeviceCert() {
-        return deviceCert;
-    }
-
-    public void setDeviceCert(String deviceCert) {
-        this.deviceCert = deviceCert;
-    }
-
-    public String getDeviceCertKey() {
-        return deviceCertKey;
-    }
-
-    public void setDeviceCertKey(String deviceCertKey) {
-        this.deviceCertKey = deviceCertKey;
     }
 
     public String getKeyPassword() {

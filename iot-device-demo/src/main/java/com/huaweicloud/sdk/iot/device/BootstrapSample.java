@@ -16,7 +16,7 @@ public class BootstrapSample {
         ClientConf clientConf = new ClientConf();
         clientConf.setBootstrapUri("ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883");
         clientConf.setDeviceId("5df08775334dd4f3373a44a3_demo");
-        clientConf.setSecret("secret");
+        clientConf.setSecret("mysecret");
 
         //创建引导客户端，发起引导
         BootstrapClient bootstrapClient = new BootstrapClient(clientConf);
@@ -33,7 +33,7 @@ public class BootstrapSample {
                 ClientConf clientConf = new ClientConf();
                 clientConf.setServerUri("ssl://" + address);//address的格式是地址+端口，前面要加上协议前缀
                 clientConf.setDeviceId("5df08775334dd4f3373a44a3_demo");
-                clientConf.setSecret("secret");
+                clientConf.setSecret("mysecret");
 
                 IoTDevice device = new IoTDevice(clientConf);
                 if (device.init() != 0) {

@@ -15,12 +15,16 @@ import java.util.concurrent.Executors;
 
 
 /**
- * OTA服务类，提供设备升级相关接口
+ * OTA服务类，提供设备升级相关接口，使用方法：
+ * OTAService otaService = new OTAService();
+ * iotDevice.addService("ota_manager", otaService);
+ * otaService.setOtaListener(new OTAListener() {
  */
 public class OTAService extends AbstractService {
 
+    //升级上报的错误码，用户也可以扩展自己的错误码
     public static final int OTA_CODE_SUCCESS = 0;//成功
-    public static final int OTA_CODE_INUSE = 1;  //设备使用中
+    public static final int OTA_CODE_BUSY = 1;  //设备使用中
     public static final int OTA_CODE_SIGNAL_BAD = 2;  //信号质量差
     public static final int OTA_CODE_NO_NEED = 3;  //已经是最新版本
     public static final int OTA_CODE_LOW_POWER = 4;  //电量不足
@@ -31,8 +35,8 @@ public class OTAService extends AbstractService {
     public static final int OTA_CODE_LOW_MEMORY = 9;  //内存不足
     public static final int OTA_CODE_INSTALL_FAIL = 10;  //安装升级包失败
     public static final int OTA_CODE_INNER_ERROR = 255;  // 内部异常
+
     private Logger log = Logger.getLogger(this.getClass());
-    private IoTDevice iotDevice;
     private OTAListener otaListener;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -69,7 +73,7 @@ public class OTAService extends AbstractService {
         deviceEvent.setServiceId("ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        iotDevice.getClient().reportEvent(deviceEvent, new ActionListener() {
+        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
             @Override
             public void onSuccess(Object context) {
 
@@ -105,7 +109,7 @@ public class OTAService extends AbstractService {
         deviceEvent.setServiceId("ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        iotDevice.getClient().reportEvent(deviceEvent, new ActionListener() {
+        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
             @Override
             public void onSuccess(Object context) {
 

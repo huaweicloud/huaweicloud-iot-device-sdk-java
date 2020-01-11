@@ -118,20 +118,23 @@ public class DemoUtil {
         return context;
     }
 
-    public static KeyStore getKeyStore(String deviceCert, String deviceCertKey, String keyPassword) throws Exception {
-        if (deviceCert == null || deviceCertKey == null || keyPassword == null) {
+    public static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
+        if (certificateFile == null || privateKeyFile == null ) {
             log.error("input null");
             return null;
         }
+        if (keyPassword == null){
+            keyPassword = "";
+        }
 
         Certificate cert = null;
-        try (FileInputStream inputStream = new FileInputStream(deviceCert)) {
+        try (FileInputStream inputStream = new FileInputStream(certificateFile)) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             cert = cf.generateCertificate(inputStream);
         }
 
         KeyPair keyPair = null;
-        try (FileInputStream keyInput = new FileInputStream(deviceCertKey)) {
+        try (FileInputStream keyInput = new FileInputStream(privateKeyFile)) {
             PEMParser pemParser = new PEMParser(new InputStreamReader(keyInput, StandardCharsets.UTF_8));
             Object object = pemParser.readObject();
             BouncyCastleProvider provider = new BouncyCastleProvider();
@@ -158,19 +161,5 @@ public class DemoUtil {
         return keyStore;
     }
 
-    public static SSLContext getSSLContext(ClientConf clientConf) throws Exception {
 
-        if (clientConf.getKeyStore() != null) {
-
-            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword());
-        } else if (clientConf.getDeviceCert() != null) {
-            return getSSLContextWithKeys(clientConf.getDeviceCert(), clientConf.getDeviceCertKey(),
-                    clientConf.getKeyPassword());
-        } else {
-            SSLContext sslContext = SSLContext.getInstance(TLS_VER);
-            sslContext.init(null, getTrustManager(), new SecureRandom());
-        }
-
-        return null;
-    }
 }

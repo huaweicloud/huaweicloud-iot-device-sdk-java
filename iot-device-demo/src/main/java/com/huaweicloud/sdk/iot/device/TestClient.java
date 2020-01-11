@@ -25,8 +25,8 @@ import java.util.Map;
 /**
  * 这是一个mqtt本地测试工具，用于在不连接平台的情况下进行设备侧代码的模拟测试，使用方法：
  * 1、本地安装并启动mosquitto
- * 2、启动本客户端
- * 3、修改设备侧代码，设置serverUri为本地mosquitto地址，启动设备侧代码
+ * 2、修改设备侧代码，设置serverUri为本地mosquitto地址，启动设备侧代码
+ * 3、启动本测试客户端，它会周期性的向设备下发命令、属性操作
  */
 public class TestClient {
     private static Logger log = Logger.getLogger(TestClient.class);
@@ -35,7 +35,7 @@ public class TestClient {
 
         try {
 
-            String deviceId = "test_testDevice";
+            String deviceId = "5e0ee5793b7c24fa36c44585_demo";
 
             MqttClient client = new MqttClient("tcp://localhost:1883", "123", new MemoryPersistence());
 
@@ -78,6 +78,9 @@ public class TestClient {
             while (true) {
 
                 DeviceMessage message = new DeviceMessage("down msg");
+                message.setId("id");
+                message.setName("name");
+                message.setDeviceId("xx");
 
                 client.publish("$oc/devices/" + deviceId + "/sys/messages/down",
                         new MqttMessage(JsonUtil.convertObject2String(message).getBytes()));

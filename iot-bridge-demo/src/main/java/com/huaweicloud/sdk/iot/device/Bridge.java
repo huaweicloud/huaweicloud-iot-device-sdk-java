@@ -146,8 +146,6 @@ public class Bridge {
         int port = 8080;
 
         Logger.getLogger("io.netty").setLevel(Level.INFO);
-
-        String certPath = Bridge.class.getClassLoader().getResource("ca.jks").getPath();
         Bridge.createBridge(serverUri,  null);
 
         new StringTcpServer(port).run();

@@ -1,28 +1,50 @@
 package com.huaweicloud.sdk.iot.device;
 
-
+import com.huaweicloud.sdk.iot.device.IoTDevice;
+import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.service.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.service.Property;
+import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
+import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
 
 /**
- * 此例用来演示IOTDevice的使用。用户只需要根据设备模型实现自己的设备服务类，注册到IOTDevice，SDK会自动
- * 的完成设备属性的同步和命令的调用
+ * 此例用来演示面向物模型编程的方法。用户只需要根据物模型定义自己的设备服务类，就可以直接对设备服务进行读写操作，SDK会自动
+ * 的完成设备属性的同步和命令的调用。本例中实现的设备服务为烟感服务
  */
 
 public class DeviceServiceSample {
 
     public static void main(String args[]) throws InterruptedException {
 
-        //创建设备
-        IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
+        //从配置文件读取客户端配置
+        String confFile ;
+        if (args.length >= 1) {
+            confFile = args[0];
+        } else {
+            confFile = DeviceServiceSample.class.getClassLoader().getResource("ClientConf.json").getPath();
+        }
+        File file = new File(confFile);
+        ClientConf clientConf = null;
+        try {
+            String content = FileUtils.readFileToString(file, "UTF-8");
+            clientConf = JsonUtil.convertJsonStringToObject(content, ClientConf.class);
+        } catch (IOException e) {
+            System.out.println(ExceptionUtil.getBriefStackTrace(e));
+            return;
+        }
+
+        //使用配置创建设备
+        IoTDevice device = new IoTDevice(clientConf);
 
         //创建设备服务
         SmokeDetectorService smokeDetectorService = new SmokeDetectorService();
@@ -55,15 +77,19 @@ public class DeviceServiceSample {
      */
     public static class SmokeDetectorService extends AbstractService {
 
-        //按照设备模型定义属性，注意属性的name和类型需要和模型一致
+        //按照设备模型定义属性，注意属性的name和类型需要和模型一致，writeable表示属性知否可写，name指定属性名
         @Property(name = "alarm", writeable = true)
         int smokeAlarm = 0;
+
         @Property(name = "smokeConcentration", writeable = false)
         float concentration = 0.0f;
+
         @Property(writeable = false)
         int humidity;
+
         @Property(writeable = false)
         float temperature;
+
         private Logger log = Logger.getLogger(this.getClass());
 
         //定义命令，注意接口入参和返回值类型是固定的不能修改，否则会出现运行时错误

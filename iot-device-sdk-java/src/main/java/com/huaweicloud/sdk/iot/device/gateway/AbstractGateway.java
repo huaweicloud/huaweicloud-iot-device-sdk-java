@@ -21,6 +21,7 @@ import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.log4j.Logger;
 
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,36 @@ public abstract class AbstractGateway extends IoTDevice {
     private SubDevDiscoveryListener subDevDiscoveryListener;
     private SubDevicesPersistence subDevicesPersistence;
 
+    /**
+     * 构造函数，通过设备密码认证
+     * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
+     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId 设备id
+     * @param deviceSecret 设备密码
+     */
+    public AbstractGateway(SubDevicesPersistence subDevicesPersistence,String serverUri, String deviceId, String deviceSecret){
+        super(serverUri, deviceId,deviceSecret);
+        this.subDevicesPersistence = subDevicesPersistence;
+    }
+
+    /**
+     * 构造函数，通过设备证书认证
+     * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
+     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId 设备id
+     * @param keyStore 证书容器
+     * @param keyPassword 证书密码
+     */
+    public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, KeyStore keyStore, String keyPassword){
+        super(serverUri, deviceId, keyStore, keyPassword);
+        this.subDevicesPersistence = subDevicesPersistence;
+    }
+
+    /**
+     * 构造函数，通过客户端配置参数构造
+     * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
+     * @param clientConf 客户端配置参数
+     */
     public AbstractGateway(SubDevicesPersistence subDevicesPersistence, ClientConf clientConf) {
         super(clientConf);
         this.subDevicesPersistence = subDevicesPersistence;
@@ -94,12 +125,12 @@ public abstract class AbstractGateway extends IoTDevice {
     }
 
     /**
-     * 发布子设备消息
+     * 上报子设备消息
      *
      * @param deviceMessage 设备消息
      * @param listener      监听器
      */
-    public void publishSubDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
+    public void reportSubDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
         getClient().reportDeviceMessage(deviceMessage, listener);
     }
 

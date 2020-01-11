@@ -41,12 +41,9 @@ public class StringTcpServer {
             port = 8080;
         }
 
-        ClientConf clientConf = new ClientConf();
-        clientConf.setServerUri("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883");
-        clientConf.setDeviceId("5e06bfee334dd4f33759f5b3_demo");
-        clientConf.setSecret("mysecret");
-
-        simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(), clientConf);
+        simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
+                "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
         if (simpleGateway.init() != 0) {
             return;
         }
@@ -114,7 +111,7 @@ public class StringTcpServer {
                 //如果需要上报属性则调用reportSubDeviceProperties
                 DeviceMessage deviceMessage = new DeviceMessage(s);
                 deviceMessage.setDeviceId(session.getDeviceId());
-                simpleGateway.publishSubDeviceMessage(deviceMessage, null);
+                simpleGateway.reportSubDeviceMessage(deviceMessage, null);
 
             }
 

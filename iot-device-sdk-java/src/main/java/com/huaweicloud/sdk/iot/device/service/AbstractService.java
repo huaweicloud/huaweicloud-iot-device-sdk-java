@@ -7,7 +7,6 @@ import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
-import javafx.util.Pair;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
@@ -29,9 +28,19 @@ public abstract class AbstractService implements IService {
     private IoTDevice iotDevice;
     private Map<String, Method> commands = new HashMap<>();
     private Map<String, Field> writeableFields = new HashMap<>();
-    private Map<String, Pair<String, Field>> readableFields = new HashMap<>();
+    private Map<String, FieldPair> readableFields = new HashMap<>();
 
     private String serviceId;
+
+    private static class  FieldPair{
+        public String propertyName;
+        public Field field;
+
+        public FieldPair(String propertyName, Field field ){
+            this.propertyName = propertyName;
+            this.field = field;
+        }
+    }
 
     public AbstractService() {
 
@@ -51,7 +60,7 @@ public abstract class AbstractService implements IService {
             }
 
             //这里key是字段名,pair里保存属性名
-            readableFields.put(field.getName(), new Pair<>(name, field));
+            readableFields.put(field.getName(), new FieldPair(name, field));
         }
 
         for (Method method : this.getClass().getDeclaredMethods()) {
@@ -70,7 +79,7 @@ public abstract class AbstractService implements IService {
 
     private Object getFiledValue(String fieldName) {
 
-        Field field = readableFields.get(fieldName).getValue();
+        Field field = readableFields.get(fieldName).field;
         if (field == null) {
             log.error("field is null: " + fieldName);
             return null;
@@ -126,7 +135,7 @@ public abstract class AbstractService implements IService {
 
                 Object value = getFiledValue(fieldName);
                 if (value != null) {
-                    ret.put(readableFields.get(fieldName).getKey(), value);
+                    ret.put(readableFields.get(fieldName).propertyName, value);
                 }
             }
 
@@ -134,10 +143,10 @@ public abstract class AbstractService implements IService {
         }
 
         //读取全部字段
-        for (Map.Entry<String, Pair<String, Field>> entry : readableFields.entrySet()) {
+        for (Map.Entry<String, FieldPair> entry : readableFields.entrySet()) {
             Object value = getFiledValue(entry.getKey());
             if (value != null) {
-                ret.put(entry.getValue().getKey(), value);
+                ret.put(entry.getValue().propertyName, value);
             }
         }
         return ret;

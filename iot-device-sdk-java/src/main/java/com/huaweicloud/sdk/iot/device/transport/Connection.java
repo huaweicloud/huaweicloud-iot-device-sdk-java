@@ -21,13 +21,6 @@ public interface Connection {
     public void publishMessage(RawMessage message, ActionListener listener);
 
     /**
-     * 获取连接标识
-     *
-     * @return 连接id
-     */
-    public String getConnectionId();
-
-    /**
      * 关闭连接
      */
     void close();
