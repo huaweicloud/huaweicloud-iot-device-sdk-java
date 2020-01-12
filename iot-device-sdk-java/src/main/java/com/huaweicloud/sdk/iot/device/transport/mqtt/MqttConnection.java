@@ -36,12 +36,19 @@ public class MqttConnection implements Connection {
     private static final int DEFAULT_KEEPLIVE = 120;
     private static final String connectType = "0";
     private static final String checkTimestamp = "0";
-    private Logger log = Logger.getLogger(MqttConnection.class);
     private ClientConf clientConf;
     private boolean connectFinished = false;
-    private MqttAsyncClient client;
+    private MqttAsyncClient mqttAsyncClient;
     private ConnectListener connectListener;
     private RawMessageListener rawMessageListener;
+
+    private Logger log = Logger.getLogger(MqttConnection.class);
+
+    public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener){
+        this.clientConf = clientConf;
+        this.rawMessageListener = rawMessageListener;
+    }
+
     private MqttCallback callback = new MqttCallbackExtended() {
 
         @Override
@@ -78,13 +85,6 @@ public class MqttConnection implements Connection {
         public void connectComplete(boolean reconnect, String serverURI) {
             log.info("Mqtt client connected. address :" + serverURI);
 
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null);
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null);
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/set/#", null);
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null);
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null);
-            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null);
-
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
             }
@@ -93,10 +93,7 @@ public class MqttConnection implements Connection {
 
     };
 
-    public MqttConnection(ClientConf clientConf) {
-        this.clientConf = clientConf;
 
-    }
 
     @Override
     public int connect() {
@@ -108,7 +105,7 @@ public class MqttConnection implements Connection {
             String clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
 
             try {
-                client = new MqttAsyncClient(clientConf.getServerUri(), clientId);
+                mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId);
             } catch (MqttException e) {
                 log.error(ExceptionUtil.getBriefStackTrace(e));
             }
@@ -119,7 +116,7 @@ public class MqttConnection implements Connection {
                 bufferOptions.setBufferSize(clientConf.getOfflineBufferSize());
             }
 
-            client.setBufferOpts(bufferOptions);
+            mqttAsyncClient.setBufferOpts(bufferOptions);
 
             MqttConnectOptions options = new MqttConnectOptions();
             if (clientConf.getServerUri().contains("ssl:")) {
@@ -144,12 +141,12 @@ public class MqttConnection implements Connection {
             options.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
             options.setKeepAliveInterval(DEFAULT_KEEPLIVE);
             options.setAutomaticReconnect(true);
-            client.setCallback(callback);
+            mqttAsyncClient.setCallback(callback);
 
             log.info("try to connect to " + clientConf.getServerUri());
 
 
-            client.connect(options, null, new IMqttActionListener() {
+            mqttAsyncClient.connect(options, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken iMqttToken) {
 
@@ -190,7 +187,7 @@ public class MqttConnection implements Connection {
 
         }
 
-        return client.isConnected() ? 0 : -1;
+        return mqttAsyncClient.isConnected() ? 0 : -1;
     }
 
     @Override
@@ -200,7 +197,7 @@ public class MqttConnection implements Connection {
             MqttMessage mqttMessage = new MqttMessage(message.getPayload());
             mqttMessage.setQos(message.getQos() == 0 ? 0 : DEFAULT_QOS);
 
-            client.publish(message.getTopic(), mqttMessage, message.getTopic(), new IMqttActionListener() {
+            mqttAsyncClient.publish(message.getTopic(), mqttMessage, message.getTopic(), new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken iMqttToken) {
                     if (listener != null) {
@@ -225,19 +222,22 @@ public class MqttConnection implements Connection {
 
 
     public void close() {
-        try {
-            client.disconnect();
-        } catch (MqttException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
+
+        if (mqttAsyncClient.isConnected()){
+            try {
+                mqttAsyncClient.disconnect();
+            } catch (MqttException e) {
+                log.error(ExceptionUtil.getBriefStackTrace(e));
+            }
         }
     }
 
     @Override
     public boolean isConnected() {
-        if (client == null) {
+        if (mqttAsyncClient == null) {
             return false;
         }
-        return client.isConnected();
+        return mqttAsyncClient.isConnected();
     }
 
     public void setConnectListener(ConnectListener connectListener) {
@@ -259,7 +259,7 @@ public class MqttConnection implements Connection {
         int qos = clientConf.getQos() == 0 ? 0 : DEFAULT_QOS;
 
         try {
-            client.subscribe(topic, qos, null, new IMqttActionListener() {
+            mqttAsyncClient.subscribe(topic, qos, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken iMqttToken) {
 
@@ -270,7 +270,7 @@ public class MqttConnection implements Connection {
 
                 @Override
                 public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                    log.error("subscribe failed:" + topic);
+                    log.error("subscribe topic failed:" + topic);
                     if (listener != null) {
                         listener.onFailure(topic, throwable);
                     }

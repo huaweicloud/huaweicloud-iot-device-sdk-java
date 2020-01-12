@@ -57,7 +57,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>StringTcpServer</mainClass>
+                            <mainClass>com.huaweicloud.sdk.iot.device.demo.Bridge</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -73,11 +73,15 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.eclipse.jetty:</exclude>
-                                </excludes>
-                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>with-deps</shadedClassifierName>
                         </configuration>

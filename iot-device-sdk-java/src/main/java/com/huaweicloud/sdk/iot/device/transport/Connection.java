@@ -40,18 +40,9 @@ public interface Connection {
     public void setConnectListener(ConnectListener connectListener);
 
     /**
-     * 设置消息监听器
-     *
-     * @param rawMessageListener 消息监听器
+     * @param topic 订阅自定义topic。注意SDK会自动订阅平台定义的topic
+     * @param actionListener 监听订阅是否成功
      */
-    public void setRawMessageListener(RawMessageListener rawMessageListener);
-
-
-    /*
-     * 订阅自定义topic。注意SDK会自动订阅平台定义的topic
-     * @param topic 自定义topic
-     * @param listener 监听器
-     */
-    public void subscribeTopic(String topic, ActionListener listener);
+    public void subscribeTopic(String topic, ActionListener actionListener);
 
 }

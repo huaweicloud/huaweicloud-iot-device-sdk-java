@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device;
+package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
@@ -26,25 +26,19 @@ public class DeviceServiceSample {
 
     public static void main(String args[]) throws InterruptedException {
 
-        //从配置文件读取客户端配置
-        String confFile ;
-        if (args.length >= 1) {
-            confFile = args[0];
-        } else {
-            confFile = DeviceServiceSample.class.getClassLoader().getResource("ClientConf.json").getPath();
-        }
-        File file = new File(confFile);
-        ClientConf clientConf = null;
-        try {
-            String content = FileUtils.readFileToString(file, "UTF-8");
-            clientConf = JsonUtil.convertJsonStringToObject(content, ClientConf.class);
-        } catch (IOException e) {
-            System.out.println(ExceptionUtil.getBriefStackTrace(e));
-            return;
+        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883" ;
+        String deviceId = "5e06bfee334dd4f33759f5b3_demo";
+        String secret = "mysecret";
+
+        //从命令行获取设备参数
+        if (args.length >= 3) {
+            serverUri = args[0];
+            deviceId = args[1];
+            secret = args[2];
         }
 
-        //使用配置创建设备
-        IoTDevice device = new IoTDevice(clientConf);
+        //创建设备
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
 
         //创建设备服务
         SmokeDetectorService smokeDetectorService = new SmokeDetectorService();
@@ -53,8 +47,6 @@ public class DeviceServiceSample {
         if (device.init() != 0) {
             return;
         }
-        System.out.println("connect ok");
-
 
         while (true) {
 

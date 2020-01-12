@@ -82,11 +82,11 @@ public class IoTDevice {
      * 构造函数，直接使用客户端配置创建设备，一般不推荐这种做法
      * @param clientConf 客户端配置
      */
-    public IoTDevice(ClientConf clientConf) {
-        this.client = new DeviceClient(clientConf, this);
-        this.deviceId = clientConf.getDeviceId();
-        log.info("create device: " + clientConf.getDeviceId());
-    }
+//    public IoTDevice(ClientConf clientConf) {
+//        this.client = new DeviceClient(clientConf, this);
+//        this.deviceId = clientConf.getDeviceId();
+//        log.info("create device: " + clientConf.getDeviceId());
+//    }
 
     /**
      * 初始化，创建到平台的连接

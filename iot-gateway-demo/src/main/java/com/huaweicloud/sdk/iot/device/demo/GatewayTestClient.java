@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device;
+package com.huaweicloud.sdk.iot.device.demo;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;

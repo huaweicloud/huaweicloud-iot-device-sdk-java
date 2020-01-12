@@ -1,5 +1,7 @@
-package com.huaweicloud.sdk.iot.device;
+package com.huaweicloud.sdk.iot.device.demo;
 
+
+import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.ota.OTAListener;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackage;

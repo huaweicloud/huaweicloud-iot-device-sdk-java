@@ -1,5 +1,6 @@
-package com.huaweicloud.sdk.iot.device;
+package com.huaweicloud.sdk.iot.device.demo;
 
+import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import org.apache.log4j.Logger;

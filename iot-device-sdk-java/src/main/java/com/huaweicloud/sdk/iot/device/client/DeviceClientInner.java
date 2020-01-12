@@ -15,11 +15,8 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
-import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
-import com.huaweicloud.sdk.iot.device.transport.RawMessage;
-import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
-import com.huaweicloud.sdk.iot.device.transport.Transport;
+import com.huaweicloud.sdk.iot.device.transport.*;
+import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
@@ -41,7 +38,7 @@ public class DeviceClientInner implements RawMessageListener {
     private DeviceMessageListener deviceMessageListener;
 
     private ClientConf clientConf;
-    private Transport transport;
+    private Connection connection;
     private RequestManager requestManager;
     private String deviceId;
     private Map<String, RawMessageListener> rawMessageListenerMap;
@@ -55,8 +52,7 @@ public class DeviceClientInner implements RawMessageListener {
         checkClientConf();
         this.deviceId = clientConf.getDeviceId();
         this.requestManager = new RequestManager(this);
-        this.transport = new Transport(clientConf);
-        transport.setMessageListener(this);
+        this.connection = new MqttConnection(clientConf, this);
         this.device = device;
         this.rawMessageListenerMap = new ConcurrentHashMap<>();
 
@@ -66,22 +62,21 @@ public class DeviceClientInner implements RawMessageListener {
         return clientConf;
     }
 
-    public void setClientConf(ClientConf clientConf) {
-        this.clientConf = clientConf;
-    }
-
     private void checkClientConf() throws IllegalArgumentException {
         if (clientConf == null) {
             throw new IllegalArgumentException("clientConf is null");
         }
-        if (clientConf.getDeviceId() == null || clientConf.getDeviceId().isEmpty()) {
+        if (clientConf.getDeviceId() == null) {
             throw new IllegalArgumentException("clientConf.getDeviceId() is null");
         }
-//        if (clientConf.getSecret() == null || clientConf.getSecret().isEmpty()) {
-//            throw new IllegalArgumentException("clientConf.getSecret() is null");
-//        }
-        if (clientConf.getServerUri() == null || clientConf.getServerUri().isEmpty()) {
+        if (clientConf.getSecret() == null && clientConf.getKeyStore() == null) {
+            throw new IllegalArgumentException("secret and keystore is null");
+        }
+        if (clientConf.getServerUri() == null ) {
             throw new IllegalArgumentException("clientConf.getSecret() is null");
+        }
+        if (!clientConf.getServerUri().startsWith("tcp://") && (!clientConf.getServerUri().startsWith("ssl://")) ) {
+            throw new IllegalArgumentException("invalid serverUri");
         }
     }
 
@@ -91,7 +86,19 @@ public class DeviceClientInner implements RawMessageListener {
      * @return 0表示连接成功，其他表示连接失败
      */
     protected int connect() {
-        return transport.connect();
+        int ret = connection.connect();
+        if (ret != 0){
+            return ret;
+        }
+
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null);
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null);
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/set/#", null);
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null);
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null);
+        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null);
+
+        return ret;
     }
 
 
@@ -107,7 +114,7 @@ public class DeviceClientInner implements RawMessageListener {
      * @param listener   监听器
      */
     protected void publishRawMessage(RawMessage rawMessage, ActionListener listener) {
-        transport.publishMsg(rawMessage, listener);
+        connection.publishMessage(rawMessage, listener);
     }
 
 
@@ -125,7 +132,7 @@ public class DeviceClientInner implements RawMessageListener {
         jsonObject.putPOJO("services", properties);
 
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
-        transport.publishMsg(rawMessage, listener);
+        connection.publishMessage(rawMessage, listener);
 
     }
 
@@ -255,7 +262,7 @@ public class DeviceClientInner implements RawMessageListener {
 
 
     protected void close() {
-        transport.close();
+        connection.close();
     }
 
 
@@ -263,7 +270,7 @@ public class DeviceClientInner implements RawMessageListener {
 
         String topic = "$oc/devices/" + deviceId + "/sys/commands/response/request_id=" + requestId;
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(commandRsp));
-        transport.publishMsg(rawMessage, null);
+        connection.publishMessage(rawMessage, null);
     }
 
     protected void respondPropsGet(String requestId, List<ServiceProperty> services) {
@@ -273,14 +280,14 @@ public class DeviceClientInner implements RawMessageListener {
 
         String topic = "$oc/devices/" + deviceId + "/sys/properties/get/response/request_id=" + requestId;
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(deviceProperties));
-        transport.publishMsg(rawMessage, null);
+        connection.publishMessage(rawMessage, null);
     }
 
     protected void respondPropsSet(String requestId, IotResult iotResult) {
 
         String topic = "$oc/devices/" + deviceId + "/sys/properties/set/response/request_id=" + requestId;
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(iotResult));
-        transport.publishMsg(rawMessage, null);
+        connection.publishMessage(rawMessage, null);
     }
 
     public String getDeviceId() {
@@ -288,12 +295,12 @@ public class DeviceClientInner implements RawMessageListener {
     }
 
     protected void setConnectListener(ConnectListener connectListener) {
-        transport.setConnectListener(connectListener);
+        connection.setConnectListener(connectListener);
     }
 
-    protected void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener listener) {
-        transport.subscribeTopic(topic, actionListener);
-        rawMessageListenerMap.put(topic, listener);
+    protected void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener) {
+        connection.subscribeTopic(topic, actionListener);
+        rawMessageListenerMap.put(topic, rawMessageListener);
     }
 
     protected void setPropertyListener(PropertyListener propertyListener) {
@@ -321,7 +328,7 @@ public class DeviceClientInner implements RawMessageListener {
         String topic = "$oc/devices/" + deviceId + "/sys/events/up";
 
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
-        transport.publishMsg(rawMessage, listener);
+        connection.publishMessage(rawMessage, listener);
 
     }
 }

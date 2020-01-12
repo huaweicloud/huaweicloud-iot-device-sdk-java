@@ -28,12 +28,6 @@ public class ClientConf {
      */
     String serverUri;
 
-
-    /**
-     * 设备引导地址，配置了此参数就会先到引导地址引导，获取serverUri
-     */
-    String bootstrapUri;
-
     /**
      * 协议类型，当前仅支持mqtt
      */
@@ -107,14 +101,6 @@ public class ClientConf {
 
     public void setQos(int qos) {
         this.qos = qos;
-    }
-
-    public String getBootstrapUri() {
-        return bootstrapUri;
-    }
-
-    public void setBootstrapUri(String bootstrapUri) {
-        this.bootstrapUri = bootstrapUri;
     }
 
     public String getKeyPassword() {

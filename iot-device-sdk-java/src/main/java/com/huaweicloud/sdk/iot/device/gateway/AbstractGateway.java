@@ -63,16 +63,6 @@ public abstract class AbstractGateway extends IoTDevice {
     }
 
     /**
-     * 构造函数，通过客户端配置参数构造
-     * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param clientConf 客户端配置参数
-     */
-    public AbstractGateway(SubDevicesPersistence subDevicesPersistence, ClientConf clientConf) {
-        super(clientConf);
-        this.subDevicesPersistence = subDevicesPersistence;
-    }
-
-    /**
      * 设置子设备发现监听器
      *
      * @param subDevDiscoveryListener 子设备发现监听器

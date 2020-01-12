@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device;
+package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -50,7 +50,7 @@ public class TcpDevice {
             Channel channel = bootstrap.connect(host, port).sync().channel();
             in = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
-                System.out.println("input string to send:");
+                log.info("input string to send:");
                 channel.writeAndFlush(in.readLine());
             }
         } catch (Exception e) {

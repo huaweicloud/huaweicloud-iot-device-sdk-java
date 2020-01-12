@@ -1,8 +1,0 @@
-{
-  "deviceId": "5e06bfee334dd4f33759f5b3_demo",
-  "secret": "mysecret",
-  "protocol": "mqtt",
-  "serverUri": "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883"
-
-}
-
