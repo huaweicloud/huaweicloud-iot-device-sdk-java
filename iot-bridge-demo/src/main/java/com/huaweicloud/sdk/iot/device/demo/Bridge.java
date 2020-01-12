@@ -1,5 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
+import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;

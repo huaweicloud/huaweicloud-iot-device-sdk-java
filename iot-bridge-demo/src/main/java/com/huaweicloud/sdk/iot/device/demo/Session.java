@@ -1,5 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
+import com.huaweicloud.sdk.iot.device.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import io.netty.channel.Channel;
 
@@ -11,7 +12,7 @@ public class Session {
 
     Channel channel;
 
-    DeviceClient DeviceClient;
+    DeviceClient deviceClient;
 
     PropertyListener downlinkListener;
 
@@ -40,11 +41,11 @@ public class Session {
     }
 
     public DeviceClient getDeviceClient() {
-        return DeviceClient;
+        return deviceClient;
     }
 
     public void setDeviceClient(DeviceClient deviceClient) {
-        this.DeviceClient = deviceClient;
+        this.deviceClient = deviceClient;
     }
 
     public PropertyListener getDownlinkListener() {
@@ -61,7 +62,6 @@ public class Session {
                 "deviceId='" + deviceId + '\'' +
                 ", nodeId='" + nodeId + '\'' +
                 ", channel=" + channel +
-                ", device=" + DeviceClient +
                 '}';
     }
 }
