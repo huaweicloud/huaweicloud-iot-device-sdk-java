@@ -27,14 +27,12 @@ public class Bridge {
     private static Bridge instance;
     private static Logger log = Logger.getLogger(Bridge.class);
     DeviceIdentityRegistry deviceIdentityRegistry;
-    String certPath;
     String serverUri;
     private Map<String, Session> deviceIdToSesseionMap;
     private Map<String, Session> channelIdToSessionMap;
 
     public Bridge(String serverUri, DeviceIdentityRegistry deviceIdentityRegistry) {
         this.serverUri = serverUri;
-        this.certPath = certPath;
 
         if (deviceIdentityRegistry == null) {
             deviceIdentityRegistry = new DefaultDeviceIdentityRegistry();

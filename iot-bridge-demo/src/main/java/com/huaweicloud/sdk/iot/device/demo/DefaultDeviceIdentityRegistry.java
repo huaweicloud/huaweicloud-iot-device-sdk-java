@@ -1,13 +1,12 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 
-import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -20,14 +19,12 @@ public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
     public DefaultDeviceIdentityRegistry() {
 
-        String confFile;
-        confFile = DefaultDeviceIdentityRegistry.class.getClassLoader().getResource("deviceIdentity.json").getPath();
-        File file = new File(confFile);
+        InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader().getResourceAsStream("deviceIdentity.json");
         String content = null;
         try {
-            content = FileUtils.readFileToString(file, "UTF-8");
+            content = readInputStream2String(inputStream);
         } catch (IOException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
+            log.error(e);
         }
         deviceIdentityMap = JsonUtil.convertJsonStringToObject(content, Map.class);
 
@@ -41,5 +38,17 @@ public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
         String json = JsonUtil.convertObject2String(map);
 
         return JsonUtil.convertJsonStringToObject(json, DeviceIdentity.class);
+    }
+
+    private String readInputStream2String(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString("UTF-8");
+
     }
 }
