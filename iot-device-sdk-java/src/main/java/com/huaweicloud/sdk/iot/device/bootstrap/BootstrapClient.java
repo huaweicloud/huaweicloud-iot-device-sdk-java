@@ -85,7 +85,7 @@ public class BootstrapClient implements RawMessageListener {
      * 发起设备引导
      *
      * @param listener 监听器用来接收引导结果
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException 参数非法异常
      */
     public void bootstrap(ActionListener listener) throws IllegalArgumentException {
 

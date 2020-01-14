@@ -202,6 +202,10 @@ public abstract class AbstractGateway extends IoTDevice {
 
     }
 
+    /**
+     * 事件处理回调，由SDK自动调用
+     * @param deviceEvents 设备事件
+     */
     @Override
     public void onEvent(DeviceEvents deviceEvents) {
 
@@ -237,6 +241,10 @@ public abstract class AbstractGateway extends IoTDevice {
         }
     }
 
+    /**
+     * 设备消息处理回调
+     * @param message 消息
+     */
     @Override
     public void onDeviceMessage(DeviceMessage message) {
 
@@ -248,6 +256,11 @@ public abstract class AbstractGateway extends IoTDevice {
         }
     }
 
+    /**
+     * 命令处理回调
+     * @param requestId 请求id
+     * @param command   命令
+     */
     @Override
     public void onCommand(String requestId, Command command) {
 
@@ -263,6 +276,11 @@ public abstract class AbstractGateway extends IoTDevice {
 
     }
 
+    /**
+     * 属性设置处理回调
+     * @param requestId 请求id
+     * @param propsSet  属性设置请求
+     */
     @Override
     public void onPropertiesSet(String requestId, PropsSet propsSet) {
         //子设备的
@@ -277,6 +295,11 @@ public abstract class AbstractGateway extends IoTDevice {
 
     }
 
+    /**
+     * 属性查询处理回调
+     * @param requestId 请求id
+     * @param propsGet  属性查询请求
+     */
     @Override
     public void onPropertiesGet(String requestId, PropsGet propsGet) {
 
@@ -291,6 +314,11 @@ public abstract class AbstractGateway extends IoTDevice {
         super.onPropertiesGet(requestId, propsGet);
     }
 
+    /**
+     * 添加子设备处理回调，子类可以重写此接口进行扩展
+     * @param subDevicesInfo 子设备信息
+     * @return 处理结果，0表示成功
+     */
     public int onAddSubDevices(SubDevicesInfo subDevicesInfo) {
         if (subDevicesPersistence != null) {
             return subDevicesPersistence.addSubDevices(subDevicesInfo);
@@ -298,6 +326,11 @@ public abstract class AbstractGateway extends IoTDevice {
         return -1;
     }
 
+    /**
+     * 删除子设备处理回调，子类可以重写此接口进行扩展
+     * @param subDevicesInfo 子设备信息
+     * @return 处理结果，0表示成功
+     */
     public int onDeleteSubDevices(SubDevicesInfo subDevicesInfo) {
         if (subDevicesPersistence != null) {
             return subDevicesPersistence.deleteSubDevices(subDevicesInfo);
@@ -307,7 +340,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
 
     /**
-     * 子设备命令下发通知
+     * 子设备命令下发处理，网关需要转发给子设备，需要子类实现
      *
      * @param requestId 请求id
      * @param command   命令
@@ -315,25 +348,25 @@ public abstract class AbstractGateway extends IoTDevice {
     public abstract void onSubdevCommand(String requestId, Command command);
 
     /**
-     * 子设备属性设置通知
+     * 子设备属性设置，网关需要转发给子设备，需要子类实现
      *
-     * @param requestId
-     * @param propsSet
+     * @param requestId 请求id
+     * @param propsSet 属性设置
      */
     public abstract void onSubdevPropertiesSet(String requestId, PropsSet propsSet);
 
     /**
-     * 子设备读属性通知
+     * 子设备读属性，，网关需要转发给子设备，需要子类实现
      *
-     * @param requestId
-     * @param propsGet
+     * @param requestId 请求id
+     * @param propsGet 属性查询
      */
     public abstract void onSubdevPropertiesGet(String requestId, PropsGet propsGet);
 
     /**
-     * 子设备消息下发
+     * 子设备消息下发，网关需要转发给子设备，需要子类实现
      *
-     * @param message
+     * @param message 设备消息
      */
     public abstract void onSubdevMessage(DeviceMessage message);
 }

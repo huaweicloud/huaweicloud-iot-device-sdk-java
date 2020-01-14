@@ -55,7 +55,7 @@ public class DeviceMessage {
 
     /**
      * 设置设备id，不设置默认为客户端的设备id
-     * @param deviceId
+     * @param deviceId 设备id
      */
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;

@@ -59,6 +59,10 @@ public class ClientConf {
         return deviceId;
     }
 
+    /**
+     * 设置设备id
+     * @param deviceId 设备id
+     */
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
@@ -67,6 +71,10 @@ public class ClientConf {
         return secret;
     }
 
+    /**
+     * 设置设备密码
+     * @param secret 设备密码
+     */
     public void setSecret(String secret) {
         this.secret = secret;
     }
@@ -75,6 +83,10 @@ public class ClientConf {
         return serverUri;
     }
 
+    /**
+     * 设置服务端地址
+     * @param serverUri 服务端地址
+     */
     public void setServerUri(String serverUri) {
         this.serverUri = serverUri;
     }
@@ -83,6 +95,10 @@ public class ClientConf {
         return protocol;
     }
 
+    /**
+     * 设置设备接入协议
+     * @param protocol 设备接入协议
+     */
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
@@ -91,6 +107,10 @@ public class ClientConf {
         return offlineBufferSize;
     }
 
+    /**
+     * 设置离线缓存大小
+     * @param offlineBufferSize 离线缓存大小
+     */
     public void setOfflineBufferSize(Integer offlineBufferSize) {
         this.offlineBufferSize = offlineBufferSize;
     }
@@ -99,6 +119,10 @@ public class ClientConf {
         return qos;
     }
 
+    /**
+     *客户端qos
+     * @param qos 客户端qos
+     */
     public void setQos(int qos) {
         this.qos = qos;
     }
@@ -107,6 +131,10 @@ public class ClientConf {
         return keyPassword;
     }
 
+    /**
+     * 设置私钥密码
+     * @param keyPassword 私钥密码
+     */
     public void setKeyPassword(String keyPassword) {
         this.keyPassword = keyPassword;
     }
@@ -115,6 +143,10 @@ public class ClientConf {
         return keyStore;
     }
 
+    /**
+     * 设置证书仓库
+     * @param keyStore 证书仓库
+     */
     public void setKeyStore(KeyStore keyStore) {
         this.keyStore = keyStore;
     }

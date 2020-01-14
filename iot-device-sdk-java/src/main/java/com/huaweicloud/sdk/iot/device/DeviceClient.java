@@ -20,16 +20,18 @@ import java.util.List;
 
 /**
  * 设备客户端类，提供设备到平台的通讯能力：
- * 消息：包括设备向平台上报消息，平台向设备下发消息，消息不需要建模，不需要响应
- * 属性：包括设备向平台上报属性，平台向设备设置、查询属性，属性需要建模，需要响应
- * 命令：平台向设备下发命令，命令需要建模，需要响应
+ * 消息：包括设备向平台上报消息，平台向设备下发消息，消息不需要建模，不需要响应。
+ * 属性：包括设备向平台上报属性，平台向设备设置、查询属性，属性需要建模，需要响应。
+ * 命令：平台向设备下发命令，命令需要建模，需要响应。
+ * 用户可以通过IoTDevice的getClient方法获取DeviceClient实例
  */
 public class DeviceClient extends DeviceClientInner {
 
+
     /**
      * 构造函数
-     *
      * @param clientConf 客户端配置参数
+     * @param device 设备实例
      */
     public DeviceClient(ClientConf clientConf, IoTDevice device) {
         super(clientConf, device);
@@ -54,7 +56,18 @@ public class DeviceClient extends DeviceClientInner {
      * @param listener      监听器，可选
      */
     public void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
-        super.reportDeviceMessage(deviceMessage, listener);
+        super.reportDeviceMessage(deviceMessage, listener, getClientConf().getQos());
+    }
+
+    /**
+     * 上报设备消息，指定qos
+     *
+     * @param deviceMessage 设备消息，必选
+     * @param listener      监听器，可选
+     * @param qos           消息qos，支持0或1
+     */
+    public void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener, int qos) {
+        super.reportDeviceMessage(deviceMessage, listener, qos);
     }
 
 

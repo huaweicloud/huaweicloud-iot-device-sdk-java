@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 抽象服务类，提供了属性自动读写和命令调用能力
+ * 抽象服务类，提供了属性自动读写和命令调用能力，用户可以继承此类，根据物模型定义自己的服务
  */
 @JsonFilter("AbstractService")
 public abstract class AbstractService implements IService {
@@ -155,7 +155,8 @@ public abstract class AbstractService implements IService {
 
 
     /**
-     * 写属性。收到平台下发的写属性操作时此接口被自动调用
+     * 写属性。收到平台下发的写属性操作时此接口被自动调用。
+     * 如果用户希望在写属性时增加额外处理，可以重写此接口
      *
      * @param properties 平台期望属性的值
      * @return 操作结果

@@ -102,10 +102,14 @@ public class DeviceClientInner implements RawMessageListener {
     }
 
 
-    protected void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
+    protected void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener, int qos) {
         String topic = "$oc/devices/" + deviceId + "/sys/messages/up";
-        this.publishRawMessage(new RawMessage(topic, JsonUtil.convertObject2String(deviceMessage)), listener);
+        if (qos != 0){
+            qos = 1;
+        }
+        this.publishRawMessage(new RawMessage(topic, JsonUtil.convertObject2String(deviceMessage), qos), listener);
     }
+
 
     /**
      * 发布原始消息，原始消息用户可以指定topic

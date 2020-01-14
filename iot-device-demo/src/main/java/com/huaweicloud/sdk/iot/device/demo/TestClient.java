@@ -35,7 +35,7 @@ public class TestClient {
 
         try {
 
-            String deviceId = "5e0ee5793b7c24fa36c44585_demo";
+            String deviceId = "5e06bfee334dd4f33759f5b3_demo";
 
             MqttClient client = new MqttClient("tcp://localhost:1883", "123", new MemoryPersistence());
 
@@ -80,12 +80,10 @@ public class TestClient {
                 DeviceMessage message = new DeviceMessage("down msg");
                 message.setId("id");
                 message.setName("name");
-                message.setDeviceId("xx");
 
                 client.publish("$oc/devices/" + deviceId + "/sys/messages/down",
                         new MqttMessage(JsonUtil.convertObject2String(message).getBytes()));
                 Command command = new Command();
-                command.setDeviceId("test_testDevice");
                 Map<String, Object> para = new HashMap<>();
                 para.put("duration", 20);
                 command.setParas(para);
@@ -100,7 +98,6 @@ public class TestClient {
                 requestId++;
 
                 PropsSet propsSet = new PropsSet();
-                propsSet.setDeviceId("test_testDevice");
                 ServiceProperty serviceData = new ServiceProperty();
                 serviceData.setServiceId("smokeDetector");
                 Map<String, Object> json = new HashMap<>();
@@ -118,7 +115,6 @@ public class TestClient {
                 Thread.sleep(1000);
 
                 PropsGet propsGet = new PropsGet();
-                propsGet.setDeviceId("test_testDevice");
                 propsGet.setServiceId("smokeDetector");
 
                 log.info("get  properties");
