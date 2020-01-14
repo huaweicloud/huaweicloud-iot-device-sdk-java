@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * 此例演示使用证书认证
+ */
 public class X509CertificateDeviceSample {
 
     public static void main(String args[]) throws Exception {
