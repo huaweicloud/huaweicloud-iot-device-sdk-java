@@ -48,6 +48,7 @@ public class DeviceServiceSample {
             return;
         }
 
+
         while (true) {
 
             //随机生成属性值
@@ -55,7 +56,6 @@ public class DeviceServiceSample {
             smokeDetectorService.setConcentration(rand.nextFloat() * 100.0f);
             smokeDetectorService.setTemperature(rand.nextFloat() * 100.0f);
             smokeDetectorService.setHumidity(rand.nextInt(100));
-            smokeDetectorService.setSmokeAlarm(1);
             smokeDetectorService.firePropertiesChanged();
 
             Thread.sleep(10000);
@@ -71,7 +71,7 @@ public class DeviceServiceSample {
 
         //按照设备模型定义属性，注意属性的name和类型需要和模型一致，writeable表示属性知否可写，name指定属性名
         @Property(name = "alarm", writeable = true)
-        int smokeAlarm = 0;
+        int smokeAlarm = 1;
 
         @Property(name = "smokeConcentration", writeable = false)
         float concentration = 0.0f;

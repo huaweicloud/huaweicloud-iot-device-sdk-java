@@ -217,6 +217,9 @@ public class MqttConnection implements Connection {
             log.info("publish message topic =  " + message.getTopic() + ", msg = " + message.toString());
         } catch (MqttException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
+            if (listener != null) {
+                listener.onFailure(null, e);
+            }
         }
     }
 
