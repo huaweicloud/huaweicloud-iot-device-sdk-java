@@ -8,9 +8,7 @@ import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
  */
 public class Transport {
 
-
     private Connection connection;
-//    private Logger log = Logger.getLogger(Transport.class);
 
     /**
      * 构造函数

@@ -9,32 +9,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DeviceInfo {
 
     @JsonProperty("parent_device_id")
-    String parent;
+    private String parent;
 
     @JsonProperty("node_id")
-    String nodeId;
+    private String nodeId;
 
     @JsonProperty("device_id")
-    String deviceId;
+    private String deviceId;
 
-    String name;
-    String description;
+    private String name;
+    private String description;
 
     @JsonProperty("manufacturer_id")
-    String manufacturerId;
+    private String manufacturerId;
 
-    String model;
+    private String model;
 
     @JsonProperty("product_id")
-    String productId;
+    private String productId;
 
     @JsonProperty("fw_version")
-    String fwVersion;
+    private String fwVersion;
 
     @JsonProperty("sw_version")
-    String swVersion;
+    private String swVersion;
 
-    String status;
+    private String status;
 
     public String getParent() {
         return parent;

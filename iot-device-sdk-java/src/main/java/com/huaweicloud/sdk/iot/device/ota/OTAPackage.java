@@ -4,19 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OTAPackage {
 
-    String url;
+    private String url;
 
-    String version;
+    private String version;
 
     @JsonProperty("file_size")
-    int fileSize;
+    private int fileSize;
 
     @JsonProperty("access_token")
-    String token;
+    private String token;
 
-    int expires;
+    private int expires;
 
-    String sign;
+    private String sign;
 
     public String getUrl() {
         return url;

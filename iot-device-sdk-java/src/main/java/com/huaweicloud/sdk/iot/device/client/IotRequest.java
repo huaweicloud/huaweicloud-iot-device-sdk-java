@@ -18,7 +18,7 @@ public class IotRequest {
     private RequestListener listener;   //异步才有
     private Timer timer;
 
-    private Logger log = Logger.getLogger(this.getClass());
+    private static Logger log = Logger.getLogger(IotRequest.class);
 
     public IotRequest(RawMessage rawMessage, String requestId, int timeout) {
 

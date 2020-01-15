@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  */
 public class IoTDevice {
 
-    private Logger log = Logger.getLogger(IoTDevice.class);
+    private static final Logger log = Logger.getLogger(IoTDevice.class);
 
     private DeviceClient client;
     private String deviceId;

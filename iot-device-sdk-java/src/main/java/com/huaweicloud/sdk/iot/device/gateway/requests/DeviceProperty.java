@@ -11,9 +11,9 @@ import java.util.List;
 public class DeviceProperty {
 
     @JsonProperty("device_id")
-    String deviceId;
+    private String deviceId;
 
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public String getDeviceId() {
         return deviceId;

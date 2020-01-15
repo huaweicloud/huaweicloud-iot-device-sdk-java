@@ -15,18 +15,18 @@ public class CommandRsp {
      * 结果码，0表示成功，其他表示失败。不带默认认为成功
      */
     @JsonProperty("result_code")
-    int resultCode;
+    private int resultCode;
 
     /**
      * 命令的响应名称，在设备关联的产品模型中定义。可选
      */
     @JsonProperty("response_name")
-    String responseName;
+    private String responseName;
 
     /**
      * 命令的响应参数，具体字段在设备关联的产品模型中定义。可选
      */
-    Object paras;
+    private Object paras;
 
     public CommandRsp(int code) {
         resultCode = code;

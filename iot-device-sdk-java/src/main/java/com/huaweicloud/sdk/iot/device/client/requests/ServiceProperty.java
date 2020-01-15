@@ -13,18 +13,18 @@ public class ServiceProperty {
      * 服务id，和设备模型里一致
      */
     @JsonProperty("service_id")
-    String serviceId;
+    private String serviceId;
 
     /**
      * 属性值，具体字段由设备模型定义
      */
-    Map<String, Object> properties;
+    private Map<String, Object> properties;
 
     /**
      * 属性变化的时间，格式：yyyyMMddTHHmmssZ，可选，不带以平台收到的时间为准
      */
     @JsonProperty("event_time")
-    String eventTime;
+    private String eventTime;
 
 
     public String getServiceId() {

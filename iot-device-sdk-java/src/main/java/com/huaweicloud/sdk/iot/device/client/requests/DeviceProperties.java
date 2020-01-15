@@ -12,7 +12,7 @@ public class DeviceProperties {
     /**
      * 服务属性列表
      */
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public List<ServiceProperty> getServices() {
         return services;

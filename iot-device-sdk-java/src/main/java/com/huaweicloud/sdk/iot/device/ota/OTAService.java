@@ -31,7 +31,7 @@ public class OTAService extends AbstractService {
     public static final int OTA_CODE_LOW_MEMORY = 9;  //内存不足
     public static final int OTA_CODE_INSTALL_FAIL = 10;  //安装升级包失败
     public static final int OTA_CODE_INNER_ERROR = 255;  // 内部异常
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getLogger(OTAService.class);
     private IoTDevice iotDevice;
     private OTAListener otaListener;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();

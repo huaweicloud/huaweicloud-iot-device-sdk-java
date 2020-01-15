@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class RequestManager {
 
-    DeviceClientInner iotClient;
+    private DeviceClientInner iotClient;
     private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
     private Logger log = Logger.getLogger(RequestManager.class);
 

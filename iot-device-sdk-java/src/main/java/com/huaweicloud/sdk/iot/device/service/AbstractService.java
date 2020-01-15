@@ -24,7 +24,7 @@ import java.util.Map;
 @JsonFilter("AbstractService")
 public abstract class AbstractService implements IService {
 
-    private Logger log = Logger.getLogger(AbstractService.class);
+    private static final Logger log = Logger.getLogger(AbstractService.class);
 
     private IoTDevice iotDevice;
     private Map<String, Method> commands = new HashMap<>();

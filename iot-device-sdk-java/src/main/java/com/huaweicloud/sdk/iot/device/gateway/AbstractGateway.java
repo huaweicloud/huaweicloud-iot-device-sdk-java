@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public abstract class AbstractGateway extends IoTDevice {
 
-    private Logger log = Logger.getLogger(AbstractGateway.class);
+    private static final Logger log = Logger.getLogger(AbstractGateway.class);
 
     private SubDevDiscoveryListener subDevDiscoveryListener;
     private SubDevicesPersistence subDevicesPersistence;

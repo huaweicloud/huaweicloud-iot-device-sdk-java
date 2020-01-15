@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DeviceStatus {
 
     @JsonProperty("device_id")
-    String deviceId;
+    private String deviceId;
 
-    String status;
+    private String status;
 
     public String getDeviceId() {
         return deviceId;

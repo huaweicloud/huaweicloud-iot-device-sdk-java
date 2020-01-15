@@ -36,7 +36,7 @@ public class MqttConnection implements Connection {
     private static final int DEFAULT_KEEPLIVE = 120;
     private static final String connectType = "0";
     private static final String checkTimestamp = "0";
-    private Logger log = Logger.getLogger(MqttConnection.class);
+    private static final Logger log = Logger.getLogger(MqttConnection.class);
     private ClientConf clientConf;
     private boolean connectFinished = false;
     private String connectionId = null;

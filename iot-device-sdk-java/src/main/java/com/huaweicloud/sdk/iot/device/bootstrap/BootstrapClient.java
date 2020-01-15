@@ -18,7 +18,7 @@ public class BootstrapClient implements RawMessageListener {
     private Transport transport;
     private ActionListener listener;
 
-    private Logger log = Logger.getLogger(BootstrapClient.class);
+    private static final Logger log = Logger.getLogger(BootstrapClient.class);
 
 
     public BootstrapClient(ClientConf clientConf) {

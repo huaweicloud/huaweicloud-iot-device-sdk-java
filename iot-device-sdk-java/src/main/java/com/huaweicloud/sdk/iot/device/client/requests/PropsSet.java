@@ -12,9 +12,9 @@ import java.util.List;
 public class PropsSet {
 
     @JsonProperty("object_device_id")
-    String deviceId;
+    private String deviceId;
 
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public String getDeviceId() {
         return deviceId;

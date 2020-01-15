@@ -27,7 +27,7 @@ public class IotUtil {
 
 
     private static final String TLS_VER = "TLSv1.2";
-    private static Logger log = Logger.getLogger(IotUtil.class);
+    private static final Logger log = Logger.getLogger(IotUtil.class);
     private static AtomicLong requestId = new AtomicLong(0);
 
     /**

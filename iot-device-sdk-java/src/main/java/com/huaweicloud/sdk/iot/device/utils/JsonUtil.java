@@ -16,8 +16,8 @@ import java.util.Map;
  * json工具类
  */
 public class JsonUtil {
-    private static Logger log = Logger.getLogger(JsonUtil.class);
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger log = Logger.getLogger(JsonUtil.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

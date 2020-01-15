@@ -14,13 +14,13 @@ public class DeviceEvents {
      * 设备id
      */
     @JsonProperty("object_device_id")
-    String deviceId;
+    private String deviceId;
 
     /**
      * 服务事件列表
      */
     @JsonProperty("services")
-    List<DeviceEvent> services;
+    private List<DeviceEvent> services;
 
     public String getDeviceId() {
         return deviceId;

@@ -11,24 +11,24 @@ public class DeviceMessage {
      * 设备id，可选，默认为客户端本身的设备id
      */
     @JsonProperty("object_device_id")
-    String deviceId;
+    private String deviceId;
 
     /**
      * 消息名，可选
      */
-    String name;
+    private String name;
 
 
     /**
      * 消息id，可选
      */
-    String id;
+    private String id;
 
 
     /**
      * 消息具体内容
      */
-    String content;
+    private String content;
 
     public DeviceMessage() {
     }

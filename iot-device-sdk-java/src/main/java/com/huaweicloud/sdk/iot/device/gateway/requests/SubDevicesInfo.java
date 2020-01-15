@@ -7,8 +7,8 @@ import java.util.List;
  */
 public class SubDevicesInfo {
 
-    List<DeviceInfo> devices;
-    long version;
+    private List<DeviceInfo> devices;
+    private long version;
 
     public List<DeviceInfo> getDevices() {
         return devices;
