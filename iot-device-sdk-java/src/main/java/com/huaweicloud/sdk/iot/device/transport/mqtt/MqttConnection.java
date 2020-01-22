@@ -124,6 +124,7 @@ public class MqttConnection implements Connection {
                 try {
                     SSLContext sslContext = IotUtil.getSSLContext(clientConf);
                     options.setSocketFactory(sslContext.getSocketFactory());
+                    options.setHttpsHostnameVerificationEnabled(false);
                 } catch (Exception e) {
                     log.error(ExceptionUtil.getBriefStackTrace(e));
                     return -1;
