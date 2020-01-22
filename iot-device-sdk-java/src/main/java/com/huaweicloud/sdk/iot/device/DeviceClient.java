@@ -30,8 +30,9 @@ public class DeviceClient extends DeviceClientInner {
 
     /**
      * 构造函数
+     *
      * @param clientConf 客户端配置参数
-     * @param device 设备实例
+     * @param device     设备实例
      */
     public DeviceClient(ClientConf clientConf, IoTDevice device) {
         super(clientConf, device);

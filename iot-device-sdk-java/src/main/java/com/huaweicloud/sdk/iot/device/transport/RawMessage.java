@@ -37,7 +37,7 @@ public class RawMessage {
      *
      * @param topic   消息topic
      * @param payload 消息体
-     * @param qos qos,0或1
+     * @param qos     qos,0或1
      */
     public RawMessage(String topic, String payload, int qos) {
         this.qos = qos;
@@ -84,6 +84,7 @@ public class RawMessage {
 
     /**
      * 查询qos
+     *
      * @return qos
      */
     public int getQos() {
@@ -92,6 +93,7 @@ public class RawMessage {
 
     /**
      * 设置qos，0或1
+     *
      * @param qos qos
      */
     public void setQos(int qos) {

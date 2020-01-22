@@ -1,7 +1,6 @@
 package com.huaweicloud.sdk.iot.device.bootstrap;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.huaweicloud.sdk.iot.device.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.Connection;
@@ -29,8 +28,9 @@ public class BootstrapClient implements RawMessageListener {
 
     /**
      * 构造函数，使用密码创建
+     *
      * @param bootstrapUri bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
+     * @param deviceId     设备id
      * @param deviceSecret 设备密码
      */
     public BootstrapClient(String bootstrapUri, String deviceId, String deviceSecret) {
@@ -47,10 +47,11 @@ public class BootstrapClient implements RawMessageListener {
 
     /**
      * 构造函数，使用证书创建
+     *
      * @param bootstrapUri bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
-     * @param keyStore 证书容器
-     * @param keyPassword 证书密码
+     * @param deviceId     设备id
+     * @param keyStore     证书容器
+     * @param keyPassword  证书密码
      */
     public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword) {
 

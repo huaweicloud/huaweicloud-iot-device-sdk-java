@@ -23,11 +23,11 @@ public class DemoUtil {
     private static Logger log = Logger.getLogger(DemoUtil.class);
 
     public static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
-        if (certificateFile == null || privateKeyFile == null ) {
+        if (certificateFile == null || privateKeyFile == null) {
             log.error("input null");
             return null;
         }
-        if (keyPassword == null){
+        if (keyPassword == null) {
             keyPassword = "";
         }
 
@@ -51,7 +51,7 @@ public class DemoUtil {
                 keyPair = converter.getKeyPair((PEMKeyPair) object);
             }
         }
-        if (keyPair == null){
+        if (keyPair == null) {
             log.error("keyPair is null");
             return null;
         }

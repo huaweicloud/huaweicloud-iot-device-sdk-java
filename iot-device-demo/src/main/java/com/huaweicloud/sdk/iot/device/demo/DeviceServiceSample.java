@@ -1,18 +1,12 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
-import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.service.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.service.Property;
-import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
-import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
@@ -26,7 +20,7 @@ public class DeviceServiceSample {
 
     public static void main(String args[]) throws InterruptedException {
 
-        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883" ;
+        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "mysecret";
 

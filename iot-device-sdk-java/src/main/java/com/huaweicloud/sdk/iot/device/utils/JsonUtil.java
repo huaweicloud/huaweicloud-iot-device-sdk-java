@@ -60,7 +60,7 @@ public class JsonUtil {
                 rStr = objectMapper.writeValueAsString(object);
                 return rStr;
             } catch (JsonProcessingException var3) {
-                var3.printStackTrace();
+                log.error(ExceptionUtil.getBriefStackTrace(var3));
                 return null;
             }
         }
@@ -108,7 +108,7 @@ public class JsonUtil {
 
                 return (T) objectMapper.readValue(jsonString, valueTypeRef);
             } catch (Exception var3) {
-                var3.printStackTrace();
+                log.error(ExceptionUtil.getBriefStackTrace(var3));
                 return null;
             }
         }
@@ -149,7 +149,7 @@ public class JsonUtil {
             try {
                 rStr = mapper.writeValueAsString(object);
             } catch (JsonProcessingException var4) {
-                var4.printStackTrace();
+                log.error(ExceptionUtil.getBriefStackTrace(var4));
             }
 
             return rStr;

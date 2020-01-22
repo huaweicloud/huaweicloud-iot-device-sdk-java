@@ -43,8 +43,9 @@ public class IoTDevice {
 
     /**
      * 构造函数，使用密码创建设备
-     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
+     *
+     * @param serverUri    平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId     设备id
      * @param deviceSecret 设备密码
      */
     public IoTDevice(String serverUri, String deviceId, String deviceSecret) {
@@ -61,9 +62,10 @@ public class IoTDevice {
 
     /**
      * 构造函数，使用证书创建设备
-     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
-     * @param keyStore 证书容器
+     *
+     * @param serverUri   平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId    设备id
+     * @param keyStore    证书容器
      * @param keyPassword 证书密码
      */
     public IoTDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword) {
@@ -80,6 +82,7 @@ public class IoTDevice {
 
     /**
      * 构造函数，直接使用客户端配置创建设备，一般不推荐这种做法
+     *
      * @param clientConf 客户端配置
      */
     public IoTDevice(ClientConf clientConf) {
@@ -228,8 +231,9 @@ public class IoTDevice {
 
     /**
      * 命令回调函数，由SDK自动调用
+     *
      * @param requestId 请求id
-     * @param command 命令
+     * @param command   命令
      */
     public void onCommand(String requestId, Command command) {
 
@@ -245,8 +249,9 @@ public class IoTDevice {
 
     /**
      * 属性设置回调，，由SDK自动调用
+     *
      * @param requestId 请求id
-     * @param propsSet 属性设置请求
+     * @param propsSet  属性设置请求
      */
     public void onPropertiesSet(String requestId, PropsSet propsSet) {
 
@@ -270,8 +275,9 @@ public class IoTDevice {
 
     /**
      * 属性查询回调，由SDK自动调用
+     *
      * @param requestId 请求id
-     * @param propsGet 属性查询请求
+     * @param propsGet  属性查询请求
      */
     public void onPropertiesGet(String requestId, PropsGet propsGet) {
 
@@ -309,6 +315,7 @@ public class IoTDevice {
 
     /**
      * 事件回调，由SDK自动调用
+     *
      * @param deviceEvents 设备事件
      */
     public void onEvent(DeviceEvents deviceEvents) {
@@ -327,6 +334,7 @@ public class IoTDevice {
 
     /**
      * 消息回调，由SDK自动调用
+     *
      * @param message 消息
      */
     public void onDeviceMessage(DeviceMessage message) {

@@ -118,7 +118,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         try {
             content = FileUtils.readFileToString(file, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(ExceptionUtil.getBriefStackTrace(e));
             return -1;
         }
 
@@ -147,7 +147,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         try {
             content = FileUtils.readFileToString(file, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(ExceptionUtil.getBriefStackTrace(e));
             return -1;
         }
 

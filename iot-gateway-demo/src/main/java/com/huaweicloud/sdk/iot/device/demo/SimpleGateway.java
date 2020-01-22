@@ -1,7 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 
-import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
@@ -32,7 +31,7 @@ public class SimpleGateway extends AbstractGateway {
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 
-    public SimpleGateway(SubDevicesPersistence subDevicesPersistence,String serverUri, String deviceId, String deviceSecret) {
+    public SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret) {
         super(subDevicesPersistence, serverUri, deviceId, deviceSecret);
         this.nodeIdToSesseionMap = new ConcurrentHashMap<>();
         this.channelIdToSessionMap = new ConcurrentHashMap<>();

@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class PropertySample {
 
-    public static int alarm = 1; //本地保存属性值
+
     private static Logger log = Logger.getLogger(PropertySample.class);
 
     public static void main(String[] args) throws InterruptedException {
@@ -49,10 +49,6 @@ public class PropertySample {
                     for (String name : serviceProperty.getProperties().keySet()) {
                         log.info("property name = " + name);
                         log.info("set property value = " + serviceProperty.getProperties().get(name));
-                        if (name.equals("alarm")) {
-                            //修改本地值
-                            alarm = (int) serviceProperty.getProperties().get(name);
-                        }
                     }
 
                 }
@@ -60,14 +56,18 @@ public class PropertySample {
                 device.getClient().respondPropsSet(requestId, IotResult.SUCCESS);
             }
 
-            //处理读属性
+
+            /**
+             * 处理读属性。多数场景下，用户可以直接从平台读设备影子，此接口不用实现。
+             * 但如果需要支持从设备实时读属性，则需要实现此接口。
+             */
             @Override
             public void onPropertiesGet(String requestId, String serviceId) {
 
                 log.info("OnPropertiesGet " + serviceId);
                 Map<String, Object> json = new HashMap<>();
                 Random rand = new Random();
-                json.put("alarm", alarm);
+                json.put("alarm", 1);
                 json.put("temperature", rand.nextFloat() * 100.0f);
                 json.put("humidity", rand.nextFloat() * 100.0f);
                 json.put("smokeConcentration", rand.nextFloat() * 100.0f);
@@ -87,7 +87,7 @@ public class PropertySample {
             Random rand = new Random();
 
             //按照物模型设置属性
-            json.put("alarm", alarm);
+            json.put("alarm", 1);
             json.put("temperature", rand.nextFloat() * 100.0f);
             json.put("humidity", rand.nextFloat() * 100.0f);
             json.put("smokeConcentration", rand.nextFloat() * 100.0f);

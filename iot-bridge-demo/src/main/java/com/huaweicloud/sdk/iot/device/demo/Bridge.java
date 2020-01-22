@@ -47,9 +47,22 @@ public class Bridge {
     }
 
     public static void createBridge(String serverUri, DeviceIdentityRegistry deviceIdentityRegistry) {
-        instance = new Bridge(serverUri,  deviceIdentityRegistry);
+        instance = new Bridge(serverUri, deviceIdentityRegistry);
     }
 
+    public static void main(String[] args) throws Exception {
+
+        //默认使用北京4的接入地址，其他region的用户请修改
+        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+
+        int port = 8080;
+
+        Logger.getLogger("io.netty").setLevel(Level.INFO);
+        Bridge.createBridge(serverUri, null);
+
+        new StringTcpServer(port).run();
+
+    }
 
     public Session getSessionByChannel(String channelId) {
         return channelIdToSessionMap.get(channelId);
@@ -134,20 +147,6 @@ public class Bridge {
 
         log.info("create new session " + session.toString());
         return 0;
-
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        //默认使用北京4的接入地址，其他region的用户请修改
-        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
-
-        int port = 8080;
-
-        Logger.getLogger("io.netty").setLevel(Level.INFO);
-        Bridge.createBridge(serverUri,  null);
-
-        new StringTcpServer(port).run();
 
     }
 

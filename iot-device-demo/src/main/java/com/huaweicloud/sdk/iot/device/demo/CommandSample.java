@@ -18,12 +18,19 @@ public class CommandSample {
 
     public static void main(String[] args) throws InterruptedException {
 
-        //创建设备并初始化
-        IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
-        if (device.init() != 0) {
-            return;
+        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+        String deviceId = "5e06bfee334dd4f33759f5b3_demo";
+        String secret = "mysecret";
+
+        //从命令行获取设备参数
+        if (args.length >= 3) {
+            serverUri = args[0];
+            deviceId = args[1];
+            secret = args[2];
         }
+
+        //创建设备
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
 
         //设置监听器接收下行
         device.getClient().setCommandListener(new CommandListener() {

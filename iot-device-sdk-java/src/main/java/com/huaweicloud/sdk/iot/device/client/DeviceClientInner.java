@@ -15,7 +15,11 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
-import com.huaweicloud.sdk.iot.device.transport.*;
+import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
+import com.huaweicloud.sdk.iot.device.transport.Connection;
+import com.huaweicloud.sdk.iot.device.transport.RawMessage;
+import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
 import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
@@ -72,10 +76,10 @@ public class DeviceClientInner implements RawMessageListener {
         if (clientConf.getSecret() == null && clientConf.getKeyStore() == null) {
             throw new IllegalArgumentException("secret and keystore is null");
         }
-        if (clientConf.getServerUri() == null ) {
+        if (clientConf.getServerUri() == null) {
             throw new IllegalArgumentException("clientConf.getSecret() is null");
         }
-        if (!clientConf.getServerUri().startsWith("tcp://") && (!clientConf.getServerUri().startsWith("ssl://")) ) {
+        if (!clientConf.getServerUri().startsWith("tcp://") && (!clientConf.getServerUri().startsWith("ssl://"))) {
             throw new IllegalArgumentException("invalid serverUri");
         }
     }
@@ -87,7 +91,7 @@ public class DeviceClientInner implements RawMessageListener {
      */
     protected int connect() {
         int ret = connection.connect();
-        if (ret != 0){
+        if (ret != 0) {
             return ret;
         }
 
@@ -104,7 +108,7 @@ public class DeviceClientInner implements RawMessageListener {
 
     protected void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener, int qos) {
         String topic = "$oc/devices/" + deviceId + "/sys/messages/up";
-        if (qos != 0){
+        if (qos != 0) {
             qos = 1;
         }
         this.publishRawMessage(new RawMessage(topic, JsonUtil.convertObject2String(deviceMessage), qos), listener);

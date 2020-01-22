@@ -2,7 +2,6 @@ package com.huaweicloud.sdk.iot.device.gateway;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
-import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
@@ -39,25 +38,27 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 构造函数，通过设备密码认证
+     *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
-     * @param deviceSecret 设备密码
+     * @param serverUri             平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId              设备id
+     * @param deviceSecret          设备密码
      */
-    public AbstractGateway(SubDevicesPersistence subDevicesPersistence,String serverUri, String deviceId, String deviceSecret){
-        super(serverUri, deviceId,deviceSecret);
+    public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret) {
+        super(serverUri, deviceId, deviceSecret);
         this.subDevicesPersistence = subDevicesPersistence;
     }
 
     /**
      * 构造函数，通过设备证书认证
+     *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri 平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId 设备id
-     * @param keyStore 证书容器
-     * @param keyPassword 证书密码
+     * @param serverUri             平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId              设备id
+     * @param keyStore              证书容器
+     * @param keyPassword           证书密码
      */
-    public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, KeyStore keyStore, String keyPassword){
+    public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, KeyStore keyStore, String keyPassword) {
         super(serverUri, deviceId, keyStore, keyPassword);
         this.subDevicesPersistence = subDevicesPersistence;
     }
@@ -204,6 +205,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 事件处理回调，由SDK自动调用
+     *
      * @param deviceEvents 设备事件
      */
     @Override
@@ -243,6 +245,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 设备消息处理回调
+     *
      * @param message 消息
      */
     @Override
@@ -258,6 +261,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 命令处理回调
+     *
      * @param requestId 请求id
      * @param command   命令
      */
@@ -278,6 +282,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 属性设置处理回调
+     *
      * @param requestId 请求id
      * @param propsSet  属性设置请求
      */
@@ -297,6 +302,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 属性查询处理回调
+     *
      * @param requestId 请求id
      * @param propsGet  属性查询请求
      */
@@ -316,6 +322,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 添加子设备处理回调，子类可以重写此接口进行扩展
+     *
      * @param subDevicesInfo 子设备信息
      * @return 处理结果，0表示成功
      */
@@ -328,6 +335,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     /**
      * 删除子设备处理回调，子类可以重写此接口进行扩展
+     *
      * @param subDevicesInfo 子设备信息
      * @return 处理结果，0表示成功
      */
@@ -351,7 +359,7 @@ public abstract class AbstractGateway extends IoTDevice {
      * 子设备属性设置，网关需要转发给子设备，需要子类实现
      *
      * @param requestId 请求id
-     * @param propsSet 属性设置
+     * @param propsSet  属性设置
      */
     public abstract void onSubdevPropertiesSet(String requestId, PropsSet propsSet);
 
@@ -359,7 +367,7 @@ public abstract class AbstractGateway extends IoTDevice {
      * 子设备读属性，，网关需要转发给子设备，需要子类实现
      *
      * @param requestId 请求id
-     * @param propsGet 属性查询
+     * @param propsGet  属性查询
      */
     public abstract void onSubdevPropertiesGet(String requestId, PropsGet propsGet);
 

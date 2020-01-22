@@ -40,7 +40,7 @@ public interface Connection {
     public void setConnectListener(ConnectListener connectListener);
 
     /**
-     * @param topic 订阅自定义topic。注意SDK会自动订阅平台定义的topic
+     * @param topic          订阅自定义topic。注意SDK会自动订阅平台定义的topic
      * @param actionListener 监听订阅是否成功
      */
     public void subscribeTopic(String topic, ActionListener actionListener);

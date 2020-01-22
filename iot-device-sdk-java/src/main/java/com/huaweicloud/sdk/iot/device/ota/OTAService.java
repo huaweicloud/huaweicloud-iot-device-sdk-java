@@ -1,6 +1,5 @@
 package com.huaweicloud.sdk.iot.device.ota;
 
-import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -88,19 +87,15 @@ public class OTAService extends AbstractService {
 
 
     /**
-     * 上报版本信息
+     * 上报固件版本信息
      *
      * @param fwVersion 固件版本
-     * @param swVersion 软件版本
      */
-    public void reportVersion(String fwVersion, String swVersion) {
+    public void reportFwVersion(String fwVersion) {
 
         Map<String, Object> node = new HashMap<>();
         if (fwVersion != null) {
             node.put("fw_version", fwVersion);
-        }
-        if (swVersion != null) {
-            node.put("sw_version", swVersion);
         }
 
         DeviceEvent deviceEvent = new DeviceEvent();

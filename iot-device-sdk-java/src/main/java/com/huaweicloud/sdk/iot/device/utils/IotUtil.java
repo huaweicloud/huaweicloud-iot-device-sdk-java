@@ -5,15 +5,12 @@ import org.apache.log4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.File;
-import java.io.FileInputStream;
+import javax.net.ssl.*;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -142,9 +139,10 @@ public class IotUtil {
         return hs.toString().toLowerCase();
     }
 
+
     private static TrustManager[] getTrustManager() throws Exception {
 
-        try (InputStream stream = IotUtil.class.getClassLoader().getResourceAsStream("ca.jks") ) {
+        try (InputStream stream = IotUtil.class.getClassLoader().getResourceAsStream("ca.jks")) {
             KeyStore ts = KeyStore.getInstance("JKS");
             ts.load(stream, null);
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -165,6 +163,7 @@ public class IotUtil {
 
     /**
      * 根据配置获取ssl上下文
+     *
      * @param clientConf 客户端配置
      * @return ssl上下文
      * @throws Exception ssl相关异常

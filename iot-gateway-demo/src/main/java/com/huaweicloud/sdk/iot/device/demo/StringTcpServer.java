@@ -1,7 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 
-import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -25,7 +24,7 @@ import org.apache.log4j.Logger;
  */
 public class StringTcpServer {
 
-    public static SimpleGateway simpleGateway;
+    private static SimpleGateway simpleGateway;
     private static Logger log = Logger.getLogger(StringTcpServer.class);
     private int port;
 

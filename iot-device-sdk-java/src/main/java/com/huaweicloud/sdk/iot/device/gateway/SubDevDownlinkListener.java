@@ -19,7 +19,7 @@ public interface SubDevDownlinkListener {
      * 子设备属性设置通知
      *
      * @param requestId 请求id
-     * @param propsSet 属性设置
+     * @param propsSet  属性设置
      */
     public abstract void onSubdevPropertiesSet(String requestId, PropsSet propsSet);
 
@@ -27,7 +27,7 @@ public interface SubDevDownlinkListener {
      * 子设备读属性通知
      *
      * @param requestId 请求id
-     * @param propsGet 属性查询
+     * @param propsGet  属性查询
      */
     public abstract void onSubdevPropertiesGet(String requestId, PropsGet propsGet);
 

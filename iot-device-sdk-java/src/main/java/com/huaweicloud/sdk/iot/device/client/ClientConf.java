@@ -1,6 +1,5 @@
 package com.huaweicloud.sdk.iot.device.client;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.security.KeyStore;
@@ -61,6 +60,7 @@ public class ClientConf {
 
     /**
      * 设置设备id
+     *
      * @param deviceId 设备id
      */
     public void setDeviceId(String deviceId) {
@@ -73,6 +73,7 @@ public class ClientConf {
 
     /**
      * 设置设备密码
+     *
      * @param secret 设备密码
      */
     public void setSecret(String secret) {
@@ -85,6 +86,7 @@ public class ClientConf {
 
     /**
      * 设置服务端地址
+     *
      * @param serverUri 服务端地址
      */
     public void setServerUri(String serverUri) {
@@ -97,6 +99,7 @@ public class ClientConf {
 
     /**
      * 设置设备接入协议
+     *
      * @param protocol 设备接入协议
      */
     public void setProtocol(String protocol) {
@@ -109,6 +112,7 @@ public class ClientConf {
 
     /**
      * 设置离线缓存大小
+     *
      * @param offlineBufferSize 离线缓存大小
      */
     public void setOfflineBufferSize(Integer offlineBufferSize) {
@@ -120,7 +124,8 @@ public class ClientConf {
     }
 
     /**
-     *客户端qos
+     * 客户端qos
+     *
      * @param qos 客户端qos
      */
     public void setQos(int qos) {
@@ -133,6 +138,7 @@ public class ClientConf {
 
     /**
      * 设置私钥密码
+     *
      * @param keyPassword 私钥密码
      */
     public void setKeyPassword(String keyPassword) {
@@ -145,6 +151,7 @@ public class ClientConf {
 
     /**
      * 设置证书仓库
+     *
      * @param keyStore 证书仓库
      */
     public void setKeyStore(KeyStore keyStore) {

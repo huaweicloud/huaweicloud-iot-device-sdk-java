@@ -19,9 +19,9 @@ public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
     public DefaultDeviceIdentityRegistry() {
 
-        InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader().getResourceAsStream("deviceIdentity.json");
+
         String content = null;
-        try {
+        try (InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader().getResourceAsStream("deviceIdentity.json");){
             content = readInputStream2String(inputStream);
         } catch (IOException e) {
             log.error(e);

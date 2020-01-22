@@ -42,14 +42,13 @@ public class TcpDevice {
 
     public void run() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
-        BufferedReader in = null;
-        try {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))){
             Bootstrap bootstrap = new Bootstrap()
                     .group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new SimpleClientInitializer());
             Channel channel = bootstrap.connect(host, port).sync().channel();
-            in = new BufferedReader(new InputStreamReader(System.in));
+
             while (true) {
                 log.info("input string to send:");
                 channel.writeAndFlush(in.readLine());
@@ -58,9 +57,6 @@ public class TcpDevice {
             log.error(ExceptionUtil.getBriefStackTrace(e));
         } finally {
             group.shutdownGracefully();
-            if (in != null) {
-                in.close();
-            }
         }
 
     }
