@@ -15,4 +15,6 @@ public interface SubDevicesPersistence {
 
     public int deleteSubDevices(SubDevicesInfo subDevicesInfo);
 
+    public long getVersion();
+
 }

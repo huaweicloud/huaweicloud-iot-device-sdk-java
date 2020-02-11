@@ -15,6 +15,7 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceStatus;
 import com.huaweicloud.sdk.iot.device.gateway.requests.ScanSubdeviceNotify;
 import com.huaweicloud.sdk.iot.device.gateway.requests.SubDevicesInfo;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
@@ -47,6 +48,19 @@ public abstract class AbstractGateway extends IoTDevice {
     public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret) {
         super(serverUri, deviceId, deviceSecret);
         this.subDevicesPersistence = subDevicesPersistence;
+
+        getClient().setConnectListener(new ConnectListener() {
+            @Override
+            public void connectionLost(Throwable cause) {
+
+            }
+
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+                //建连或重连时，向平台同步子设备信息
+                syncSubDevices();
+            }
+        });
     }
 
     /**
@@ -61,6 +75,18 @@ public abstract class AbstractGateway extends IoTDevice {
     public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, KeyStore keyStore, String keyPassword) {
         super(serverUri, deviceId, keyStore, keyPassword);
         this.subDevicesPersistence = subDevicesPersistence;
+        getClient().setConnectListener(new ConnectListener() {
+            @Override
+            public void connectionLost(Throwable cause) {
+
+            }
+
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+                //建连或重连时，向平台同步子设备信息
+                syncSubDevices();
+            }
+        });
     }
 
     /**
@@ -343,7 +369,26 @@ public abstract class AbstractGateway extends IoTDevice {
         if (subDevicesPersistence != null) {
             return subDevicesPersistence.deleteSubDevices(subDevicesInfo);
         }
+
         return -1;
+    }
+
+    /**
+     * 向平台请求同步子设备信息
+     */
+    protected void syncSubDevices(){
+        log.info("start to syncSubDevices, local version is "+subDevicesPersistence.getVersion());
+
+        DeviceEvent deviceEvent = new DeviceEvent();
+        deviceEvent.setEventType("sub_device_sync_request");
+        deviceEvent.setServiceId("sub_device_manager");
+        deviceEvent.setEventTime(IotUtil.getTimeStamp());
+
+        Map<String, Object> para = new HashMap<>();
+        para.put("version", subDevicesPersistence.getVersion());
+        deviceEvent.setParas(para);
+        getClient().reportEvent(deviceEvent, null);
+
     }
 
 

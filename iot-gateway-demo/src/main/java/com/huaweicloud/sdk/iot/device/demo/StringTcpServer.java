@@ -2,6 +2,7 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
+import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -17,6 +18,10 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -42,7 +47,7 @@ public class StringTcpServer {
 
         simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
                 "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
+                "5e06bfee334dd4f33759f5b3_demo", "secret");
         if (simpleGateway.init() != 0) {
             return;
         }
@@ -89,6 +94,11 @@ public class StringTcpServer {
     public class StringHandler extends SimpleChannelInboundHandler<String> {
 
 
+        /**
+         * @param ctx
+         * @param s
+         * @throws Exception
+         */
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
             Channel incoming = ctx.channel();
@@ -107,10 +117,23 @@ public class StringTcpServer {
                 }
             } else {
 
-                //如果需要上报属性则调用reportSubDeviceProperties
+                //网关收到子设备上行数据时，可以以消息或者属性上报转发到平台。
+                //实际使用时根据需要选择一种即可，这里为了演示，两种类型都转发一遍
+
+                //上报消息用reportSubDeviceMessage
                 DeviceMessage deviceMessage = new DeviceMessage(s);
                 deviceMessage.setDeviceId(session.getDeviceId());
                 simpleGateway.reportSubDeviceMessage(deviceMessage, null);
+
+                //报属性则调用reportSubDeviceProperties，属性的serviceId和字段名要和子设备的产品模型保持一致
+                ServiceProperty serviceProperty = new ServiceProperty();
+                serviceProperty.setServiceId("smokeDetector");
+                Map<String, Object> props = new HashMap<>();
+                //属性值暂且写死，实际中应该根据子设备上报的进行组装
+                props.put("alarm",1);
+                props.put("temprature",2);
+                serviceProperty.setProperties(props);
+                simpleGateway.reportSubDeviceProperties(session.getDeviceId(), Arrays.asList(serviceProperty),null);
 
             }
 

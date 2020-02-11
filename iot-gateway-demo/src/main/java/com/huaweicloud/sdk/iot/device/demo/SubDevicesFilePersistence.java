@@ -75,6 +75,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
                 log.info("add subdev: " + dev.getNodeId());
             });
             subDevInfoCache.setVersion(SubDevicesInfo.getVersion());
+            log.info("version update to "+subDevInfoCache.getVersion());
 
         } finally {
             writeLock.unlock();
@@ -105,8 +106,14 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         });
 
         subDevInfoCache.setVersion(subDevicesInfo.getVersion());
+        log.info("local version update to "+subDevicesInfo.getVersion());
 
         return 0;
+    }
+
+    @Override
+    public long getVersion() {
+        return subDevInfoCache.getVersion();
     }
 
 
@@ -129,6 +136,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         }
         subDevicesInfo.getDevices().forEach((dev) ->
                 subDevInfo.getSubdevices().put(dev.getNodeId(), dev));
+        subDevInfo.setVersion(subDevicesInfo.getVersion());
 
         try {
             FileUtils.writeStringToFile(file, JsonUtil.convertObject2String(subDevInfo), "UTF-8");
@@ -159,6 +167,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
         subDevicesInfo.getDevices().forEach((dev) ->
                 subDevInfo.getSubdevices().remove(dev.getNodeId()));
+        subDevInfo.setVersion(subDevicesInfo.getVersion());
 
         try {
             FileUtils.writeStringToFile(file, JsonUtil.convertObject2String(subDevInfo), "UTF-8");
