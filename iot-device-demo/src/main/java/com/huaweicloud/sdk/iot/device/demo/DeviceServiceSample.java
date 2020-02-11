@@ -22,7 +22,7 @@ public class DeviceServiceSample {
 
         String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
-        String secret = "mysecret";
+        String secret = "secret";
 
         //从命令行获取设备参数
         if (args.length >= 3) {
@@ -42,18 +42,8 @@ public class DeviceServiceSample {
             return;
         }
 
-
-        while (true) {
-
-            //随机生成属性值
-            Random rand = new Random();
-            smokeDetectorService.setConcentration(rand.nextFloat() * 100.0f);
-            smokeDetectorService.setTemperature(rand.nextFloat() * 100.0f);
-            smokeDetectorService.setHumidity(rand.nextInt(100));
-            smokeDetectorService.firePropertiesChanged();
-
-            Thread.sleep(10000);
-        }
+        //启动自动周期上报
+        smokeDetectorService.enableAutoReport(10000);
 
     }
 
@@ -86,37 +76,50 @@ public class DeviceServiceSample {
             return new CommandRsp(0);
         }
 
-        //按照java bean规范自动生成setter和getter接口，sdk会自动调用这些接口
+        //setter和getter接口的命名应该符合java bean规范，sdk会自动调用这些接口
+        public int getHumidity() {
+
+            //模拟从传感器读取数据
+            humidity = new Random().nextInt(100);
+            return humidity;
+        }
+
+        public void setHumidity(int humidity) {
+            //humidity是只读的，不需要实现
+        }
+
+        public float getTemperature() {
+
+            //模拟从传感器读取数据
+            temperature = new Random().nextInt(100);
+            return temperature;
+        }
+
+        public void setTemperature(float temperature) {
+            //只读字段不需要实现set接口
+        }
+
+        public float getConcentration() {
+
+            //模拟从传感器读取数据
+            concentration = new Random().nextFloat()*100.0f;
+            return concentration;
+        }
+
+        public void setConcentration(float concentration) {
+            //只读字段不需要实现set接口
+        }
+
         public int getSmokeAlarm() {
             return smokeAlarm;
         }
 
         public void setSmokeAlarm(int smokeAlarm) {
+
             this.smokeAlarm = smokeAlarm;
-        }
-
-        public int getHumidity() {
-            return humidity;
-        }
-
-        public void setHumidity(int humidity) {
-            this.humidity = humidity;
-        }
-
-        public float getTemperature() {
-            return temperature;
-        }
-
-        public void setTemperature(float temperature) {
-            this.temperature = temperature;
-        }
-
-        public float getConcentration() {
-            return concentration;
-        }
-
-        public void setConcentration(float concentration) {
-            this.concentration = concentration;
+            if (smokeAlarm == 0){
+                log.info("alarm is cleared by app");
+            }
         }
 
     }
