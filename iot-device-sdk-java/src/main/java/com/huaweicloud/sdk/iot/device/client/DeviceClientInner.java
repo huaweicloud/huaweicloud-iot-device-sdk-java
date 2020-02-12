@@ -144,6 +144,24 @@ public class DeviceClientInner implements RawMessageListener {
 
     }
 
+    /**
+     * 向平台上报设备属性
+     *
+     * @param deviceId   设备id
+     * @param properties 设备属性列表
+     * @param listener   发布监听器
+     */
+    protected void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+
+        String topic = "$oc/devices/" + deviceId + "/sys/properties/report";
+        ObjectNode jsonObject = JsonUtil.createObjectNode();
+        jsonObject.putPOJO("services", properties);
+
+        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
+        connection.publishMessage(rawMessage, listener);
+
+    }
+
     private void OnPropertiesSet(RawMessage message) {
 
         String requestId = IotUtil.getRequestId(message.getTopic());

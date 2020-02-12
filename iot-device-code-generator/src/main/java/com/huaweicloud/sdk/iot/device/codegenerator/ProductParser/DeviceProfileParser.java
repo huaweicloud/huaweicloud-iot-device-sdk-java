@@ -35,7 +35,7 @@ public class DeviceProfileParser {
             // 读取设备能力及服务能力
             List<DeviceCapability> deviceCapabilities = null;
             Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
-            List<String> files = unZipFiles(zipfile,"");
+            List<String> files = unZipFiles(zipfile,"tmp\\");
             if (files != null) {
                 for (String outpath : files) {
                     if (outpath == null) {
@@ -158,45 +158,47 @@ public class DeviceProfileParser {
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
 
-        ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"));
-        String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
+        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))){
+            String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
 
-        List<String> files = new ArrayList<>();
+            List<String> files = new ArrayList<>();
 
-        File pathFile = new File(descDir + name);
-        if (!pathFile.exists()) {
-            pathFile.mkdirs();
-        }
-
-        for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
-            ZipEntry entry = entries.nextElement();
-            String zipEntryName = entry.getName();
-
-            String outPath = (descDir + name + "/" + zipEntryName).replaceAll("\\*", "/");
-
-            // 判断路径是否存在,不存在则创建文件路径
-            File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            // 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
-            if (new File(outPath).isDirectory()) {
-                continue;
+            File pathFile = new File(descDir + name);
+            if (!pathFile.exists()) {
+                pathFile.mkdirs();
             }
 
-            try (InputStream in = zip.getInputStream(entry);
-                 FileOutputStream out = new FileOutputStream(outPath)) {
+            for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
+                ZipEntry entry = entries.nextElement();
+                String zipEntryName = entry.getName();
 
-                byte[] buf1 = new byte[1024];
-                int len;
-                while ((len = in.read(buf1)) > 0) {
-                    out.write(buf1, 0, len);
+                String outPath = (descDir + name + "/" + zipEntryName).replaceAll("\\*", "/");
+
+                // 判断路径是否存在,不存在则创建文件路径
+                File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+                // 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
+                if (new File(outPath).isDirectory()) {
+                    continue;
                 }
 
-                files.add(outPath);
+                try (InputStream in = zip.getInputStream(entry);
+                     FileOutputStream out = new FileOutputStream(outPath)) {
+
+                    byte[] buf1 = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf1)) > 0) {
+                        out.write(buf1, 0, len);
+                    }
+
+                    files.add(outPath);
+                }
             }
+            return files;
         }
-        return files;
+
     }
     private static String getPathName(String path) {
         String name = "";

@@ -95,6 +95,19 @@ public class DeviceClient extends DeviceClientInner {
 
     }
 
+    /**
+     * 向平台上报设备属性，指定设备id
+     *
+     * @param deviceId 设备id
+     * @param properties 设备属性列表
+     * @param listener   发布监听器
+     */
+    public void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+
+        super.reportProperties(deviceId, properties, listener);
+
+    }
+
 
     /**
      * 设置连接监听器，用于接收连接建立和断开通知

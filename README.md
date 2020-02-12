@@ -90,6 +90,35 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
+### 上报子设备属性到平台
+```java
+     Map<String ,Object> json = new HashMap<>();
+     Random rand = new Random();
+     String subdeviceId = "xxxxx";
+
+     //按照物模型设置属性
+     json.put("alarm", alarm);
+     json.put("temperature", rand.nextFloat()*100.0f);
+     json.put("humidity", rand.nextFloat()*100.0f);
+     json.put("smokeConcentration", rand.nextFloat() * 100.0f);
+
+     ServiceProperty serviceProperty = new ServiceProperty();
+     serviceProperty.setProperties(json);
+     serviceProperty.setServiceId("smokeDetector");//serviceId要和物模型一致
+
+     device.getClient().reportProperties(subdeviceId, Arrays.asList(serviceProperty), new ActionListener() {
+         @Override
+         public void onSuccess(Object context) {
+             log.info("reportProperties success" );
+         }
+
+         @Override
+         public void onFailure(Object context, Throwable var2) {
+             log.error("reportProperties failed" + var2.toString());
+         }   });
+
+```
+
 ### 处理平台下发的属性读写（参见PropertySample）
 ```java
     device.getClient().setPropertyListener(new PropertyListener() {
@@ -161,11 +190,15 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 面向物模型编程指的是，基于SDK提供的物模型抽象能力，设备代码只需要按照物模型定义设备服务，然后就可以直接访问设备服务，SDK就能自动的和平台通讯，完成属性的同步和命令的调用。
 相比直接调用客户端接口和平台进行通讯，面向物模型编程简化了设备侧代码的复杂度，让设备代码只需要关注业务，而不用关注和平台的通讯过程。
 
-定义烟感的服务类（参见DeviceServiceSample）
+
+首先定义一个烟感服务类，继承自AbstractService
 ```java
     public static class SmokeDetectorService extends AbstractService {
+	}
 
-    //按照设备模型定义属性，注意属性的name和类型需要和模型一致
+```
+定义服务属性，属性和产品模型保持一致。writeable用来标识属性是否可写
+```java
     @Property(name = "alarm", writeable = true)
     int smokeAlarm = 0;
 
@@ -177,55 +210,73 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
     @Property(writeable = false)
     float temperature;
+```
 
-    private Logger log = Logger.getLogger(this.getClass());
+定义属性的读写接口：
+getter接口为读接口，在属性上报和平台主动查属性时被sdk调用
+setter接口为写接口，在平台修改属性时被sdk调用，如果属性是只读的，则setter接口保留空实现。
+```java	
+        public int getHumidity() {
 
-    //定义命令，注意接口入参和返回值类型是固定的不能修改，否则会出现运行时错误
+            //模拟从传感器读取数据
+            humidity = new Random().nextInt(100);
+            return humidity;
+        }
+
+        public void setHumidity(int humidity) {
+            //humidity是只读的，不需要实现
+        }
+
+        public float getTemperature() {
+
+            //模拟从传感器读取数据
+            temperature = new Random().nextInt(100);
+            return temperature;
+        }
+
+        public void setTemperature(float temperature) {
+            //只读字段不需要实现set接口
+        }
+
+        public float getConcentration() {
+
+            //模拟从传感器读取数据
+            concentration = new Random().nextFloat()*100.0f;
+            return concentration;
+        }
+
+        public void setConcentration(float concentration) {
+            //只读字段不需要实现set接口
+        }
+
+        public int getSmokeAlarm() {
+            return smokeAlarm;
+        }
+
+        public void setSmokeAlarm(int smokeAlarm) {
+
+            this.smokeAlarm = smokeAlarm;
+            if (smokeAlarm == 0){
+                log.info("alarm is cleared by app");
+            }
+        }
+
+```
+
+定义服务的命令：
+命令的入参和返回值类型固定不能修改。
+```java	
+
     @DeviceCommand(name = "ringAlarm")
     public CommandRsp alarm(Map<String, Object> paras) {
         int duration = (int) paras.get("duration");
         log.info("ringAlarm  duration = " + duration);
         return new CommandRsp(0);
     }
+```	
 
-    //按照java bean规范自动生成setter和getter接口，sdk会自动调用这些接口
-    public int getSmokeAlarm() {
-        return smokeAlarm;
-    }
-
-    public void setSmokeAlarm(int smokeAlarm) {
-        this.smokeAlarm = smokeAlarm;
-    }
-
-    public int getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(int humidity) {
-        this.humidity = humidity;
-    }
-
-    public float getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(float temperature) {
-        this.temperature = temperature;
-    }
-
-    public float getConcentration() {
-        return concentration;
-    }
-
-    public void setConcentration(float concentration) {
-        this.concentration = concentration;
-    }
-
-}
-
-```
-
-创建设备，注册烟感服务，然后初始化设备：
+上面完成了服务的定义
+接下来创建设备，注册烟感服务，然后初始化设备：
 ```java
     //创建设备
    IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
@@ -241,16 +292,18 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
-直接操作设备服务，SDK自动完成属性同步和命令调用：
+启动服务属性自动周期上报
 ```java
-    Random rand = new Random();
-    smokeDetectorService.setConcentration(rand.nextFloat() * 100.0f);
-    smokeDetectorService.setTemperature(rand.nextFloat() * 100.0f);
-    smokeDetectorService.setHumidity(rand.nextInt(100));
-    smokeDetectorService.setSmokeAlarm(1);
-    smokeDetectorService.firePropertiesChanged("smokeAlarm", "concentration");
+    smokeDetectorService.enableAutoReport(10000);
 
 ```
+
+### 使用设备代码生成器
+上面基于物模型编程中，要求服务的定义必须和产品模型保持一致，基于这一点，我们提供了代码生成器，能根据产品模型自动生成设备代码。
+[具体参见](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/iot-device-code-generator/README.md)
+    
+
+
 ### 使用证书认证（参见X509CertificateDeviceSample）
 
 首选读取证书，如果是pem格式的证书：
