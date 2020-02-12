@@ -6,8 +6,10 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 - 支持设备消息、属性上报、属性读写、命令下发
 - 支持网关服务、子设备管理、子设备消息转发
 - 支持设备OTA服务
-- 提供设备抽象服务，支持面向物模型编程
+- 支持面向物模型编程
+- 提供设备代码生成器根据产品模型自动生成设备代码
 - 支持密码认证和证书认证两种设备认证方式
+- 支持自定义topic
 
 
 ## 构建代码
@@ -300,6 +302,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 ### 使用设备代码生成器
 上面基于物模型编程中，要求服务的定义必须和产品模型保持一致，基于这一点，我们提供了代码生成器，能根据产品模型自动生成设备代码。
+代码生成器的源码在iot-device-code-generator目录
 [具体参见](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/iot-device-code-generator/README.md)
     
 

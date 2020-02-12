@@ -14,9 +14,10 @@ import java.util.Random;
 /**
  * 此例用来演示面向物模型编程的方法。用户只需要根据物模型定义自己的设备服务类，就可以直接对设备服务进行读写操作，SDK会自动
  * 的完成设备属性的同步和命令的调用。本例中实现的设备服务为烟感服务
+ * 此例代码可以通过设备代码生成器（iot-device-code-generator工程）自动生成
  */
 
-public class DeviceServiceSample {
+public class SomkeDetector {
 
     public static void main(String args[]) throws InterruptedException {
 
