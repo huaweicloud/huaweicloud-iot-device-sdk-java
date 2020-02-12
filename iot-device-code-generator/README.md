@@ -10,6 +10,8 @@ iot-device-code-generator提供设备代码自动生成功能，用户只需要�
 在huaweicloud-iot-device-sdk-java目录下会生成generated-demo包  
 3、进到huaweicloud-iot-device-sdk-java\generated-demo目录下执行mvn install  
 4、执行java -jar target\iot-device-demo-ganerated-0.2.0-with-deps.jar 运行生成的demo  
+
+如果觉得上面操作比较烦，可以打开iot-device-code-generator目录下的device-code-genarator.bat脚本，修改上面的参数，然后双击运行即可
     
 
 
