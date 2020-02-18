@@ -13,16 +13,22 @@ public class DeviceMain
 
     public static void main(String args[]) throws InterruptedException {
 
-        String serverUri = "${serverUri}";
-        String deviceId = "${deviceId}";
-        String secret = "${secret}";
+       String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+       String deviceId;
+       String secret;
 
-        //从命令行获取设备参数
-        if (args.length >= 3) {
-            serverUri = args[0];
-            deviceId = args[1];
-            secret = args[2];
-        }
+       if (args.length < 2) {
+           System.out.println("input: deviceId secret [serverUri]");
+           return;
+       }
+
+       //从命令行获取设备参数
+       deviceId = args[0];
+       secret = args[1];
+
+       if (args.length > 2) {
+           serverUri = args[2];
+       }
 
         //创建设备
         IoTDevice device = new IoTDevice(serverUri, deviceId, secret);

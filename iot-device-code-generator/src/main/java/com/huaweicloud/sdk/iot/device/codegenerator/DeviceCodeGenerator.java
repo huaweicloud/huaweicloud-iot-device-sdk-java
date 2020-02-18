@@ -26,27 +26,12 @@ public class DeviceCodeGenerator {
     public static void main(String[] args) throws IOException, TemplateException {
 
 
-        if (args.length < 3 )
+        if (args.length < 1 )
         {
-            System.out.format(
-                    "Expected at least 3 arguments but received %d.\n"
-                     + "The program should be called with the following args: \n"
-                     + "1. deviceId \n"
-                     + "2. device secret \n"
-                    + "3. product file path \n"
-                    + "4. serverUri [optional] \n",
-                     args.length);
+            System.out.println("input your product file path");
             return;
         }
-
         String productZipPath = args[0];
-        String deviceId = args[1];
-        String secret = args[2];
-
-        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
-        if (args.length == 4){
-            serverUri = args[3];
-        }
 
         //提取资源文件到当前目录
         extractResources();
@@ -55,7 +40,7 @@ public class DeviceCodeGenerator {
 
         ProductInfo productInfo = DeviceProfileParser.parseProductFile(productZipPath);
         generateService(productInfo);
-        generateDevice(productInfo,deviceId,secret,serverUri);
+        generateDevice(productInfo);
 
         log.info("demo code generated to: " + new File("").getAbsolutePath() + "\\generated-demo");
 
@@ -84,7 +69,7 @@ public class DeviceCodeGenerator {
         }
     }
 
-    public static void generateDevice(ProductInfo productInfo, String deviceId, String secret, String serverUri) throws TemplateException, IOException {
+    public static void generateDevice(ProductInfo productInfo) throws TemplateException, IOException {
         Configuration cfg = new Configuration();
         try {
 
@@ -95,9 +80,6 @@ public class DeviceCodeGenerator {
             File file = new File("generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/DeviceMain.java");
             Map<String, Object> root = new HashMap<>();
             root.put("device", productInfo.getDeviceCapability());
-            root.put("deviceId", deviceId);
-            root.put("secret", secret);
-            root.put("serverUri", serverUri);
 
             Writer javaWriter = new FileWriter(file);
             template.process(root, javaWriter);

@@ -17,7 +17,7 @@ import java.util.Random;
  * 此例代码可以通过设备代码生成器（iot-device-code-generator工程）自动生成
  */
 
-public class SomkeDetector {
+public class SmokeDetector {
 
     public static void main(String args[]) throws InterruptedException {
 
