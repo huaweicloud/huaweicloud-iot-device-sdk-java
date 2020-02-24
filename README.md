@@ -2,6 +2,19 @@
 
 huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的Java版本的SDK，提供设备和平台之间通讯能力，以及设备服务、网关服务、OTA等高级服务，并且针对各种场景提供了丰富的demo代码。IoT设备开发者使用SDK可以大大简化开发复杂度，快速的接入平台。
 
+
+* [支持特性](#支持特性)
+* [构建代码](#构建代码)
+* [如何使用](#如何使用)
+* [快速开始](#快速开始)
+* [上报设备属性](#上报设备属性)
+* [处理平台下发的属性读写](#处理平台下发的属性读写)
+* [处理平台下发的命令](#处理平台下发的命令)
+* [面向物模型编程](#面向物模型编程)
+* [使用设备代码生成器](#使用设备代码生成器)
+* [使用证书认证](#使用证书认证)
+* [API Documentation](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+
 ## 支持特性
 - 支持设备消息、属性上报、属性读写、命令下发
 - 支持网关服务、子设备管理、子设备消息转发
@@ -10,7 +23,6 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 - 提供设备代码生成器根据产品模型自动生成设备代码
 - 支持密码认证和证书认证两种设备认证方式
 - 支持自定义topic
-
 
 ## 构建代码
 
@@ -64,7 +76,8 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
-### 上报设备属性到平台(参见PropertySample)
+### 上报设备属性
+完整代码参见PropertySample.java
 ```java
      Map<String ,Object> json = new HashMap<>();
      Random rand = new Random();
@@ -92,7 +105,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
-### 上报子设备属性到平台
+### 上报子设备属性
 ```java
      Map<String ,Object> json = new HashMap<>();
      Random rand = new Random();
@@ -121,7 +134,8 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
-### 处理平台下发的属性读写（参见PropertySample）
+### 处理平台下发的属性读写
+完整代码参见PropertySample.java
 ```java
     device.getClient().setPropertyListener(new PropertyListener() {
 
@@ -171,7 +185,8 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
-### 处理平台下发的命令（参见CommandSample）
+### 处理平台下发的命令
+完整代码参见CommandSample.java
 ```java
     client.setCommandListener(new CommandListener() {
     @Override
@@ -308,7 +323,8 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
     
 
 
-### 使用证书认证（参见X509CertificateDeviceSample）
+### 使用证书认证
+完整代码参见X509CertificateDeviceSample.java
 
 首选读取证书，如果是pem格式的证书：
 ```java
@@ -327,8 +343,6 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword");
 ```
 
-## API Documentation
-敬请期待
 
 ## License
 SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt

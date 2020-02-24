@@ -60,7 +60,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.huaweicloud.sdk.iot.device.demo.SomkeDetector</mainClass>
+                            <mainClass>com.huaweicloud.sdk.iot.device.demo.SmokeDetector</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
