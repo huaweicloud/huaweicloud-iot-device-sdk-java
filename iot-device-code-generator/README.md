@@ -10,7 +10,8 @@ iot-device-code-generator提供设备代码自动生成功能，用户只需要�
 
 2、将产品模型文件保存到本地，比如我的模型文件smokeDetector_cb097d20d77b4240adf1f33d36b3c278_smokeDetector.zip放到D盘  
 3、进到 iot-device-code-generator\target\目录下执行  
-  java -jar iot-device-code-generator-0.2.0-with-deps.jar D:\smokeDetector_cb097d20d77b4240adf1f33d36b3c278_smokeDetector.zip   
+  java -jar iot-device-code-generator-0.2.0-with-deps.jar D:\smokeDetector_cb097d20d77b4240adf1f33d36b3c278_smokeDetector.zip  
+jar包名注意修改为正确的版本号  
 
 在huaweicloud-iot-device-sdk-java目录下会生成generated-demo包  
 至此，设备代码已经生成  
