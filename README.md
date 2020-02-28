@@ -343,7 +343,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 ## License
 SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
 
-##如何贡献代码
+## 如何贡献代码
 1、创建github账号
 2、fork huaweicloud-iot-device-sdk-java源代码
 3、同步huaweicloud-iot-device-sdk-java主仓库代码到fork的仓库
