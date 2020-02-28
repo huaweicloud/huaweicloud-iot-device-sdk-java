@@ -10,6 +10,7 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.service.IService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -40,6 +41,8 @@ public class IoTDevice {
     private Map<String, AbstractService> services = new HashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    private OTAService otaService;
+
 
     /**
      * 构造函数，使用密码创建设备
@@ -56,6 +59,8 @@ public class IoTDevice {
         clientConf.setSecret(deviceSecret);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
+        this.otaService = new OTAService();
+        this.addService("$ota_manager", otaService);
         log.info("create device: " + clientConf.getDeviceId());
 
     }
@@ -341,4 +346,11 @@ public class IoTDevice {
 
     }
 
+    /**
+     * 获取OTA服务
+     * @return OTAService
+     */
+    public OTAService getOtaService() {
+        return otaService;
+    }
 }

@@ -111,7 +111,7 @@ public class OTASample {
      */
     public static int preCheck(OTAPackage otaPackage) {
 
-        //对版本、剩余空间、剩余电量、信号质量等进行检查，如果不允许升级，上报OTAService中定义的错误码或者自定义错误码，返回-1
+        //对版本号、剩余空间、剩余电量、信号质量等进行检查，如果不允许升级，上报OTAService中定义的错误码或者自定义错误码，返回-1
 
         //otaService.reportOtaStatus(OTAService.OTA_CODE_NO_NEED, 0, null);
 
@@ -128,13 +128,10 @@ public class OTASample {
             return;
         }
 
-        OTAService otaService = new OTAService();
+        OTAService otaService = device.getOtaService();
 
         //设备启动时上报版本号
         otaService.reportFwVersion("1.0");
-
-        //OTA是一个service，需要add到设备,注意serviceId要填写ota_manager
-        device.addService("ota_manager", otaService);
         otaService.setOtaListener(new OTAListener() {
 
             @Override
