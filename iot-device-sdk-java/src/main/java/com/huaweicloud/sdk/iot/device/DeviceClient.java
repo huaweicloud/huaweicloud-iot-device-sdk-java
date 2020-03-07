@@ -10,12 +10,16 @@ import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
+import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -96,15 +100,31 @@ public class DeviceClient extends DeviceClientInner {
     }
 
     /**
-     * 向平台上报设备属性，指定设备id
+     * 单服务属性上报
      *
-     * @param deviceId 设备id
-     * @param properties 设备属性列表
-     * @param listener   发布监听器
+     * @param serviceId  服务id
+     * @param properties 属性map
+     * @param listener   监听器
      */
-    public void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+    public void reportProperties(String serviceId, Map<String, Object> properties, ActionListener listener) {
 
-        super.reportProperties(deviceId, properties, listener);
+        ServiceProperty serviceProperty = new ServiceProperty();
+        serviceProperty.setServiceId(serviceId);
+        serviceProperty.setProperties(properties);
+        serviceProperty.setEventTime(IotUtil.getTimeStamp());
+        super.reportProperties(Arrays.asList(serviceProperty), listener);
+
+    }
+
+    /**
+     * 批量上报子设备属性
+     *
+     * @param deviceProperties 子设备属性列表
+     * @param listener         发布监听器
+     */
+    public void reportSubDeviceProperties(List<DeviceProperty> deviceProperties,
+                                          ActionListener listener) {
+        super.reportSubDeviceProperties(deviceProperties, listener);
 
     }
 

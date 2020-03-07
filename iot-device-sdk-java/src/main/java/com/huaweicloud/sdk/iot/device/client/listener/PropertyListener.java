@@ -5,7 +5,7 @@ import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import java.util.List;
 
 /**
- * 属性监听器，用于接收平台下发的属性读写操作
+ * 属性监听器，用于直连设备接收平台下发的属性读写操作
  */
 public interface PropertyListener {
 
@@ -22,7 +22,7 @@ public interface PropertyListener {
      * 处理读属性操作
      *
      * @param requestId 请求id
-     * @param serviceId 服务id，可选
+     * @param serviceId 服务id
      */
     public void onPropertiesGet(String requestId, String serviceId);
 

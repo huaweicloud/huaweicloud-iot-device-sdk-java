@@ -5,12 +5,13 @@ import org.apache.log4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;

@@ -2,12 +2,7 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -41,7 +36,7 @@ public class TcpDevice {
 
     public void run() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))){
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
             Bootstrap bootstrap = new Bootstrap()
                     .group(group)
                     .channel(NioSocketChannel.class)

@@ -1,4 +1,5 @@
 package com.huaweicloud.sdk.iot.device.codegenerator;
+
 import com.huaweicloud.sdk.iot.device.codegenerator.ProductParser.DeviceProfileParser;
 import com.huaweicloud.sdk.iot.device.codegenerator.ProductParser.DeviceService;
 import com.huaweicloud.sdk.iot.device.codegenerator.ProductParser.ProductInfo;
@@ -10,10 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 此工具根据产品模型文件自动生成设备代码
@@ -26,8 +25,7 @@ public class DeviceCodeGenerator {
     public static void main(String[] args) throws IOException, TemplateException {
 
 
-        if (args.length < 1 )
-        {
+        if (args.length < 1) {
             System.out.println("input your product file path");
             return;
         }
@@ -54,18 +52,18 @@ public class DeviceCodeGenerator {
         //提取资源文件到当前目录
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
                 .getResourceAsStream("generated-demo.zip");
-             OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")){
-            IOUtils.copy(inputStream,outputStream);
+             OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")) {
+            IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
                 .getResourceAsStream("device.ftl");
-             OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")){
-            IOUtils.copy(inputStream,outputStream);
+             OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")) {
+            IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
                 .getResourceAsStream("service.ftl");
-             OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")){
-            IOUtils.copy(inputStream,outputStream);
+             OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")) {
+            IOUtils.copy(inputStream, outputStream);
         }
     }
 
@@ -131,15 +129,15 @@ public class DeviceCodeGenerator {
     public static void deleteFile(File dirFile) {
 
         if (dirFile == null) {
-            return ;
+            return;
         }
         // 如果dir对应的文件不存在，则退出
         if (!dirFile.exists()) {
-            return ;
+            return;
         }
 
         if (dirFile.isFile()) {
-             dirFile.delete();
+            dirFile.delete();
         } else {
 
             for (File file : dirFile.listFiles()) {
@@ -147,7 +145,7 @@ public class DeviceCodeGenerator {
             }
         }
 
-         dirFile.delete();
+        dirFile.delete();
     }
 
 

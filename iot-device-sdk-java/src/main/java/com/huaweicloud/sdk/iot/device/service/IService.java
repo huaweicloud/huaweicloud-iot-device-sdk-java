@@ -1,8 +1,8 @@
 package com.huaweicloud.sdk.iot.device.service;
 
 import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public interface IService {
      * @param command 命令
      * @return 执行结果
      */
-    public CommandRsp onCommand(Command command);
+    public CommandRsp onCommand(DeviceCommand command);
 
     /**
      * 事件回调

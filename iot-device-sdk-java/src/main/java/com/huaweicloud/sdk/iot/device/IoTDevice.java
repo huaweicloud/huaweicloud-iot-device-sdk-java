@@ -2,14 +2,8 @@ package com.huaweicloud.sdk.iot.device;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
-import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
-import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.client.requests.*;
+import com.huaweicloud.sdk.iot.device.gateway.GatewayService;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.service.IService;
@@ -18,11 +12,7 @@ import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import org.apache.log4j.Logger;
 
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -240,7 +230,7 @@ public class IoTDevice {
      * @param requestId 请求id
      * @param command   命令
      */
-    public void onCommand(String requestId, Command command) {
+    public void onCommand(String requestId, DeviceCommand command) {
 
 
         IService service = getService(command.getServiceId());
@@ -337,20 +327,24 @@ public class IoTDevice {
         }
     }
 
-    /**
-     * 消息回调，由SDK自动调用
-     *
-     * @param message 消息
-     */
-    public void onDeviceMessage(DeviceMessage message) {
-
-    }
 
     /**
      * 获取OTA服务
+     *
      * @return OTAService
      */
     public OTAService getOtaService() {
         return otaService;
+    }
+
+    /**
+     * 添加网关服务。如果需要使用网关服务，用户需要new一个GatewayService对象并调用此接口
+     *
+     * @param gatewayService
+     */
+    public void addGatewayService(GatewayService gatewayService) {
+
+        addService("$sub_device_manager", gatewayService);
+        addService("$sub_device_discovery", gatewayService);
     }
 }

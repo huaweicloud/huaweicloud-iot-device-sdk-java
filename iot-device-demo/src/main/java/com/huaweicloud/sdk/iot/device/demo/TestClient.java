@@ -1,20 +1,11 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
-import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.client.requests.*;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.log4j.Logger;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.Arrays;
@@ -83,7 +74,7 @@ public class TestClient {
 
                 client.publish("$oc/devices/" + deviceId + "/sys/messages/down",
                         new MqttMessage(JsonUtil.convertObject2String(message).getBytes()));
-                Command command = new Command();
+                DeviceCommand command = new DeviceCommand();
                 Map<String, Object> para = new HashMap<>();
                 para.put("duration", 20);
                 command.setParas(para);

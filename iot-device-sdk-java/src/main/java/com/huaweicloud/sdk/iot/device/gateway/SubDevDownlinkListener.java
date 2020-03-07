@@ -1,6 +1,6 @@
 package com.huaweicloud.sdk.iot.device.gateway;
 
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
@@ -13,7 +13,7 @@ public interface SubDevDownlinkListener {
      * @param requestId 请求id
      * @param command   命令
      */
-    public abstract void onSubdevCommand(String requestId, Command command);
+    public abstract void onSubdevCommand(String requestId, DeviceCommand command);
 
     /**
      * 子设备属性设置通知

@@ -6,20 +6,10 @@ import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
-import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
-import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
-import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
-import com.huaweicloud.sdk.iot.device.transport.Connection;
-import com.huaweicloud.sdk.iot.device.transport.RawMessage;
-import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
+import com.huaweicloud.sdk.iot.device.client.listener.SubDeviceDownlinkListener;
+import com.huaweicloud.sdk.iot.device.client.requests.*;
+import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
+import com.huaweicloud.sdk.iot.device.transport.*;
 import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
@@ -40,6 +30,7 @@ public class DeviceClientInner implements RawMessageListener {
     private PropertyListener propertyListener;
     private CommandListener commandListener;
     private DeviceMessageListener deviceMessageListener;
+    private SubDeviceDownlinkListener subDeviceDownlinkListener;
 
     private ClientConf clientConf;
     private Connection connection;
@@ -144,21 +135,25 @@ public class DeviceClientInner implements RawMessageListener {
 
     }
 
+
     /**
-     * 向平台上报设备属性
+     * 批量上报子设备属性
      *
-     * @param deviceId   设备id
-     * @param properties 设备属性列表
-     * @param listener   发布监听器
+     * @param deviceProperties 子设备属性列表
+     * @param listener         发布监听器
      */
-    protected void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+    public void reportSubDeviceProperties(List<DeviceProperty> deviceProperties,
+                                          ActionListener listener) {
 
-        String topic = "$oc/devices/" + deviceId + "/sys/properties/report";
-        ObjectNode jsonObject = JsonUtil.createObjectNode();
-        jsonObject.putPOJO("services", properties);
 
-        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
-        connection.publishMessage(rawMessage, listener);
+        ObjectNode node = JsonUtil.createObjectNode();
+        node.putPOJO("devices", deviceProperties);
+
+        String topic = "$oc/devices/" + getDeviceId() + "/sys/gateway/sub_devices/properties/report";
+
+        RawMessage rawMessage = new RawMessage(topic, node.toString());
+
+        publishRawMessage(rawMessage, listener);
 
     }
 
@@ -168,17 +163,25 @@ public class DeviceClientInner implements RawMessageListener {
 
         PropsSet propsSet = JsonUtil.convertJsonStringToObject(message.toString(), PropsSet.class);
         if (propsSet == null) {
+            log.error("propsSet is null");
             return;
         }
 
-        if (propertyListener != null && (propsSet.getDeviceId() == null || propsSet.getDeviceId().equals(getDeviceId()))) {
-
-            propertyListener.onPropertiesSet(requestId, propsSet.getServices());
-            return;
-
+        //子设备的
+        if (propsSet.getDeviceId() != null && !propsSet.getDeviceId().equals(this.deviceId)) {
+            if (subDeviceDownlinkListener != null) {
+                subDeviceDownlinkListener.onPropertiesSet(requestId, propsSet.getServices(), propsSet.getDeviceId());
+                return;
+            }
         }
 
         device.onPropertiesSet(requestId, propsSet);
+
+        if (propertyListener != null) {
+
+            propertyListener.onPropertiesSet(requestId, propsSet.getServices());
+        }
+
     }
 
     private void OnPropertiesGet(RawMessage message) {
@@ -187,15 +190,23 @@ public class DeviceClientInner implements RawMessageListener {
 
         PropsGet propsGet = JsonUtil.convertJsonStringToObject(message.toString(), PropsGet.class);
         if (propsGet == null) {
+            log.error("propsGet is null");
             return;
         }
 
-        if (propertyListener != null && (propsGet.getDeviceId() == null || propsGet.getDeviceId().equals(getDeviceId()))) {
-            propertyListener.onPropertiesGet(requestId, propsGet.getServiceId());
-            return;
+        //子设备的
+        if (propsGet.getDeviceId() != null && !propsGet.getDeviceId().equals(this.deviceId)) {
+            if (subDeviceDownlinkListener != null) {
+                subDeviceDownlinkListener.onPropertiesGet(requestId, propsGet.getServiceId(), propsGet.getDeviceId());
+                return;
+            }
         }
 
         device.onPropertiesGet(requestId, propsGet);
+
+        if (propertyListener != null) {
+            propertyListener.onPropertiesGet(requestId, propsGet.getServiceId());
+        }
 
     }
 
@@ -204,19 +215,26 @@ public class DeviceClientInner implements RawMessageListener {
 
         String requestId = IotUtil.getRequestId(message.getTopic());
 
-        Command command = JsonUtil.convertJsonStringToObject(message.toString(), Command.class);
+        DeviceCommand command = JsonUtil.convertJsonStringToObject(message.toString(), DeviceCommand.class);
         if (command == null) {
             log.error("invalid command");
             return;
         }
 
-        if (commandListener != null && (command.getDeviceId() == null || command.getDeviceId().equals(getDeviceId()))) {
-            commandListener.onCommand(requestId, command.getServiceId(),
-                    command.getCommandName(), command.getParas());
-            return;
+        //子设备的
+        if (command.getDeviceId() != null && !command.getDeviceId().equals(this.deviceId)) {
+            if (subDeviceDownlinkListener != null) {
+                subDeviceDownlinkListener.onCommand(requestId, command);
+                return;
+            }
         }
 
         device.onCommand(requestId, command);
+
+        if (commandListener != null) {
+            commandListener.onCommand(requestId, command.getServiceId(), command.getCommandName(), command.getParas());
+
+        }
 
     }
 
@@ -229,11 +247,17 @@ public class DeviceClientInner implements RawMessageListener {
             return;
         }
 
-        if (deviceMessageListener != null && (deviceMessage.getDeviceId() == null || deviceMessage.getDeviceId().equals(getDeviceId()))) {
-            deviceMessageListener.onDeviceMessage(deviceMessage);
-            return;
+        //子设备的
+        if (deviceMessage.getDeviceId() != null && !deviceMessage.getDeviceId().equals(this.deviceId)) {
+            if (subDeviceDownlinkListener != null) {
+                subDeviceDownlinkListener.onDeviceMessage(deviceMessage);
+                return;
+            }
         }
-        device.onDeviceMessage(deviceMessage);
+
+        if (deviceMessageListener != null) {
+            deviceMessageListener.onDeviceMessage(deviceMessage);
+        }
     }
 
     private void onEvent(RawMessage message) {
@@ -339,6 +363,10 @@ public class DeviceClientInner implements RawMessageListener {
 
     protected void setDeviceMessageListener(DeviceMessageListener deviceMessageListener) {
         this.deviceMessageListener = deviceMessageListener;
+    }
+
+    public void setSubDeviceDownlinkListener(SubDeviceDownlinkListener subDeviceDownlinkListener) {
+        this.subDeviceDownlinkListener = subDeviceDownlinkListener;
     }
 
     public void setDevice(IoTDevice device) {

@@ -33,7 +33,7 @@ public interface Connection {
     public boolean isConnected();
 
     /**
-     * 设置连接监听器
+     * 添加连接监听器
      *
      * @param connectListener 连接监听器
      */

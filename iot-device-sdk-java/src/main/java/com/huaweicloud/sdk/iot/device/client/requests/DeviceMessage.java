@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DeviceMessage {
 
     /**
-     * 设备id，可选，默认为客户端本身的设备id
+     * 设备id，可选，平台下发给子设备时携带
      */
     @JsonProperty("object_device_id")
     String deviceId;

@@ -38,7 +38,7 @@ public class CommandSample {
             public void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras) {
                 log.info("onCommand, serviceId = " + serviceId);
                 log.info("onCommand , name = " + commandName);
-                log.info("onCommand, paras =  " + paras.toString());
+                log.info("onCommand, paras =  " + paras);
 
                 //处理命令
 

@@ -3,8 +3,8 @@ package com.huaweicloud.sdk.iot.device.service;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import org.apache.log4j.Logger;
@@ -30,11 +30,11 @@ public abstract class AbstractService implements IService {
     private Timer timer;
     private String serviceId;
 
-    private static class  FieldPair{
+    private static class FieldPair {
         public String propertyName;
         public Field field;
 
-        public FieldPair(String propertyName, Field field ){
+        public FieldPair(String propertyName, Field field) {
             this.propertyName = propertyName;
             this.field = field;
         }
@@ -62,7 +62,7 @@ public abstract class AbstractService implements IService {
         }
 
         for (Method method : this.getClass().getDeclaredMethods()) {
-            DeviceCommand deviceCommand = method.getAnnotation(DeviceCommand.class);
+            com.huaweicloud.sdk.iot.device.service.DeviceCommand deviceCommand = method.getAnnotation(com.huaweicloud.sdk.iot.device.service.DeviceCommand.class);
             if (deviceCommand == null) {
                 continue;
             }
@@ -233,7 +233,7 @@ public abstract class AbstractService implements IService {
      * @return 命令响应
      */
     @Override
-    public CommandRsp onCommand(Command command) {
+    public CommandRsp onCommand(DeviceCommand command) {
 
         Method method = commands.get(command.getCommandName());
         if (method == null) {
@@ -285,15 +285,16 @@ public abstract class AbstractService implements IService {
 
     /**
      * 开启自动周期上报属性
+     *
      * @param reportInterval 上报周期，单位ms
      */
-    public void enableAutoReport(int reportInterval){
-        if (timer != null){
+    public void enableAutoReport(int reportInterval) {
+        if (timer != null) {
             log.error("timer is already enabled");
             return;
         }
 
-        if (timer == null){
+        if (timer == null) {
             timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -307,8 +308,8 @@ public abstract class AbstractService implements IService {
     /**
      * 关闭自动周期上报，您可以通过firePropertiesChanged触发上报
      */
-    public void disableAutoReport(){
-        if (timer != null){
+    public void disableAutoReport() {
+        if (timer != null) {
             timer.cancel();
             timer = null;
         }

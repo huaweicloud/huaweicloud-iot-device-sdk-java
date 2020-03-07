@@ -3,57 +3,36 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
- * 一个传输字符串数据的tcp server，客户端建链后，首条消息是鉴权消息，携带设备标识nodeId。server将收到的消息通过gateway转发给平台
+ * 一个传输字符串数据的tcp server，客户端建链后，首条消息是鉴权消息，携带设备标识nodeId。
+ * server将收到的消息通过gateway转发给平台
+ * 用户可以扩展此类实现更复杂的TCP server
  */
 public class StringTcpServer {
 
-    private static SimpleGateway simpleGateway;
     private static Logger log = Logger.getLogger(StringTcpServer.class);
     private int port;
+    private SimpleGateway simpleGateway;
 
-    public StringTcpServer(int port) {
+    public StringTcpServer(int port, SimpleGateway simpleGateway) {
         this.port = port;
-    }
-
-    public static void main(String[] args) throws Exception {
-        int port;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        } else {
-            port = 8080;
-        }
-
-        simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
-                "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "secret");
-        if (simpleGateway.init() != 0) {
-            return;
-        }
-        Logger.getLogger("io.netty").setLevel(Level.INFO);
-        new StringTcpServer(port).run();
-
+        this.simpleGateway = simpleGateway;
     }
 
     public void run() throws Exception {
@@ -123,17 +102,21 @@ public class StringTcpServer {
                 //上报消息用reportSubDeviceMessage
                 DeviceMessage deviceMessage = new DeviceMessage(s);
                 deviceMessage.setDeviceId(session.getDeviceId());
-                simpleGateway.reportSubDeviceMessage(deviceMessage, null);
+                simpleGateway.getIoTDevice().getClient().reportDeviceMessage(deviceMessage, null);
 
                 //报属性则调用reportSubDeviceProperties，属性的serviceId和字段名要和子设备的产品模型保持一致
                 ServiceProperty serviceProperty = new ServiceProperty();
                 serviceProperty.setServiceId("smokeDetector");
                 Map<String, Object> props = new HashMap<>();
-                //属性值暂且写死，实际中应该根据子设备上报的进行组装
-                props.put("alarm",1);
-                props.put("temprature",2);
+                //属性值随机生成，实际中应该根据子设备上报的进行组装
+                props.put("alarm", new Random().nextInt(1));
+                props.put("temprature",  new Random().nextInt(100));
                 serviceProperty.setProperties(props);
-                simpleGateway.reportSubDeviceProperties(session.getDeviceId(), Arrays.asList(serviceProperty),null);
+                DeviceProperty deviceProperty = new DeviceProperty();
+                deviceProperty.setDeviceId(session.getDeviceId());
+                deviceProperty.setServices(Arrays.asList(serviceProperty));
+
+                simpleGateway.getIoTDevice().getClient().reportSubDeviceProperties(Arrays.asList(deviceProperty), null);
 
             }
 

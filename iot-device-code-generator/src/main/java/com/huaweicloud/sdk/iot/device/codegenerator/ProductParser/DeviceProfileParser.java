@@ -5,14 +5,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 
 public class DeviceProfileParser {
@@ -35,7 +37,7 @@ public class DeviceProfileParser {
             // 读取设备能力及服务能力
             List<DeviceCapability> deviceCapabilities = null;
             Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
-            List<String> files = unZipFiles(zipfile,"tmp\\");
+            List<String> files = unZipFiles(zipfile, "tmp\\");
             if (files != null) {
                 for (String outpath : files) {
                     if (outpath == null) {
@@ -158,7 +160,7 @@ public class DeviceProfileParser {
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
 
-        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))){
+        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))) {
             String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
 
             List<String> files = new ArrayList<>();
@@ -200,6 +202,7 @@ public class DeviceProfileParser {
         }
 
     }
+
     private static String getPathName(String path) {
         String name = "";
 

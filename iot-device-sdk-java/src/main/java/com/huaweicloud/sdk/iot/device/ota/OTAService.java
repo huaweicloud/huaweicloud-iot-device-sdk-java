@@ -45,13 +45,16 @@ public class OTAService extends AbstractService {
 
     /**
      * 查询自动下载升级包开关
+     *
      * @return true表示自动下载升级包
      */
     public boolean isAutoDownloadPackage() {
         return autoDownloadPackage;
     }
 
-    /**设置自动下载升级包开关
+    /**
+     * 设置自动下载升级包开关
+     *
      * @param autoDownloadPackage true表示自动下载升级包
      */
     public void setAutoDownloadPackage(boolean autoDownloadPackage) {

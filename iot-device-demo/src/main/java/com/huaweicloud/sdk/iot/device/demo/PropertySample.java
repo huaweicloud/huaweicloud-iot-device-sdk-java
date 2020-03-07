@@ -8,11 +8,7 @@ import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 
 /**

@@ -103,7 +103,7 @@ public class SmokeDetector {
         public float getConcentration() {
 
             //模拟从传感器读取数据
-            concentration = new Random().nextFloat()*100.0f;
+            concentration = new Random().nextFloat() * 100.0f;
             return concentration;
         }
 
@@ -118,7 +118,7 @@ public class SmokeDetector {
         public void setSmokeAlarm(int smokeAlarm) {
 
             this.smokeAlarm = smokeAlarm;
-            if (smokeAlarm == 0){
+            if (smokeAlarm == 0) {
                 log.info("alarm is cleared by app");
             }
         }

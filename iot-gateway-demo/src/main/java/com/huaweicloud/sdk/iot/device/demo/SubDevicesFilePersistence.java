@@ -36,7 +36,6 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
             log.error(ExceptionUtil.getBriefStackTrace(e));
         }
         this.subDevInfoCache = JsonUtil.convertJsonStringToObject(content, SubDevInfo.class);
-        log.info("subDevInfo:" + subDevInfoCache.toString());
     }
 
 
@@ -75,7 +74,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
                 log.info("add subdev: " + dev.getNodeId());
             });
             subDevInfoCache.setVersion(SubDevicesInfo.getVersion());
-            log.info("version update to "+subDevInfoCache.getVersion());
+            log.info("version update to " + subDevInfoCache.getVersion());
 
         } finally {
             writeLock.unlock();
@@ -106,7 +105,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         });
 
         subDevInfoCache.setVersion(subDevicesInfo.getVersion());
-        log.info("local version update to "+subDevicesInfo.getVersion());
+        log.info("local version update to " + subDevicesInfo.getVersion());
 
         return 0;
     }

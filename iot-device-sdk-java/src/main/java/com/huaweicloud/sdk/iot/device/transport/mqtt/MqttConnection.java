@@ -1,24 +1,11 @@
 package com.huaweicloud.sdk.iot.device.transport.mqtt;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
-import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
-import com.huaweicloud.sdk.iot.device.transport.Connection;
-import com.huaweicloud.sdk.iot.device.transport.RawMessage;
-import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
+import com.huaweicloud.sdk.iot.device.transport.*;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import org.apache.log4j.Logger;
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 
 import javax.net.ssl.SSLContext;
 import java.time.Instant;
@@ -44,7 +31,7 @@ public class MqttConnection implements Connection {
 
     private Logger log = Logger.getLogger(MqttConnection.class);
 
-    public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener){
+    public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener) {
         this.clientConf = clientConf;
         this.rawMessageListener = rawMessageListener;
     }
@@ -92,7 +79,6 @@ public class MqttConnection implements Connection {
         }
 
     };
-
 
 
     @Override
@@ -227,7 +213,7 @@ public class MqttConnection implements Connection {
 
     public void close() {
 
-        if (mqttAsyncClient.isConnected()){
+        if (mqttAsyncClient.isConnected()) {
             try {
                 mqttAsyncClient.disconnect();
             } catch (MqttException e) {
