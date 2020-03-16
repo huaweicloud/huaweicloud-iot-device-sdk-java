@@ -4,16 +4,18 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 
 * [支持特性](#支持特性)
-* [构建代码](#构建代码)
 * [如何使用](#如何使用)
-* [快速开始](#快速开始)
+* [设备初始化](#设备初始化)
+* [上报消息](#上报消息)
 * [上报设备属性](#上报设备属性)
 * [处理平台下发的属性读写](#处理平台下发的属性读写)
 * [处理平台下发的命令](#处理平台下发的命令)
 * [面向物模型编程](#面向物模型编程)
 * [使用设备代码生成器](#使用设备代码生成器)
 * [使用证书认证](#使用证书认证)
-* [API Documentation](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+* [如何贡献代码](#如何贡献代码)
+* [接口文档](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+* [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
 
 ## 支持特性
 - 支持设备消息、属性上报、属性读写、命令下发
@@ -24,18 +26,11 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 - 支持密码认证和证书认证两种设备认证方式
 - 支持自定义topic
 
-## 构建代码
+## 如何使用
 
 依赖的版本：
 * JDK ：1.8 +
 
-运行如下命令:
-
-	git clone https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java.git
-	cd huaweicloud-iot-device-sdk-java
-	mvn clean install
-
-## 如何使用
 因为huaweicloud-iot-device-sdk-java还没有发布到公共仓库，如果要使用，需要先下载代码在本地构建。
     
     mvn clean install 
@@ -45,10 +40,10 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
     <dependency>
                 <groupId>com.huaweicloud.iot</groupId>
                 <artifactId>iot-device-sdk-java</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.0</version>
     </dependency>
     
-## 快速开始
+### 设备初始化
 
 创建设备并初始化
 ```java
@@ -59,7 +54,9 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
         }
 ```
 
-上报设备消息到平台(参见MessageSample)
+### 上报消息
+
+完整代码参见MessageSample.java
 ```java
 
        device.getClient().reportDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
@@ -346,8 +343,13 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 ## License
 SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
-  
-[更多文档](https://support.huaweicloud.com/usermanual-IoT/iot_01_0006.html)
 
+## 如何贡献代码
+1、创建github账号
+2、fork huaweicloud-iot-device-sdk-java源代码
+3、同步huaweicloud-iot-device-sdk-java主仓库代码到fork的仓库
+4、在本地修改代码并push到fork的仓库
+5、在fork的仓库提交pull request到主仓库
+  
 
 
