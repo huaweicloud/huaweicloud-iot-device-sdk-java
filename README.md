@@ -14,7 +14,8 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [使用设备代码生成器](#使用设备代码生成器)
 * [使用证书认证](#使用证书认证)
 * [如何贡献代码](#如何贡献代码)
-* [API Documentation](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+* [接口文档](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+* [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
 
 ## 支持特性
 - 支持设备消息、属性上报、属性读写、命令下发
@@ -350,7 +351,5 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 4、在本地修改代码并push到fork的仓库
 5、在fork的仓库提交pull request到主仓库
   
-[更多文档](https://support.huaweicloud.com/usermanual-IoT/iot_01_0006.html)
-
 
 
