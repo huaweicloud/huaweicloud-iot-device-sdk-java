@@ -15,6 +15,7 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
 import com.huaweicloud.sdk.iot.device.transport.Connection;
@@ -145,20 +146,23 @@ public class DeviceClientInner implements RawMessageListener {
     }
 
     /**
-     * 向平台上报设备属性
+     * 批量上报子设备属性
      *
-     * @param deviceId   设备id
-     * @param properties 设备属性列表
-     * @param listener   发布监听器
+     * @param deviceProperties 子设备属性列表
+     * @param listener         发布监听器
      */
-    protected void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+    public void reportSubDeviceProperties(List<DeviceProperty> deviceProperties,
+                                          ActionListener listener) {
 
-        String topic = "$oc/devices/" + deviceId + "/sys/properties/report";
-        ObjectNode jsonObject = JsonUtil.createObjectNode();
-        jsonObject.putPOJO("services", properties);
 
-        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
-        connection.publishMessage(rawMessage, listener);
+        ObjectNode node = JsonUtil.createObjectNode();
+        node.putPOJO("devices", deviceProperties);
+
+        String topic = "$oc/devices/" + getDeviceId() + "/sys/gateway/sub_devices/properties/report";
+
+        RawMessage rawMessage = new RawMessage(topic, node.toString());
+
+        publishRawMessage(rawMessage, listener);
 
     }
 

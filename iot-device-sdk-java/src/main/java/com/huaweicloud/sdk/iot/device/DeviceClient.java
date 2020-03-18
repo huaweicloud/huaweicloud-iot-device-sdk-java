@@ -10,11 +10,13 @@ import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -96,18 +98,23 @@ public class DeviceClient extends DeviceClientInner {
     }
 
     /**
-     * 向平台上报设备属性，指定设备id
+     * 上报子设备属性
      *
-     * @param deviceId 设备id
-     * @param properties 设备属性列表
-     * @param listener   发布监听器
+     * @param deviceId 子设备id
+     * @param properties 服务属性列表
+     * @param listener 监听器
      */
-    public void reportProperties(String deviceId, List<ServiceProperty> properties, ActionListener listener) {
+    public void reportSubDeviceProperties(String deviceId,
+                                          List<ServiceProperty> properties,
+                                          ActionListener listener) {
 
-        super.reportProperties(deviceId, properties, listener);
+
+        DeviceProperty deviceProperty = new DeviceProperty();
+        deviceProperty.setDeviceId(deviceId);
+        deviceProperty.setServices(properties);
+        reportSubDeviceProperties(Arrays.asList(deviceProperty), listener);
 
     }
-
 
     /**
      * 设置连接监听器，用于接收连接建立和断开通知
