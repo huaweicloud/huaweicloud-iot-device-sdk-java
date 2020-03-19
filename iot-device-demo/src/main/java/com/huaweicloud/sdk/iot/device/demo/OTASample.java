@@ -269,7 +269,7 @@ public class OTASample implements OTAListener {
 
     public static void main(String[] args) throws Exception {
 
-        IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "deviceid", "secret");
 
         OTASample otaSample = new OTASample(device, "image.bin");

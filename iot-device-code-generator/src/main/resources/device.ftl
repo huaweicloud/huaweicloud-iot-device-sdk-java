@@ -13,7 +13,7 @@ public class DeviceMain
 
     public static void main(String args[]) throws InterruptedException {
 
-       String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+       String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
        String deviceId;
        String secret;
 

@@ -41,7 +41,7 @@ public abstract class AbstractGateway extends IoTDevice {
      * 构造函数，通过设备密码认证
      *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri             平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri             平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId              设备id
      * @param deviceSecret          设备密码
      */
@@ -67,7 +67,7 @@ public abstract class AbstractGateway extends IoTDevice {
      * 构造函数，通过设备证书认证
      *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri             平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri             平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId              设备id
      * @param keyStore              证书容器
      * @param keyPassword           证书密码

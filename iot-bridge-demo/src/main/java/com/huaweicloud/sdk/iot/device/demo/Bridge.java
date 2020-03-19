@@ -53,7 +53,7 @@ public class Bridge {
     public static void main(String[] args) throws Exception {
 
         //默认使用北京4的接入地址，其他region的用户请修改
-        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
 
         int port = 8080;
 
