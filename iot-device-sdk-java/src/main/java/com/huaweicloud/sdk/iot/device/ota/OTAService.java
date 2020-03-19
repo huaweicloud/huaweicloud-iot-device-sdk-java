@@ -73,9 +73,10 @@ public class OTAService extends AbstractService {
      *
      * @param result      升级结果
      * @param progress    升级进度0-100
+     * @param version     当前版本
      * @param description 具体失败的原因，可选参数
      */
-    public void reportOtaStatus(int result, int progress, String description) {
+    public void reportOtaStatus(int result, int progress, String version, String description) {
 
         Map<String, Object> node = new HashMap<>();
         node.put("result_code", result);
@@ -83,11 +84,12 @@ public class OTAService extends AbstractService {
         if (description != null) {
             node.put("description", description);
         }
+        node.put("version", version);
 
         DeviceEvent deviceEvent = new DeviceEvent();
         deviceEvent.setEventType("upgrade_progress_report");
         deviceEvent.setParas(node);
-        deviceEvent.setServiceId("ota");
+        deviceEvent.setServiceId("$ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
         getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
@@ -107,19 +109,18 @@ public class OTAService extends AbstractService {
     /**
      * 上报固件版本信息
      *
-     * @param fwVersion 固件版本
+     * @param version 固件版本
      */
-    public void reportFwVersion(String fwVersion) {
+    public void reportVersion(String version) {
 
         Map<String, Object> node = new HashMap<>();
-        if (fwVersion != null) {
-            node.put("fw_version", fwVersion);
-        }
+        node.put("fw_version", version);
+        node.put("sw_version", version);
 
         DeviceEvent deviceEvent = new DeviceEvent();
         deviceEvent.setEventType("version_report");
         deviceEvent.setParas(node);
-        deviceEvent.setServiceId("ota");
+        deviceEvent.setServiceId("$ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
         getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
@@ -151,7 +152,8 @@ public class OTAService extends AbstractService {
 
         if (deviceEvent.getEventType().equalsIgnoreCase("version_query")) {
             otaListener.onQueryVersion();
-        } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade")) {
+        } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade")
+        || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade")) {
 
             OTAPackage pkg = JsonUtil.convertMap2Object(deviceEvent.getParas(), OTAPackage.class);
 

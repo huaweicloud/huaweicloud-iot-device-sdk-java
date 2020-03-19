@@ -60,7 +60,7 @@ public class IoTDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         this.otaService = new OTAService();
-        this.addService("$ota_manager", otaService);
+        this.addService("$ota", otaService);
         log.info("create device: " + clientConf.getDeviceId());
 
     }
@@ -325,7 +325,8 @@ public class IoTDevice {
      */
     public void onEvent(DeviceEvents deviceEvents) {
 
-        if (deviceEvents.getDeviceId() != null && deviceEvents.getDeviceId().equals(getDeviceId())) {
+        //子设备的
+        if (deviceEvents.getDeviceId() != null && !deviceEvents.getDeviceId().equals(getDeviceId())) {
             return;
         }
 
