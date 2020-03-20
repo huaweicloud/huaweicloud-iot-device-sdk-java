@@ -26,7 +26,7 @@ public class X509CertificateDeviceSample {
 //        keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
 
         //使用证书创建设备
-        IoTDevice iotDevice = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+        IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "");
 
 

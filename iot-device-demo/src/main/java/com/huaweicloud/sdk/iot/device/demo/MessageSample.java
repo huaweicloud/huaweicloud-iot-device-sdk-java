@@ -20,7 +20,7 @@ public class MessageSample {
 
 
         //创建设备
-        IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo", "mysecret");
         if (device.init() != 0) {
             return;

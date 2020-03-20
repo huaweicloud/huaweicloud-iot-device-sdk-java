@@ -14,6 +14,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [使用设备代码生成器](#使用设备代码生成器)
 * [使用证书认证](#使用证书认证)
 * [如何贡献代码](#如何贡献代码)
+* [版本更新说明](#版本更新说明)
 * [接口文档](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
 * [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
 
@@ -47,7 +48,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 创建设备并初始化
 ```java
-        IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo", "mysecret");
         if (device.init() != 0) {
             return;
@@ -293,7 +294,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 接下来创建设备，注册烟感服务，然后初始化设备：
 ```java
     //创建设备
-   IoTDevice device = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+   IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
            "5e06bfee334dd4f33759f5b3_demo", "mysecret");
 
    //创建设备服务
@@ -336,7 +337,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 然后使用证书创建设备
 ```java
-    IoTDevice iotDevice = new IoTDevice("ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+    IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword");
 ```
 
@@ -351,5 +352,8 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 4、在本地修改代码并push到fork的仓库
 5、在fork的仓库提交pull request到主仓库
   
+## 版本更新说明
 
-
+### v0.8.0
+更换新的接入域名（iot-mqtts.cn-north-4.myhuaweicloud.com）和根证书。
+如果设备使用老域名（iot-acc.cn-north-4.myhuaweicloud.com）接入，请使用 v0.6.0及以下版本的SDK

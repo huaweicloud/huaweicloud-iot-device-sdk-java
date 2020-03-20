@@ -65,4 +65,16 @@ public class OTAPackage {
     public void setSign(String sign) {
         this.sign = sign;
     }
+
+    @Override
+    public String toString() {
+        return "OTAPackage{" +
+                "url='" + url + '\'' +
+                ", version='" + version + '\'' +
+                ", fileSize=" + fileSize +
+                ", token='" + token + '\'' +
+                ", expires=" + expires +
+                ", sign='" + sign + '\'' +
+                '}';
+    }
 }

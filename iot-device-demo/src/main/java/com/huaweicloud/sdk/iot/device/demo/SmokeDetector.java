@@ -21,7 +21,7 @@ public class SmokeDetector {
 
     public static void main(String args[]) throws InterruptedException {
 
-        String serverUri = "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883";
+        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "secret";
 

@@ -47,7 +47,7 @@ public class IoTDevice {
     /**
      * 构造函数，使用密码创建设备
      *
-     * @param serverUri    平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri    平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId     设备id
      * @param deviceSecret 设备密码
      */
@@ -60,7 +60,7 @@ public class IoTDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         this.otaService = new OTAService();
-        this.addService("$ota_manager", otaService);
+        this.addService("$ota", otaService);
         log.info("create device: " + clientConf.getDeviceId());
 
     }
@@ -68,7 +68,7 @@ public class IoTDevice {
     /**
      * 构造函数，使用证书创建设备
      *
-     * @param serverUri   平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri   平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
@@ -325,7 +325,8 @@ public class IoTDevice {
      */
     public void onEvent(DeviceEvents deviceEvents) {
 
-        if (deviceEvents.getDeviceId() != null && deviceEvents.getDeviceId().equals(getDeviceId())) {
+        //子设备的
+        if (deviceEvents.getDeviceId() != null && !deviceEvents.getDeviceId().equals(getDeviceId())) {
             return;
         }
 

@@ -46,7 +46,7 @@ public class StringTcpServer {
         }
 
         simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
-                "ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883",
+                "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo", "secret");
         if (simpleGateway.init() != 0) {
             return;
