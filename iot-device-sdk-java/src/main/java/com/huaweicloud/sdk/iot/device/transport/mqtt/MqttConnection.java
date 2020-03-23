@@ -19,6 +19,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import javax.net.ssl.SSLContext;
 import java.time.Instant;
@@ -105,7 +106,7 @@ public class MqttConnection implements Connection {
             String clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
 
             try {
-                mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId);
+                mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId, new MemoryPersistence());
             } catch (MqttException e) {
                 log.error(ExceptionUtil.getBriefStackTrace(e));
             }
