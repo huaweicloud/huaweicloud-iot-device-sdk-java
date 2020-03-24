@@ -57,7 +57,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ### 上报消息
 
-完整代码参见MessageSample.java
+上报设备消息：
 ```java
 
        device.getClient().reportDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
@@ -74,8 +74,26 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ```
 
+上报自定义topic消息（注意需要先在平台配置自定义topic）：
+```java
+		String topic = "$oc/devices/"+  device.getDeviceId() + "/user/wpy";
+		device.getClient().publishRawMessage(new RawMessage(topic, "hello raw message "),
+				new ActionListener() {
+					@Override
+					public void onSuccess(Object context) {
+						log.info("publishRawMessage ok: ");
+					}
+
+					@Override
+					public void onFailure(Object context, Throwable var2) {
+						log.error("publishRawMessage fail: " + var2);
+					}
+				});
+```					
+完整代码参见MessageSample.java					
+
 ### 上报设备属性
-完整代码参见PropertySample.java
+
 ```java
      Map<String ,Object> json = new HashMap<>();
      Random rand = new Random();
@@ -102,6 +120,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
          }   });
 
 ```
+完整代码参见PropertySample.java
 
 ### 上报子设备属性
 ```java
@@ -133,7 +152,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 ```
 
 ### 处理平台下发的属性读写
-完整代码参见PropertySample.java
+
 ```java
     device.getClient().setPropertyListener(new PropertyListener() {
 
@@ -182,9 +201,10 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 });
 
 ```
+完整代码参见PropertySample.java
 
 ### 处理平台下发的命令
-完整代码参见CommandSample.java
+
 ```java
     client.setCommandListener(new CommandListener() {
     @Override
@@ -200,9 +220,10 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
     }   });
 
 ```
+完整代码参见CommandSample.java
 
 ### 面向物模型编程
-面向物模型编程指的是，基于SDK提供的物模型抽象能力，设备代码只需要按照物模型定义设备服务，然后就可以直接访问设备服务，SDK就能自动的和平台通讯，完成属性的同步和命令的调用。
+面向物模型编程指的是，基于SDK提供的物模型抽象能力，设备代码只需要按照物模型定义设备服务，SDK就能自动的和平台通讯，完成属性的同步和命令的调用。
 相比直接调用客户端接口和平台进行通讯，面向物模型编程简化了设备侧代码的复杂度，让设备代码只需要关注业务，而不用关注和平台的通讯过程。
 
 

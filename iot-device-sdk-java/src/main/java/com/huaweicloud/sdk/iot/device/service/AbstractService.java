@@ -22,7 +22,7 @@ public abstract class AbstractService implements IService {
 
     private Logger log = Logger.getLogger(AbstractService.class);
 
-    private IoTDevice iotDevice;
+    private AbstractDevice iotDevice;
     private Map<String, Method> commands = new HashMap<>();
     private Map<String, Field> writeableFields = new HashMap<>();
     private Map<String, FieldPair> readableFields = new HashMap<>();
@@ -262,7 +262,7 @@ public abstract class AbstractService implements IService {
      *
      * @return 设备实例
      */
-    public IoTDevice getIotDevice() {
+    public AbstractDevice getIotDevice() {
         return iotDevice;
     }
 
@@ -271,7 +271,7 @@ public abstract class AbstractService implements IService {
      *
      * @param iotDevice 设备实例
      */
-    public void setIotDevice(IoTDevice iotDevice) {
+    public void setIotDevice(AbstractDevice iotDevice) {
         this.iotDevice = iotDevice;
     }
 
