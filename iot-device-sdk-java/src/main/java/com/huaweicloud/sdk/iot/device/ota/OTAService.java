@@ -39,25 +39,6 @@ public class OTAService extends AbstractService {
     private OTAListener otaListener;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    //是否自动下载升级包
-    private boolean autoDownloadPackage = false;
-
-
-    /**
-     * 查询自动下载升级包开关
-     * @return true表示自动下载升级包
-     */
-    public boolean isAutoDownloadPackage() {
-        return autoDownloadPackage;
-    }
-
-    /**设置自动下载升级包开关
-     * @param autoDownloadPackage true表示自动下载升级包
-     */
-    public void setAutoDownloadPackage(boolean autoDownloadPackage) {
-        this.autoDownloadPackage = autoDownloadPackage;
-    }
-
     /**
      * 设置OTA监听器
      *

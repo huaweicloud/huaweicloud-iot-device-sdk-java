@@ -1,6 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-import com.huaweicloud.sdk.iot.device.DeviceClient;
+import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import io.netty.channel.Channel;
 
