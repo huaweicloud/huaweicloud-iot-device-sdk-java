@@ -16,7 +16,7 @@ public interface PropertyListener {
      * @param requestId 请求id
      * @param services  服务属性列表
      */
-    public void onPropertiesSet(String requestId, List<ServiceProperty> services);
+    void onPropertiesSet(String requestId, List<ServiceProperty> services);
 
     /**
      * 处理读属性操作
@@ -24,7 +24,7 @@ public interface PropertyListener {
      * @param requestId 请求id
      * @param serviceId 服务id，可选
      */
-    public void onPropertiesGet(String requestId, String serviceId);
+    void onPropertiesGet(String requestId, String serviceId);
 
 
 }

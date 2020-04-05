@@ -10,5 +10,5 @@ public interface RequestListener {
      *
      * @param result 请求执行结果
      */
-    public void onFinish(String result);
+    void onFinish(String result);
 }
