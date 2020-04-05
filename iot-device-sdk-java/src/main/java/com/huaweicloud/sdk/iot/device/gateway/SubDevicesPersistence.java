@@ -9,12 +9,12 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.SubDevicesInfo;
  */
 public interface SubDevicesPersistence {
 
-    public DeviceInfo getSubDevice(String nodeId);
+    DeviceInfo getSubDevice(String nodeId);
 
-    public int addSubDevices(SubDevicesInfo subDevicesInfo);
+    int addSubDevices(SubDevicesInfo subDevicesInfo);
 
-    public int deleteSubDevices(SubDevicesInfo subDevicesInfo);
+    int deleteSubDevices(SubDevicesInfo subDevicesInfo);
 
-    public long getVersion();
+    long getVersion();
 
 }

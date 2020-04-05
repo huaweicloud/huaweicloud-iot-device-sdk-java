@@ -10,7 +10,7 @@ public interface ConnectListener {
      *
      * @param cause 连接丢失原因
      */
-    public void connectionLost(Throwable cause);
+    void connectionLost(Throwable cause);
 
     /**
      * 连接成功通知
@@ -18,5 +18,5 @@ public interface ConnectListener {
      * @param reconnect 是否为重连
      * @param serverURI 服务端地址
      */
-    public void connectComplete(boolean reconnect, String serverURI);
+    void connectComplete(boolean reconnect, String serverURI);
 }
