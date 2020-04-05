@@ -10,5 +10,5 @@ public interface RawMessageListener {
      *
      * @param message 原始消息
      */
-    public void onMessageReceived(RawMessage message);
+    void onMessageReceived(RawMessage message);
 }

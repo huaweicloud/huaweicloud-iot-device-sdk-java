@@ -12,5 +12,5 @@ public interface DeviceMessageListener {
      *
      * @param deviceMessage 设备消息内容
      */
-    public void onDeviceMessage(DeviceMessage deviceMessage);
+    void onDeviceMessage(DeviceMessage deviceMessage);
 }

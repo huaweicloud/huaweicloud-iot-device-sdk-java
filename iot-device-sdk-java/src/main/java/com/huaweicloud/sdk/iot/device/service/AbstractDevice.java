@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,7 +38,7 @@ public class AbstractDevice {
     private DeviceClient client;
     private String deviceId;
 
-    private Map<String, AbstractService> services = new HashMap<>();
+    private Map<String, AbstractService> services = new ConcurrentHashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private OTAService otaService;
@@ -97,11 +98,15 @@ public class AbstractDevice {
         log.info("create device: " + clientConf.getDeviceId());
     }
 
+    /**
+     * 初始化系统默认service，系统service以$作为开头
+     */
     private void initServices() {
         this.otaService = new OTAService();
         this.addService("$ota", otaService);
         this.fileManager = new FileManager();
         this.addService("$file_manager", fileManager);
+        this.addService("$sdk", new SdkInfo());
     }
 
 
@@ -126,6 +131,14 @@ public class AbstractDevice {
         deviceService.setServiceId(serviceId);
 
         services.putIfAbsent(serviceId, deviceService);
+    }
+
+    /**
+     * 删除服务
+     * @param serviceId 服务id
+     */
+    public void delService(String serviceId){
+        services.remove(serviceId);
     }
 
 

@@ -16,5 +16,5 @@ public interface CommandListener {
      * @param commandName 命令名
      * @param paras       命令参数
      */
-    public void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras);
+    void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras);
 }
