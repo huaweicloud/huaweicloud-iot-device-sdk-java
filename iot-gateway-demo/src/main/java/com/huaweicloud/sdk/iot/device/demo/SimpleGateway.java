@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SimpleGateway extends AbstractGateway {
 
-    private static Logger log = Logger.getLogger(SimpleGateway.class);
+    private static final Logger log = Logger.getLogger(SimpleGateway.class);
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 

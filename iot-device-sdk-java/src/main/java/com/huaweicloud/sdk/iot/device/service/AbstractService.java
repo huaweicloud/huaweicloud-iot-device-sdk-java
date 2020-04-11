@@ -20,7 +20,7 @@ import java.util.*;
 @JsonFilter("AbstractService")
 public abstract class AbstractService implements IService {
 
-    private Logger log = Logger.getLogger(AbstractService.class);
+    private static final Logger log = Logger.getLogger(AbstractService.class);
 
     private AbstractDevice iotDevice;
     private Map<String, Method> commands = new HashMap<>();

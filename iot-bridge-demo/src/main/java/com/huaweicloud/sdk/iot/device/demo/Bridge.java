@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Bridge {
 
     private static Bridge instance;
-    private static Logger log = Logger.getLogger(Bridge.class);
+    private static final Logger log = Logger.getLogger(Bridge.class);
     DeviceIdentityRegistry deviceIdentityRegistry;
     String serverUri;
     private Map<String, Session> deviceIdToSesseionMap;

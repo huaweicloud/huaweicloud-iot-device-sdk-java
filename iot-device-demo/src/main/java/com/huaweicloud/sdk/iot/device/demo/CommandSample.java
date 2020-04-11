@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class CommandSample {
 
-    private static Logger log = Logger.getLogger(CommandSample.class);
+    private static final Logger log = Logger.getLogger(CommandSample.class);
 
 
     public static void main(String[] args) throws InterruptedException {
