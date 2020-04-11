@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用户不能直接创建DeviceClient实例，只能先创建IoTDevice实例，然后通过IoTDevice的getClient接口获取DeviceClient实例
  */
 public class DeviceClient implements RawMessageListener {
+    private static final Logger log = Logger.getLogger(DeviceClient.class);
 
     private PropertyListener propertyListener;
     private CommandListener commandListener;
@@ -54,12 +55,9 @@ public class DeviceClient implements RawMessageListener {
     private Map<String, RawMessageListener> rawMessageListenerMap;
     private AbstractDevice device;
 
-    private Logger log = Logger.getLogger(DeviceClient.class);
-
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
-
+        checkClientConf(clientConf);
         this.clientConf = clientConf;
-        checkClientConf();
         this.deviceId = clientConf.getDeviceId();
         this.requestManager = new RequestManager(this);
         this.connection = new MqttConnection(clientConf, this);
@@ -72,7 +70,7 @@ public class DeviceClient implements RawMessageListener {
         return clientConf;
     }
 
-    private void checkClientConf() throws IllegalArgumentException {
+    private void checkClientConf(ClientConf clientConf) throws IllegalArgumentException {
         if (clientConf == null) {
             throw new IllegalArgumentException("clientConf is null");
         }

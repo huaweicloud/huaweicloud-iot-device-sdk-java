@@ -14,44 +14,44 @@ public class ClientConf {
     /**
      * 设备id，在平台注册设备获得，生成规则：productId_nodeId
      */
-    String deviceId;
+    private String deviceId;
 
 
     /**
      * 设备密码，使用密码认证时填写
      */
-    String secret;
+    private String secret;
 
     /**
      * 设备接入平台地址，比如tcp://localhost:1883 或者 ssl://localhost:8883
      */
-    String serverUri;
+    private String serverUri;
 
     /**
      * 协议类型，当前仅支持mqtt
      */
-    String protocol;
+    private String protocol;
 
     /**
      * 离线消息缓存队列大小，默认5000，仅MQTT协议支持
      */
-    Integer offlineBufferSize;
+    private Integer offlineBufferSize;
 
     /**
      * keystore格式的证书，使用证书认证时传入keyStore和keyPassword
      */
     @JsonIgnore
-    KeyStore keyStore;
+    private KeyStore keyStore;
 
     /**
      * 私钥密码
      */
-    String keyPassword;
+    private String keyPassword;
 
     /**
      * 客户端qos，0或1，默认1，仅MQTT协议支持
      */
-    int qos = 1;
+    private int qos = 1;
 
 
     public String getDeviceId() {
