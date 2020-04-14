@@ -15,7 +15,7 @@ import java.util.Map;
 public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
     private Map<String, Map<String, String>> deviceIdentityMap;
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getLogger(DefaultDeviceIdentityRegistry.class);
 
     public DefaultDeviceIdentityRegistry() {
 

@@ -17,9 +17,7 @@ import java.util.concurrent.Executors;
  * 未完成
  */
 public class FileManager extends AbstractService {
-
-
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getLogger(FileManager.class);
     private FileMangerListener fileMangerListener;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 

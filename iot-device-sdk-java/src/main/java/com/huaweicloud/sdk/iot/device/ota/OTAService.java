@@ -15,9 +15,10 @@ import java.util.concurrent.Executors;
 
 /**
  * OTA服务类，提供设备升级相关接口，使用方法：
- * OTAService otaService = new OTAService();
- * iotDevice.addService("ota_manager", otaService);
+ * IoTDevice device = new IoTDevice(...
+ * OTAService otaService = device.getOtaService();
  * otaService.setOtaListener(new OTAListener() {
+ * 具体参见OTASample
  */
 public class OTAService extends AbstractService {
 

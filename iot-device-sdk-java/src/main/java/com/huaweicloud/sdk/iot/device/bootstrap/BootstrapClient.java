@@ -24,7 +24,7 @@ public class BootstrapClient implements RawMessageListener {
     private ActionListener listener;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private Logger log = Logger.getLogger(BootstrapClient.class);
+    private static final Logger log = Logger.getLogger(BootstrapClient.class);
 
     /**
      * 构造函数，使用密码创建

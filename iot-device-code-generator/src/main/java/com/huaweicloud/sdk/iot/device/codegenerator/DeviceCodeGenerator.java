@@ -10,10 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * 此工具根据产品模型文件自动生成设备代码

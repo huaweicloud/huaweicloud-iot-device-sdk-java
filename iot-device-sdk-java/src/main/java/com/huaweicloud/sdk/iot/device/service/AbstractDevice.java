@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  */
 public class AbstractDevice {
 
-    private Logger log = Logger.getLogger(AbstractDevice.class);
+    private static final Logger log = Logger.getLogger(AbstractDevice.class);
 
     private DeviceClient client;
     private String deviceId;

@@ -1,24 +1,25 @@
 package com.huaweicloud.sdk.iot.device.client;
 
-
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import org.apache.log4j.Logger;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class IotRequest {
-
+    private static final Logger log = Logger.getLogger(IotRequest.class);
     private String requestId;
     private int timeout;
     private RawMessage rawMessage;
     private Object result = null;
     private boolean sync = true;
-    private RequestListener listener;   //异步才有
-    private Timer timer;
-
-    private Logger log = Logger.getLogger(this.getClass());
+    /**
+     * 异步请求才有
+     */
+    private RequestListener listener;
+    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();;
 
     public IotRequest(RawMessage rawMessage, String requestId, int timeout) {
 
@@ -65,7 +66,6 @@ public class IotRequest {
     public void runSync() {
 
         synchronized (this) {
-
             try {
                 wait(timeout);
             } catch (InterruptedException e) {
@@ -74,7 +74,6 @@ public class IotRequest {
 
             if (result == null) {
                 result = IotResult.TIMEOUT;
-                return;
             }
 
         }
@@ -85,17 +84,11 @@ public class IotRequest {
 
         sync = false;
         this.listener = listener;
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-
-                if (result == null) {
-                    result = IotResult.TIMEOUT;
-                }
+        executor.scheduleWithFixedDelay(() -> {
+            if (result == null) {
+                result = IotResult.TIMEOUT;
             }
-        }, timeout);
-
+        }, 0, timeout, TimeUnit.MILLISECONDS);
     }
 
     public void onFinish(String iotResult) {
