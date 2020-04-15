@@ -137,5 +137,6 @@ public class BootstrapClient implements RawMessageListener {
      */
     public void close() {
         connection.close();
+        executorService.shutdown();
     }
 }

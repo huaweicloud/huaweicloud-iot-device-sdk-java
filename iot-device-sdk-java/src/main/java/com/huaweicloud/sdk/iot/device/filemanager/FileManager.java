@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -19,7 +17,6 @@ import java.util.concurrent.Executors;
 public class FileManager extends AbstractService {
     private static final Logger log = Logger.getLogger(FileManager.class);
     private FileMangerListener fileMangerListener;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * 获取文件上传url

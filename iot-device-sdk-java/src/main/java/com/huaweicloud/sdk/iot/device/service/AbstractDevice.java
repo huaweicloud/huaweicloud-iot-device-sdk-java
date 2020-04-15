@@ -3,14 +3,7 @@ package com.huaweicloud.sdk.iot.device.service;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
-import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
-import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.client.requests.*;
 import com.huaweicloud.sdk.iot.device.filemanager.FileManager;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -20,12 +13,9 @@ import org.apache.log4j.Logger;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -39,8 +29,6 @@ public class AbstractDevice {
     private String deviceId;
 
     private Map<String, AbstractService> services = new ConcurrentHashMap<>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     private OTAService otaService;
     private FileManager fileManager;
 
@@ -172,7 +160,7 @@ public class AbstractDevice {
         serviceProperty.setProperties(props);
         serviceProperty.setEventTime(IotUtil.getTimeStamp());
 
-        executorService.submit(new Runnable() {
+        getClient().scheduleTask(new Runnable() {
             @Override
             public void run() {
                 client.reportProperties(Arrays.asList(serviceProperty), new ActionListener() {
@@ -218,7 +206,7 @@ public class AbstractDevice {
             return;
         }
 
-        executorService.submit(new Runnable() {
+        getClient().scheduleTask(new Runnable() {
             @Override
             public void run() {
                 client.reportProperties(serviceProperties, new ActionListener() {

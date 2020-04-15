@@ -38,7 +38,7 @@ public class OTAService extends AbstractService {
 
     private Logger log = Logger.getLogger(this.getClass());
     private OTAListener otaListener;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService ;//OTA单独起一个线程处理
 
     /**
      * 设置OTA监听器
@@ -46,6 +46,10 @@ public class OTAService extends AbstractService {
      * @param otaListener OTA监听器
      */
     public void setOtaListener(OTAListener otaListener) {
+        if (executorService == null){
+            executorService = Executors.newSingleThreadExecutor();
+        }
+
         this.otaListener = otaListener;
     }
 

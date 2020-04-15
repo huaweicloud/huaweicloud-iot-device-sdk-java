@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 
 /**
@@ -54,6 +54,9 @@ public class DeviceClient implements RawMessageListener {
     private String deviceId;
     private Map<String, RawMessageListener> rawMessageListenerMap;
     private AbstractDevice device;
+
+    private ScheduledExecutorService executorService;
+    private int ClientThreadCount = 1;
 
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
         checkClientConf(clientConf);
@@ -94,6 +97,13 @@ public class DeviceClient implements RawMessageListener {
      * @return 0表示连接成功，其他表示连接失败
      */
     public int connect() {
+
+        synchronized (this) {
+            if (executorService == null) {
+                executorService = Executors.newScheduledThreadPool(ClientThreadCount);
+            }
+        }
+
         int ret = connection.connect();
         if (ret != 0) {
             return ret;
@@ -277,37 +287,47 @@ public class DeviceClient implements RawMessageListener {
     @Override
     public void onMessageReceived(RawMessage message) {
 
-        try {
-            String topic = message.getTopic();
-
-            RawMessageListener listener = rawMessageListenerMap.get(topic);
-            if (listener != null) {
-                listener.onMessageReceived(message);
-                return;
-            }
-
-            if (topic.contains("/messages/down")) {
-                onDeviceMessage(message);
-            } else if (topic.contains("sys/commands/request_id")) {
-                onCommand(message);
-
-            } else if (topic.contains("/sys/properties/set/request_id")) {
-                OnPropertiesSet(message);
-
-            } else if (topic.contains("/sys/properties/get/request_id")) {
-                OnPropertiesGet(message);
-
-            } else if (topic.contains("/desired/properties/get/response")) {
-                onResponse(message);
-            } else if (topic.contains("/sys/events/down")) {
-                onEvent(message);
-            }else{
-                log.error("unknown topic: "+topic);
-            }
-
-        } catch (Exception e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
+        if (executorService == null){
+            log.error("executionService is null");
+            return;
         }
+
+        executorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String topic = message.getTopic();
+
+                    RawMessageListener listener = rawMessageListenerMap.get(topic);
+                    if (listener != null) {
+                        listener.onMessageReceived(message);
+                        return;
+                    }
+
+                    if (topic.contains("/messages/down")) {
+                        onDeviceMessage(message);
+                    } else if (topic.contains("sys/commands/request_id")) {
+                        onCommand(message);
+
+                    } else if (topic.contains("/sys/properties/set/request_id")) {
+                        OnPropertiesSet(message);
+
+                    } else if (topic.contains("/sys/properties/get/request_id")) {
+                        OnPropertiesGet(message);
+
+                    } else if (topic.contains("/desired/properties/get/response")) {
+                        onResponse(message);
+                    } else if (topic.contains("/sys/events/down")) {
+                        onEvent(message);
+                    }else{
+                        log.error("unknown topic: "+topic);
+                    }
+
+                } catch (Exception e) {
+                    log.error(ExceptionUtil.getBriefStackTrace(e));
+                }
+            }
+        }, 0, TimeUnit.MILLISECONDS);
 
     }
 
@@ -429,5 +449,25 @@ public class DeviceClient implements RawMessageListener {
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
         connection.publishMessage(rawMessage, listener);
 
+    }
+
+    public Future<?> scheduleTask(Runnable runnable) {
+        return executorService.schedule(runnable, 0, TimeUnit.MILLISECONDS);
+    }
+
+    public Future<?> scheduleTask(Runnable runnable, long delay) {
+        return executorService.schedule(runnable, delay, TimeUnit.MILLISECONDS);
+    }
+
+    public Future<?> scheduleRoutineTask(Runnable runnable,  long period) {
+        return executorService.scheduleAtFixedRate(runnable, period, period, TimeUnit.MILLISECONDS);
+    }
+
+    public int getClientThreadCount() {
+        return ClientThreadCount;
+    }
+
+    public void setClientThreadCount(int clientThreadCount) {
+        ClientThreadCount = clientThreadCount;
     }
 }
