@@ -6,6 +6,7 @@ import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.*;
 import com.huaweicloud.sdk.iot.device.filemanager.FileManager;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
+import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import org.apache.log4j.Logger;
@@ -31,6 +32,7 @@ public class AbstractDevice {
     private Map<String, AbstractService> services = new ConcurrentHashMap<>();
     private OTAService otaService;
     private FileManager fileManager;
+    private TimeSyncService timeSyncService;
 
 
     /**
@@ -48,7 +50,7 @@ public class AbstractDevice {
         clientConf.setSecret(deviceSecret);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
-        initServices();
+        initSysServices();
         log.info("create device: " + clientConf.getDeviceId());
 
     }
@@ -70,7 +72,7 @@ public class AbstractDevice {
         clientConf.setKeyStore(keyStore);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
-        initServices();
+        initSysServices();
         log.info("create device: " + clientConf.getDeviceId());
     }
 
@@ -82,19 +84,22 @@ public class AbstractDevice {
     public AbstractDevice(ClientConf clientConf) {
         this.client = new DeviceClient(clientConf, this);
         this.deviceId = clientConf.getDeviceId();
-        initServices();
+        initSysServices();
         log.info("create device: " + clientConf.getDeviceId());
     }
 
     /**
      * 初始化系统默认service，系统service以$作为开头
      */
-    private void initServices() {
+    private void initSysServices() {
         this.otaService = new OTAService();
         this.addService("$ota", otaService);
         this.fileManager = new FileManager();
         this.addService("$file_manager", fileManager);
         this.addService("$sdk", new SdkInfo());
+
+        this.timeSyncService = new TimeSyncService();
+        this.addService("$time_sync", timeSyncService);
     }
 
 
@@ -366,5 +371,11 @@ public class AbstractDevice {
         return otaService;
     }
 
-
+    /**
+     * 获取时间同步服务
+     * @return
+     */
+    public TimeSyncService getTimeSyncService() {
+        return timeSyncService;
+    }
 }
