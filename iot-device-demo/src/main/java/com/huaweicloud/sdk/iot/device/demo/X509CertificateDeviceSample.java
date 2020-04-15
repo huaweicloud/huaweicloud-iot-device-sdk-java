@@ -3,8 +3,22 @@ package com.huaweicloud.sdk.iot.device.demo;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import org.apache.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +29,13 @@ import java.util.Random;
  */
 public class X509CertificateDeviceSample {
 
+    private static final Logger log = Logger.getLogger(X509CertificateDeviceSample.class);
+
     public static void main(String args[]) throws Exception {
 
 
         //读取pem格式证书
-        KeyStore keyStore = DemoUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
+        KeyStore keyStore = getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
 
         //读取keystore格式证书
 //        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -64,5 +80,48 @@ public class X509CertificateDeviceSample {
 
             Thread.sleep(10000);
         }
+    }
+
+    private static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
+        if (certificateFile == null || privateKeyFile == null) {
+            log.error("input null");
+            return null;
+        }
+        if (keyPassword == null) {
+            keyPassword = "";
+        }
+
+        Certificate cert = null;
+        try (FileInputStream inputStream = new FileInputStream(certificateFile)) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            cert = cf.generateCertificate(inputStream);
+        }
+
+        KeyPair keyPair = null;
+        try (FileInputStream keyInput = new FileInputStream(privateKeyFile)) {
+            PEMParser pemParser = new PEMParser(new InputStreamReader(keyInput, StandardCharsets.UTF_8));
+            Object object = pemParser.readObject();
+            BouncyCastleProvider provider = new BouncyCastleProvider();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(provider);
+            if (object instanceof PEMEncryptedKeyPair) {
+                PEMDecryptorProvider decryptionProvider = new JcePEMDecryptorProviderBuilder().setProvider(provider).build(keyPassword.toCharArray());
+                PEMKeyPair keypair = ((PEMEncryptedKeyPair) object).decryptKeyPair(decryptionProvider);
+                keyPair = converter.getKeyPair(keypair);
+            } else {
+                keyPair = converter.getKeyPair((PEMKeyPair) object);
+            }
+        }
+        if (keyPair == null) {
+            log.error("keyPair is null");
+            return null;
+        }
+
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
+        keyStore.setCertificateEntry("certificate", cert);
+        keyStore.setKeyEntry("private-key", keyPair.getPrivate(), keyPassword.toCharArray(),
+                new Certificate[]{cert});
+
+        return keyStore;
     }
 }
