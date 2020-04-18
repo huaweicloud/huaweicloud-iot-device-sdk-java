@@ -28,7 +28,7 @@ public class TcpDevice {
 
     private final String host;
     private final int port;
-    private Logger log = Logger.getLogger(TcpDevice.class);
+    private static final Logger log = Logger.getLogger(TcpDevice.class);
 
     public TcpDevice(String host, int port) {
         this.host = host;

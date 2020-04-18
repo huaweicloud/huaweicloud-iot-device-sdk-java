@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
  */
 public class MessageSample {
 
-    private static Logger log = Logger.getLogger(MessageSample.class);
+    private static final Logger log = Logger.getLogger(MessageSample.class);
 
 
     public static void main(String[] args) throws InterruptedException {

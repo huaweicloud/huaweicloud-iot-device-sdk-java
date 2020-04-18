@@ -11,10 +11,9 @@ import java.util.concurrent.ConcurrentMap;
  * 请求管理器
  */
 public class RequestManager {
-
-    DeviceClient iotClient;
+    private static final Logger log = Logger.getLogger(RequestManager.class);
+    private DeviceClient iotClient;
     private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
-    private Logger log = Logger.getLogger(RequestManager.class);
 
     /**
      * 构造函数
@@ -31,7 +30,7 @@ public class RequestManager {
      * @param iotRequest 请求参数
      * @return 请求执行结果
      */
-    public Object excuteSyncRequest(IotRequest iotRequest) {
+    public Object executeSyncRequest(IotRequest iotRequest) {
 
         RawMessage rawMessage = iotRequest.getRawMessage();
         iotClient.publishRawMessage(rawMessage, null);
@@ -46,7 +45,7 @@ public class RequestManager {
      * @param iotRequest 请求参数
      * @param listener   请求监听器，用于接收请求完成通知
      */
-    public void excuteAsynRequest(IotRequest iotRequest, RequestListener listener) {
+    public void executeAsyncRequest(IotRequest iotRequest, RequestListener listener) {
 
         RawMessage rawMessage = iotRequest.getRawMessage();
         iotClient.publishRawMessage(rawMessage, null);
@@ -68,7 +67,5 @@ public class RequestManager {
         }
 
         request.onFinish(message.toString());
-
-
     }
 }

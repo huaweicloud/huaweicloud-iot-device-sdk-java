@@ -43,7 +43,7 @@ public class MqttConnection implements Connection {
     private ConnectListener connectListener;
     private RawMessageListener rawMessageListener;
 
-    private Logger log = Logger.getLogger(MqttConnection.class);
+    private static final Logger log = Logger.getLogger(MqttConnection.class);
 
     public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener){
         this.clientConf = clientConf;

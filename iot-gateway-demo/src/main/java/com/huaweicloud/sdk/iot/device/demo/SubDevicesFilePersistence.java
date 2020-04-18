@@ -22,7 +22,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getLogger(SubDevicesFilePersistence.class);
     private SubDevInfo subDevInfoCache;
 
     public SubDevicesFilePersistence() {
