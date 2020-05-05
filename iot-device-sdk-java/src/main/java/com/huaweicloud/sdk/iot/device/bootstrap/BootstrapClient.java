@@ -65,6 +65,27 @@ public class BootstrapClient implements RawMessageListener {
         log.info("create BootstrapClient: " + clientConf.getDeviceId());
     }
 
+    /**
+     * 构造函数，自注册场景下证书创建
+     *
+     * @param bootstrapUri  bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId      设备id
+     * @param keyStore      证书容器
+     * @param keyPassword   证书密码
+     * @param scopeId       scopeId, 自注册场景可从物联网平台获取
+     */
+    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, String scopeId) {
+        ClientConf clientConf = new ClientConf();
+        clientConf.setServerUri(bootstrapUri);
+        clientConf.setDeviceId(deviceId);
+        clientConf.setKeyStore(keyStore);
+        clientConf.setKeyPassword(keyPassword);
+        clientConf.setScopeId(scopeId);
+        this.deviceId = deviceId;
+        this.connection = new MqttConnection(clientConf, this);
+        log.info("create BootstrapClient: " + clientConf.getDeviceId());
+    }
+
     @Override
     public void onMessageReceived(RawMessage message) {
 

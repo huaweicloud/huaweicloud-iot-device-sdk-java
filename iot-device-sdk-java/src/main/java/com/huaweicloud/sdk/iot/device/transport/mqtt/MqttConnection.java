@@ -103,7 +103,14 @@ public class MqttConnection implements Connection {
 
             String timeStamp = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC"))
                     .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-            String clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
+            String clientId = null;
+            if (clientConf.getScopeId() == null) {
+                clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
+                log.error(clientId);
+            } else {
+                clientId = clientConf.getDeviceId() + "_" + connectType + "_" + clientConf.getScopeId();
+                log.error(clientId);
+            }
 
             try {
                 mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId, new MemoryPersistence());
