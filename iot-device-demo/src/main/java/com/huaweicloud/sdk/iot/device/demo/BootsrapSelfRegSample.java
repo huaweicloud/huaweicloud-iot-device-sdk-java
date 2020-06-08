@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import java.security.KeyStore;
 
 /**
- * 演示自注册场景，设备启动时，通过引导服务获取真实的服务器地址
+ * 演示自注册场景，设备启动时，通过引导服务获取真实的服务器地址(证书方式)
  */
 public class BootsrapSelfRegSample {
     private static final Logger log = Logger.getLogger(BootsrapSelfRegSample.class);
@@ -17,7 +17,7 @@ public class BootsrapSelfRegSample {
     public static void main(String[] args) throws Exception {
 
         String deviceId = "702b1038-a174-4a1d-969f-f67f8df43c4a";
-        String scopeId = "myScopeId";
+        // String scopeId = "myScopeId"; //设备组方式用到
         String bootstrapUri = "ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883";
 
 
@@ -29,7 +29,8 @@ public class BootsrapSelfRegSample {
 //        keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
 
         //创建引导客户端，发起引导
-        BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord", scopeId);
+        BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord");
+        // BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord", scopeId);//设备组方式用到
         bootstrapClient.bootstrap(new ActionListener() {
             @Override
             public void onSuccess(Object context) {

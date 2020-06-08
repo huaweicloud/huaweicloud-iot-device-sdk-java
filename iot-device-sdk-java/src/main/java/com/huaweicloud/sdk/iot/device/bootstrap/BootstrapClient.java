@@ -89,7 +89,7 @@ public class BootstrapClient implements RawMessageListener {
     @Override
     public void onMessageReceived(RawMessage message) {
 
-        if (message.getTopic().contains("/iodpsCommand")) {
+        if (message.getTopic().contains("/sys/bootstrap/down")) {
             ObjectNode node = JsonUtil.convertJsonStringToObject(message.toString(), ObjectNode.class);
             String address = node.get("address").asText();
             log.info("bootstrap ok address:" + address);
@@ -119,7 +119,7 @@ public class BootstrapClient implements RawMessageListener {
             return;
         }
 
-        String bsTopic = "/huawei/v1/devices/" + this.deviceId + "/iodpsCommand";
+        String bsTopic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/down";
         connection.subscribeTopic(bsTopic, new ActionListener() {
             @Override
             public void onSuccess(Object context) {
@@ -134,7 +134,7 @@ public class BootstrapClient implements RawMessageListener {
             }
         });
 
-        String topic = "/huawei/v1/devices/" + this.deviceId + "/iodpsData";
+        String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
         RawMessage rawMessage = new RawMessage(topic, "");
 
         connection.publishMessage(rawMessage, new ActionListener() {

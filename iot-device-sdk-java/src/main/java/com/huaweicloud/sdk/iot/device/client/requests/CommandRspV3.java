@@ -27,7 +27,7 @@ public class CommandRspV3 {
     /**
      * 命令的应答，具体字段在设备的产品模型中定义，可选。
      */
-    private Object paras;
+    private Object body;
 
     public CommandRspV3(String msgType, int mid, int errcode) {
         this.msgType = msgType;
@@ -35,11 +35,11 @@ public class CommandRspV3 {
         this.errcode = errcode;
     }
 
-    public CommandRspV3(String msgType, int mid, int errcode, Object paras) {
+    public CommandRspV3(String msgType, int mid, int errcode, Object body) {
         this.msgType = msgType;
         this.mid = mid;
         this.errcode = errcode;
-        this.paras = paras;
+        this.body = body;
     }
 
     public String getMsgType() {
@@ -66,12 +66,12 @@ public class CommandRspV3 {
         this.errcode = errcode;
     }
 
-    public Object getParas() {
-        return paras;
+    public Object getBody() {
+        return body;
     }
 
-    public void setParas(Object paras) {
-        this.paras = paras;
+    public void setBody(Object body) {
+        this.body = body;
     }
 
     @Override

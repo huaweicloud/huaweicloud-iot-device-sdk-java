@@ -232,7 +232,7 @@ public class DeviceClient implements RawMessageListener {
     public void responseCommandBinaryV3(Byte[] bytes, ActionListener listener) {
 
         String topic = "/huawei/v1/devices/" + deviceId + "/data/binary";
-        RawMessage rawMessage = new RawMessage(topic, bytes.toString());
+        RawMessage rawMessage = new RawMessage(topic, Arrays.toString(bytes));
         connection.publishMessage(rawMessage, listener);
     }
 

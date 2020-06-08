@@ -78,7 +78,7 @@ public class PropertyV3AndCmdV3Sample {
                 CommandRspV3 commandRspV3 = new CommandRspV3("deviceRsp", commandV3.getMid(), 0);
                 Map<String, Object> json = new HashMap<>();
                 json.put("result", 0);
-                commandRspV3.setParas(json);
+                commandRspV3.setBody(json);
 
                 device.getClient().responseCommandV3(commandRspV3, new ActionListener() {
                     @Override

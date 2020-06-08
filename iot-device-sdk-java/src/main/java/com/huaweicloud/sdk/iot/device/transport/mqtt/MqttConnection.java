@@ -106,10 +106,8 @@ public class MqttConnection implements Connection {
             String clientId = null;
             if (clientConf.getScopeId() == null) {
                 clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
-                log.error(clientId);
             } else {
                 clientId = clientConf.getDeviceId() + "_" + connectType + "_" + clientConf.getScopeId();
-                log.error(clientId);
             }
 
             try {
