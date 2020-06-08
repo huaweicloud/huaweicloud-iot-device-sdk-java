@@ -3,14 +3,18 @@ package com.huaweicloud.sdk.iot.device.client;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
+import com.huaweicloud.sdk.iot.device.client.listener.CommandV3Listener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+import com.huaweicloud.sdk.iot.device.client.requests.CommandRspV3;
+import com.huaweicloud.sdk.iot.device.client.requests.CommandV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
+import com.huaweicloud.sdk.iot.device.client.requests.DevicePropertiesV3;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
@@ -46,6 +50,7 @@ public class DeviceClient implements RawMessageListener {
 
     private PropertyListener propertyListener;
     private CommandListener commandListener;
+    private CommandV3Listener commandV3Listener;
     private DeviceMessageListener deviceMessageListener;
 
     private ClientConf clientConf;
@@ -115,6 +120,8 @@ public class DeviceClient implements RawMessageListener {
         connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null);
         connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null);
         connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null);
+        connection.subscribeTopic("/huawei/v1/devices/" + clientConf.getDeviceId() + "/command/json", null);
+        connection.subscribeTopic("/huawei/v1/devices/" + clientConf.getDeviceId() + "/command/binary", null);
 
         return ret;
     }
@@ -173,6 +180,60 @@ public class DeviceClient implements RawMessageListener {
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
         connection.publishMessage(rawMessage, listener);
 
+    }
+
+    /**
+     * 向平台上报设备属性（V3接口）
+     *
+     * @param devicePropertiesV3 设备上报的属性
+     * @param listener           发布监听器
+     */
+    public void reportPropertiesV3(DevicePropertiesV3 devicePropertiesV3, ActionListener listener) {
+        String topic = "/huawei/v1/devices/" + this.deviceId + "/data/json";
+
+        RawMessage rawMessage = new RawMessage(topic, devicePropertiesV3.toString());
+        connection.publishMessage(rawMessage, listener);
+    }
+
+    /**
+     * 向平台上报设备属性（V3接口）
+     *
+     * @param bytes    设备上报的码流
+     * @param listener 发布监听器
+     */
+    public void reportBinaryV3(Byte[] bytes, ActionListener listener) {
+
+        String deviceId = clientConf.getDeviceId();
+        String topic = "/huawei/v1/devices/" + deviceId + "/data/binary";
+
+        RawMessage rawMessage = new RawMessage(topic, Arrays.toString(bytes));
+        connection.publishMessage(rawMessage, listener);
+    }
+
+    /**
+     * 向平台上报V3命令响应
+     *
+     * @param commandRspV3  命令响应结果
+     * @param listener      发布监听器
+     */
+    public void responseCommandV3(CommandRspV3 commandRspV3, ActionListener listener) {
+
+        String topic = "/huawei/v1/devices/" + deviceId + "/data/json";
+        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(commandRspV3));
+        connection.publishMessage(rawMessage, listener);
+    }
+
+    /**
+     * 向平台上报V3命令响应（码流）
+     *
+     * @param bytes     响应码流
+     * @param listener  发布监听器
+     */
+    public void responseCommandBinaryV3(Byte[] bytes, ActionListener listener) {
+
+        String topic = "/huawei/v1/devices/" + deviceId + "/data/binary";
+        RawMessage rawMessage = new RawMessage(topic, Arrays.toString(bytes));
+        connection.publishMessage(rawMessage, listener);
     }
 
     /**
@@ -253,6 +314,18 @@ public class DeviceClient implements RawMessageListener {
 
     }
 
+    private void onCommandV3(RawMessage message) {
+        CommandV3 commandV3 = JsonUtil.convertJsonStringToObject(message.toString(), CommandV3.class);
+        if (commandV3 == null) {
+            log.error("invalid commandV3");
+            return;
+        }
+
+        if (commandV3Listener != null) {
+            commandV3Listener.onCommandV3(commandV3);
+        }
+    }
+
 
     private void onDeviceMessage(RawMessage message) {
         DeviceMessage deviceMessage = JsonUtil.convertJsonStringToObject(message.toString(),
@@ -319,6 +392,8 @@ public class DeviceClient implements RawMessageListener {
                         onResponse(message);
                     } else if (topic.contains("/sys/events/down")) {
                         onEvent(message);
+            } else if (topic.contains("/huawei/v1/devices") && topic.contains("/command/")) {
+                onCommandV3(message);
                     }else{
                         log.error("unknown topic: "+topic);
                     }
@@ -428,6 +503,16 @@ public class DeviceClient implements RawMessageListener {
     public void setDeviceMessageListener(DeviceMessageListener deviceMessageListener) {
         this.deviceMessageListener = deviceMessageListener;
     }
+
+    /**
+     * 设置命令监听器，用于接收V3命令
+     *
+     * @param commandV3Listener 命令监听器
+     */
+    public void setCommandV3Listener(CommandV3Listener commandV3Listener) {
+        this.commandV3Listener = commandV3Listener;
+    }
+
 
     public void setDevice(AbstractDevice device) {
         this.device = device;

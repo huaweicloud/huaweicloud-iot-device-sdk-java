@@ -53,6 +53,10 @@ public class ClientConf {
      */
     private int qos = 1;
 
+    /**
+     * scopeId,在设备发放的自注册场景下使用
+     */
+    private String scopeId;
 
     public String getDeviceId() {
         return deviceId;
@@ -158,4 +162,11 @@ public class ClientConf {
         this.keyStore = keyStore;
     }
 
+    public String getScopeId() {
+        return scopeId;
+    }
+
+    public void setScopeId(String scopeId) {
+        this.scopeId = scopeId;
+    }
 }

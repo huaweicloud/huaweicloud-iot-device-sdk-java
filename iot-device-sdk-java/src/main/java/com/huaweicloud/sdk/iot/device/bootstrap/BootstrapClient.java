@@ -65,10 +65,31 @@ public class BootstrapClient implements RawMessageListener {
         log.info("create BootstrapClient: " + clientConf.getDeviceId());
     }
 
+    /**
+     * 构造函数，自注册场景下证书创建
+     *
+     * @param bootstrapUri  bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId      设备id
+     * @param keyStore      证书容器
+     * @param keyPassword   证书密码
+     * @param scopeId       scopeId, 自注册场景可从物联网平台获取
+     */
+    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, String scopeId) {
+        ClientConf clientConf = new ClientConf();
+        clientConf.setServerUri(bootstrapUri);
+        clientConf.setDeviceId(deviceId);
+        clientConf.setKeyStore(keyStore);
+        clientConf.setKeyPassword(keyPassword);
+        clientConf.setScopeId(scopeId);
+        this.deviceId = deviceId;
+        this.connection = new MqttConnection(clientConf, this);
+        log.info("create BootstrapClient: " + clientConf.getDeviceId());
+    }
+
     @Override
     public void onMessageReceived(RawMessage message) {
 
-        if (message.getTopic().contains("/iodpsCommand")) {
+        if (message.getTopic().contains("/sys/bootstrap/down")) {
             ObjectNode node = JsonUtil.convertJsonStringToObject(message.toString(), ObjectNode.class);
             String address = node.get("address").asText();
             log.info("bootstrap ok address:" + address);
@@ -98,7 +119,7 @@ public class BootstrapClient implements RawMessageListener {
             return;
         }
 
-        String bsTopic = "/huawei/v1/devices/" + this.deviceId + "/iodpsCommand";
+        String bsTopic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/down";
         connection.subscribeTopic(bsTopic, new ActionListener() {
             @Override
             public void onSuccess(Object context) {
@@ -113,7 +134,7 @@ public class BootstrapClient implements RawMessageListener {
             }
         });
 
-        String topic = "/huawei/v1/devices/" + this.deviceId + "/iodpsData";
+        String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
         RawMessage rawMessage = new RawMessage(topic, "");
 
         connection.publishMessage(rawMessage, new ActionListener() {

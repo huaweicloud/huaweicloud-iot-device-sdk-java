@@ -82,7 +82,7 @@ public class X509CertificateDeviceSample {
         }
     }
 
-    private static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
+    public static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
         if (certificateFile == null || privateKeyFile == null) {
             log.error("input null");
             return null;
