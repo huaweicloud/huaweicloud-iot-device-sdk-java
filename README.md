@@ -43,7 +43,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
                 <artifactId>iot-device-sdk-java</artifactId>
                 <version>0.8.0</version>
     </dependency>
-    
+
 ### 设备初始化
 
 创建设备并初始化
@@ -89,7 +89,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 						log.error("publishRawMessage fail: " + var2);
 					}
 				});
-```					
+```
 完整代码参见MessageSample.java					
 
 ### 上报设备属性
@@ -309,7 +309,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
         log.info("ringAlarm  duration = " + duration);
         return new CommandRsp(0);
     }
-```	
+```
 
 上面完成了服务的定义
 接下来创建设备，注册烟感服务，然后初始化设备：
@@ -372,9 +372,9 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 3、同步huaweicloud-iot-device-sdk-java主仓库代码到fork的仓库
 4、在本地修改代码并push到fork的仓库
 5、在fork的仓库提交pull request到主仓库
-  
+
 ## 版本更新说明
 
-### v0.8.0
-更换新的接入域名（iot-mqtts.cn-north-4.myhuaweicloud.com）和根证书。
-如果设备使用老域名（iot-acc.cn-north-4.myhuaweicloud.com）接入，请使用 v0.6.0及以下版本的SDK
+1、增加boostrap功能
+
+2、兼容V3接口
