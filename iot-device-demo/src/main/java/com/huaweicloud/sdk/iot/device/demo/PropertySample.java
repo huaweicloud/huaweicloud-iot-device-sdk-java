@@ -21,7 +21,7 @@ import java.util.Random;
 public class PropertySample {
 
 
-    private static Logger log = Logger.getLogger(PropertySample.class);
+    private static final Logger log = Logger.getLogger(PropertySample.class);
 
     public static void main(String[] args) throws InterruptedException {
 

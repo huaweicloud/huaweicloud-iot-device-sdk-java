@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class PropertyV3AndCmdV3Sample {
 
-    private static Logger log = Logger.getLogger(PropertyV3AndCmdV3Sample.class);
+    private static final Logger log = Logger.getLogger(PropertyV3AndCmdV3Sample.class);
 
     public static void main(String[] args) {
 
