@@ -62,6 +62,7 @@ public class DeviceClient implements RawMessageListener {
 
     private ScheduledExecutorService executorService;
     private int ClientThreadCount = 1;
+    public static int connectFailedTime = 0;
 
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
         checkClientConf(clientConf);
@@ -110,9 +111,24 @@ public class DeviceClient implements RawMessageListener {
         }
 
         int ret = connection.connect();
-        if (ret != 0) {
-            return ret;
+        //退避机制重连
+        while (ret != 0) {
+            connectFailedTime++;
+            try {
+                if (connectFailedTime < 10) {
+                    Thread.sleep(500);
+                } else if (connectFailedTime < 50) {
+                    Thread.sleep(5000);
+                } else {
+                    Thread.sleep(10000);
+                }
+                ret = connection.connect();
+            } catch (InterruptedException e) {
+                log.debug("connect failed" + connectFailedTime + "times");
+            }
         }
+
+        connectFailedTime = 0;
 
         connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null);
         connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null);
@@ -129,8 +145,9 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 上报设备消息
      * 如果需要上报子设备消息，需要调用DeviceMessage的setDeviceId接口设置为子设备的设备id
+     *
      * @param deviceMessage 设备消息
-     * @param listener 监听器，用于接收上报结果
+     * @param listener      监听器，用于接收上报结果
      */
     public void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
         String topic = "$oc/devices/" + this.deviceId + "/sys/messages/up";
@@ -139,9 +156,10 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 上报设备消息，支持指定qos
+     *
      * @param deviceMessage 设备消息
-     * @param listener 监听器，用于接收上报结果
-     * @param qos 消息qos，0或1
+     * @param listener      监听器，用于接收上报结果
+     * @param qos           消息qos，0或1
      */
     public void reportDeviceMessage(DeviceMessage deviceMessage, ActionListener listener, int qos) {
         String topic = "$oc/devices/" + this.deviceId + "/sys/messages/up";
@@ -213,8 +231,8 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 向平台上报V3命令响应
      *
-     * @param commandRspV3  命令响应结果
-     * @param listener      发布监听器
+     * @param commandRspV3 命令响应结果
+     * @param listener     发布监听器
      */
     public void responseCommandV3(CommandRspV3 commandRspV3, ActionListener listener) {
 
@@ -226,8 +244,8 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 向平台上报V3命令响应（码流）
      *
-     * @param bytes     响应码流
-     * @param listener  发布监听器
+     * @param bytes    响应码流
+     * @param listener 发布监听器
      */
     public void responseCommandBinaryV3(Byte[] bytes, ActionListener listener) {
 
@@ -360,7 +378,7 @@ public class DeviceClient implements RawMessageListener {
     @Override
     public void onMessageReceived(RawMessage message) {
 
-        if (executorService == null){
+        if (executorService == null) {
             log.error("executionService is null");
             return;
         }
@@ -392,10 +410,10 @@ public class DeviceClient implements RawMessageListener {
                         onResponse(message);
                     } else if (topic.contains("/sys/events/down")) {
                         onEvent(message);
-            } else if (topic.contains("/huawei/v1/devices") && topic.contains("/command/")) {
-                onCommandV3(message);
-                    }else{
-                        log.error("unknown topic: "+topic);
+                    } else if (topic.contains("/huawei/v1/devices") && topic.contains("/command/")) {
+                        onCommandV3(message);
+                    } else {
+                        log.error("unknown topic: " + topic);
                     }
 
                 } catch (Exception e) {
@@ -414,7 +432,8 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 上报命令响应
-     * @param requestId 请求id，响应的请求id必须和请求的一致
+     *
+     * @param requestId  请求id，响应的请求id必须和请求的一致
      * @param commandRsp 命令响应
      */
     public void respondCommand(String requestId, CommandRsp commandRsp) {
@@ -426,8 +445,9 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 上报读属性响应
+     *
      * @param requestId 请求id，响应的请求id必须和请求的一致
-     * @param services 服务属性
+     * @param services  服务属性
      */
     public void respondPropsGet(String requestId, List<ServiceProperty> services) {
 
@@ -441,6 +461,7 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 上报写属性响应
+     *
      * @param requestId 请求id，响应的请求id必须和请求的一致
      * @param iotResult 写属性结果
      */
@@ -453,6 +474,7 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 获取设备id
+     *
      * @return 设备id
      */
     public String getDeviceId() {
@@ -461,6 +483,7 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 设置连接监听器，用户接收连接建立和断开事件
+     *
      * @param connectListener
      */
     public void setConnectListener(ConnectListener connectListener) {
@@ -469,8 +492,9 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 订阅自定义topic。系统topic由SDK自动订阅，此接口只能用于订阅自定义topic
-     * @param topic 自定义topic
-     * @param actionListener 订阅结果监听器
+     *
+     * @param topic              自定义topic
+     * @param actionListener     订阅结果监听器
      * @param rawMessageListener 接收自定义消息的监听器
      */
     public void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener) {
@@ -481,6 +505,7 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 设置属性监听器，用于接收平台下发的属性读写。
      * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     *
      * @param propertyListener 属性监听器
      */
     public void setPropertyListener(PropertyListener propertyListener) {
@@ -490,14 +515,17 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 设置命令监听器，用于接收平台下发的命令。
      * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     *
      * @param commandListener 命令监听器
      */
     public void setCommandListener(CommandListener commandListener) {
         this.commandListener = commandListener;
     }
 
-    /**设置消息监听器，用于接收平台下发的消息
+    /**
+     * 设置消息监听器，用于接收平台下发的消息
      * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     *
      * @param deviceMessageListener 消息监听器
      */
     public void setDeviceMessageListener(DeviceMessageListener deviceMessageListener) {
@@ -520,7 +548,8 @@ public class DeviceClient implements RawMessageListener {
 
     /**
      * 事件上报
-     * @param event 事件
+     *
+     * @param event    事件
      * @param listener 监听器
      */
     public void reportEvent(DeviceEvent event, ActionListener listener) {
@@ -544,7 +573,7 @@ public class DeviceClient implements RawMessageListener {
         return executorService.schedule(runnable, delay, TimeUnit.MILLISECONDS);
     }
 
-    public Future<?> scheduleRoutineTask(Runnable runnable,  long period) {
+    public Future<?> scheduleRoutineTask(Runnable runnable, long period) {
         return executorService.scheduleAtFixedRate(runnable, period, period, TimeUnit.MILLISECONDS);
     }
 
