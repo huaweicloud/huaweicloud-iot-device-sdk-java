@@ -86,6 +86,13 @@ public class MqttConnection implements Connection {
         public void connectComplete(boolean reconnect, String serverURI) {
             log.info("Mqtt client connected. address :" + serverURI);
 
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/set/#", null);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null);
+
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
             }

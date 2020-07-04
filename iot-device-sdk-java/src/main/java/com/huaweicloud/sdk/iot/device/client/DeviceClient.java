@@ -111,6 +111,7 @@ public class DeviceClient implements RawMessageListener {
         }
 
         int ret = connection.connect();
+
         //退避机制重连
         while (ret != 0) {
             connectFailedTime++;
@@ -129,15 +130,6 @@ public class DeviceClient implements RawMessageListener {
         }
 
         connectFailedTime = 0;
-
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null);
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null);
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/set/#", null);
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null);
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null);
-        connection.subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null);
-        connection.subscribeTopic("/huawei/v1/devices/" + clientConf.getDeviceId() + "/command/json", null);
-        connection.subscribeTopic("/huawei/v1/devices/" + clientConf.getDeviceId() + "/command/binary", null);
 
         return ret;
     }
@@ -169,6 +161,15 @@ public class DeviceClient implements RawMessageListener {
         this.publishRawMessage(new RawMessage(topic, JsonUtil.convertObject2String(deviceMessage), qos), listener);
     }
 
+    /**
+     * 订阅topic，通过该接口可以订阅V3 topic，SDK已实现自动订阅V5 topic, 一般不需要主动调用该接口。
+     *
+     * @param topic    topic值
+     * @param listener 监听器
+     */
+    public void subscribeTopic(String topic, ActionListener listener) {
+        connection.subscribeTopic(topic, listener);
+    }
 
     /**
      * 发布原始消息，原始消息和设备消息（DeviceMessage）的区别是：
@@ -181,7 +182,6 @@ public class DeviceClient implements RawMessageListener {
     public void publishRawMessage(RawMessage rawMessage, ActionListener listener) {
         connection.publishMessage(rawMessage, listener);
     }
-
 
     /**
      * 上报设备属性
