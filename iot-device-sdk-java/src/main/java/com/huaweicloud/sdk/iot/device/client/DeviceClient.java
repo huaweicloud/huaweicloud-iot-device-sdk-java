@@ -117,12 +117,13 @@ public class DeviceClient implements RawMessageListener {
             connectFailedTime++;
             try {
                 if (connectFailedTime < 10) {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } else if (connectFailedTime < 50) {
                     Thread.sleep(5000);
                 } else {
-                    Thread.sleep(10000);
+                    Thread.sleep(120000);
                 }
+                this.connection = new MqttConnection(clientConf, this);
                 ret = connection.connect();
             } catch (InterruptedException e) {
                 log.debug("connect failed" + connectFailedTime + "times");
@@ -166,9 +167,10 @@ public class DeviceClient implements RawMessageListener {
      *
      * @param topic    topic值
      * @param listener 监听器
+     * @param qos      qos
      */
-    public void subscribeTopic(String topic, ActionListener listener) {
-        connection.subscribeTopic(topic, listener);
+    public void subscribeTopic(String topic, ActionListener listener, int qos) {
+        connection.subscribeTopic(topic, listener, qos);
     }
 
     /**
@@ -496,9 +498,10 @@ public class DeviceClient implements RawMessageListener {
      * @param topic              自定义topic
      * @param actionListener     订阅结果监听器
      * @param rawMessageListener 接收自定义消息的监听器
+     * @param qos                qos
      */
-    public void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener) {
-        connection.subscribeTopic(topic, actionListener);
+    public void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener, int qos) {
+        connection.subscribeTopic(topic, actionListener, qos);
         rawMessageListenerMap.put(topic, rawMessageListener);
     }
 

@@ -42,7 +42,8 @@ public interface Connection {
     /**
      * @param topic          订阅自定义topic。注意SDK会自动订阅平台定义的topic
      * @param actionListener 监听订阅是否成功
+     * @param qos            qos
      */
-    void subscribeTopic(String topic, ActionListener actionListener);
+    void subscribeTopic(String topic, ActionListener actionListener, int qos);
 
 }

@@ -16,9 +16,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- *
  * 演示如何使用旧接口（调用V3接口）数据上报/命令下发，一般用不到
- *
  */
 public class PropertyV3AndCmdV3Sample {
 
@@ -69,7 +67,7 @@ public class PropertyV3AndCmdV3Sample {
             public void onFailure(Object context, Throwable var2) {
                 log.error("subscribe failed");
             }
-        });
+        }, 0);
 
         //通过V3接口上报属性
         device.getClient().reportPropertiesV3(devicePropertiesV3, new ActionListener() {
