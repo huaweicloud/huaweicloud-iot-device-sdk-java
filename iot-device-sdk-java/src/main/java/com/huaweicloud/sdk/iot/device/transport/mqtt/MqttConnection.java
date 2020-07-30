@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 public class MqttConnection implements Connection {
 
     private static final int DEFAULT_QOS = 1;
+    private static final int DEFAULT_SUBSCRIBE_QOS = 0;
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
     private static final int DEFAULT_KEEPLIVE = 120;
     private static final String connectType = "0";
@@ -45,7 +46,7 @@ public class MqttConnection implements Connection {
 
     private static final Logger log = Logger.getLogger(MqttConnection.class);
 
-    public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener){
+    public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener) {
         this.clientConf = clientConf;
         this.rawMessageListener = rawMessageListener;
     }
@@ -86,6 +87,13 @@ public class MqttConnection implements Connection {
         public void connectComplete(boolean reconnect, String serverURI) {
             log.info("Mqtt client connected. address :" + serverURI);
 
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/messages/down", null, DEFAULT_SUBSCRIBE_QOS);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/commands/#", null, DEFAULT_SUBSCRIBE_QOS);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/set/#", null, DEFAULT_SUBSCRIBE_QOS);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/properties/get/#", null, DEFAULT_SUBSCRIBE_QOS);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/shadow/get/response/#", null, DEFAULT_SUBSCRIBE_QOS);
+            subscribeTopic("$oc/devices/" + clientConf.getDeviceId() + "/sys/events/down", null, DEFAULT_SUBSCRIBE_QOS);
+
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
             }
@@ -93,7 +101,6 @@ public class MqttConnection implements Connection {
         }
 
     };
-
 
 
     @Override
@@ -233,7 +240,7 @@ public class MqttConnection implements Connection {
 
     public void close() {
 
-        if (mqttAsyncClient.isConnected()){
+        if (mqttAsyncClient.isConnected()) {
             try {
                 mqttAsyncClient.disconnect();
             } catch (MqttException e) {
@@ -264,9 +271,7 @@ public class MqttConnection implements Connection {
      *
      * @param topic 主题
      */
-    public void subscribeTopic(String topic, ActionListener listener) {
-
-        int qos = clientConf.getQos() == 0 ? 0 : DEFAULT_QOS;
+    public void subscribeTopic(String topic, ActionListener listener, int qos) {
 
         try {
             mqttAsyncClient.subscribe(topic, qos, null, new IMqttActionListener() {

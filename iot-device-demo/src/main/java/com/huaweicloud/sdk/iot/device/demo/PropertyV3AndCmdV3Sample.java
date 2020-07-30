@@ -15,15 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * 演示如何使用旧接口（调用V3接口）数据上报/命令下发，一般用不到
+ */
 public class PropertyV3AndCmdV3Sample {
 
     private static final Logger log = Logger.getLogger(PropertyV3AndCmdV3Sample.class);
 
     public static void main(String[] args) {
 
+        String deviceId = "5e06bfee334dd4f33759f5b3_demo";
+        String secret = "mysecret";
+
         //创建设备并初始化
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
+                deviceId, secret);
         if (device.init() != 0) {
             return;
         }
@@ -48,6 +54,20 @@ public class PropertyV3AndCmdV3Sample {
         devicePropertiesV3.setServiceDatas(list);
 
         System.out.println(devicePropertiesV3.toString());
+
+
+        //订阅V3 TOPIC
+        device.getClient().subscribeTopic("/huawei/v1/devices/" + deviceId + "/command/json", new ActionListener() {
+            @Override
+            public void onSuccess(Object context) {
+                log.info("subscribe success");
+            }
+
+            @Override
+            public void onFailure(Object context, Throwable var2) {
+                log.error("subscribe failed");
+            }
+        }, 0);
 
         //通过V3接口上报属性
         device.getClient().reportPropertiesV3(devicePropertiesV3, new ActionListener() {

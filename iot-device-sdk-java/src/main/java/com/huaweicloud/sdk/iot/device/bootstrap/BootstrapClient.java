@@ -132,7 +132,7 @@ public class BootstrapClient implements RawMessageListener {
                 listener.onFailure(context, var2);
 
             }
-        });
+        }, 0);
 
         String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
         RawMessage rawMessage = new RawMessage(topic, "");

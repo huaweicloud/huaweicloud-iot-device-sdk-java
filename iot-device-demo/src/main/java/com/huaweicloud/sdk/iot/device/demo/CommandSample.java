@@ -47,8 +47,12 @@ public class CommandSample {
             }
         });
 
-        log.info("waiting for command ...");
+        if (device.init() != 0) {
+            return;
 
+        }
+
+        log.info("waiting for command ...");
 
     }
 }

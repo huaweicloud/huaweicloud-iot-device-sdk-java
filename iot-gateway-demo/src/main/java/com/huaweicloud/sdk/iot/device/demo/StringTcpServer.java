@@ -114,7 +114,11 @@ public class StringTcpServer {
                 if (session == null) {
                     log.info("close channel");
                     ctx.close();
+                } else {
+                    log.info(session.getDeviceId() + " ready to go online.");
+                    simpleGateway.reportSubDeviceStatus(session.getDeviceId(), "ONLINE", null);
                 }
+
             } else {
 
                 //网关收到子设备上行数据时，可以以消息或者属性上报转发到平台。
@@ -127,13 +131,13 @@ public class StringTcpServer {
 
                 //报属性则调用reportSubDeviceProperties，属性的serviceId和字段名要和子设备的产品模型保持一致
                 ServiceProperty serviceProperty = new ServiceProperty();
-                serviceProperty.setServiceId("smokeDetector");
+                serviceProperty.setServiceId("parameter");
                 Map<String, Object> props = new HashMap<>();
                 //属性值暂且写死，实际中应该根据子设备上报的进行组装
-                props.put("alarm",1);
-                props.put("temprature",2);
+                props.put("alarm", 1);
+                props.put("temprature", 2);
                 serviceProperty.setProperties(props);
-                simpleGateway.reportSubDeviceProperties(session.getDeviceId(), Arrays.asList(serviceProperty),null);
+                simpleGateway.reportSubDeviceProperties(session.getDeviceId(), Arrays.asList(serviceProperty), null);
 
             }
 

@@ -218,7 +218,7 @@ public abstract class AbstractGateway extends IoTDevice {
     public void reportSubDeviceStatus(List<DeviceStatus> statuses, ActionListener listener) {
 
         DeviceEvent deviceEvent = new DeviceEvent();
-        deviceEvent.setServiceId("sub_device_manager");
+        deviceEvent.setServiceId("$sub_device_manager");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
         deviceEvent.setEventType("sub_device_update_status");
 
