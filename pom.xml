@@ -4,9 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.huaweicloud</groupId>
     <artifactId>iot-device-sdk-java-pom</artifactId>
-    <version>0.8.0</version>
-    <description>iot device sdk project for java</description>
+    <version>1.0.0</version>
+    <name>huaweicloud iot device sdk project for java</name>
+    <description>huaweicloud iot device sdk project for java</description>
     <packaging>pom</packaging>
+    <url>https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java.git</url>
 
     <modules>
         <module>iot-device-sdk-java</module>

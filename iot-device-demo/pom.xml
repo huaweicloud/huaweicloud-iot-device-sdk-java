@@ -6,17 +6,21 @@
     <parent>
         <groupId>com.huaweicloud</groupId>
         <artifactId>iot-device-sdk-java-pom</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>iot-device-demo</artifactId>
 
     <description>java device demo project</description>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>iot-device-sdk-java</artifactId>
-            <version>0.8.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

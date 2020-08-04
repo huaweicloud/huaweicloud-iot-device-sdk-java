@@ -6,24 +6,27 @@
     <parent>
         <groupId>com.huaweicloud</groupId>
         <artifactId>iot-device-sdk-java-pom</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>iot-bridge-demo</artifactId>
 
     <description>bridge demo project for translate tcp/tls to mqtt</description>
+
+
 
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>iot-device-sdk-java</artifactId>
-            <version>0.8.0</version>
+            <version>1.0.0</version>
         </dependency>
 
 
