@@ -32,11 +32,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 依赖的版本：
 * JDK ：1.8 +
 
-因为huaweicloud-iot-device-sdk-java还没有发布到公共仓库，如果要使用，需要先下载代码在本地构建。
-    
-    mvn clean install 
-
-项目中可以使用dependencyManagement引入依赖。
+huaweicloud-iot-device-sdk-java已经发布到公共仓库，如果要使用，可以使用dependencyManagement引入依赖。
 
     <dependency>
                 <groupId>com.huaweicloud.iot</groupId>
