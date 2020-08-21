@@ -63,6 +63,7 @@ public class DeviceClient implements RawMessageListener {
     private ScheduledExecutorService executorService;
     private int ClientThreadCount = 1;
     public static int connectFailedTime = 0;
+    private static final String DEFAULT_GZIP_ENCODEING = "UTF-8";
 
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
         checkClientConf(clientConf);
@@ -148,6 +149,18 @@ public class DeviceClient implements RawMessageListener {
     }
 
     /**
+     * 上报压缩后的设备消息
+     * @param deviceMessage 设备消息
+     * @param listener      监听器，用于接收上报结果
+     */
+    public void reportCompressedDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
+        String topic = "$oc/devices/" + this.deviceId + "/sys/messages/up?encoding=gzip";
+        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(deviceMessage), DEFAULT_GZIP_ENCODEING);
+        this.publishRawMessage(new RawMessage(topic, compress), listener);
+    }
+
+
+    /**
      * 上报设备消息，支持指定qos
      *
      * @param deviceMessage 设备消息
@@ -201,6 +214,24 @@ public class DeviceClient implements RawMessageListener {
         connection.publishMessage(rawMessage, listener);
 
     }
+
+    /**
+     * 上报压缩后的设备属性
+     *
+     * @param properties 设备属性列表
+     * @param listener   发布监听器
+     */
+    public void reportCompressedProperties(List<ServiceProperty> properties, ActionListener listener) {
+
+        String topic = "$oc/devices/" + this.deviceId + "/sys/properties/report?encoding=gzip";
+        ObjectNode jsonObject = JsonUtil.createObjectNode();
+        jsonObject.putPOJO("services", properties);
+
+        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(jsonObject), DEFAULT_GZIP_ENCODEING);
+        connection.publishMessage(new RawMessage(topic, compress), listener);
+
+    }
+
 
     /**
      * 向平台上报设备属性（V3接口）
@@ -274,6 +305,26 @@ public class DeviceClient implements RawMessageListener {
         publishRawMessage(rawMessage, listener);
 
     }
+
+    /**
+     * 上报压缩后的批量子设备属性
+     *
+     * @param deviceProperties 子设备属性列表
+     * @param listener         发布监听器
+     */
+    public void reportCompressedSubDeviceProperties(List<DeviceProperty> deviceProperties,
+        ActionListener listener) {
+
+        ObjectNode node = JsonUtil.createObjectNode();
+        node.putPOJO("devices", deviceProperties);
+
+        String topic = "$oc/devices/" + getDeviceId() + "/sys/gateway/sub_devices/properties/report?encoding=gzip";
+
+        byte[] compress = IotUtil.compress(node.toString(), DEFAULT_GZIP_ENCODEING);
+        publishRawMessage(new RawMessage(topic, compress), listener);
+
+    }
+
 
     private void OnPropertiesSet(RawMessage message) {
 
