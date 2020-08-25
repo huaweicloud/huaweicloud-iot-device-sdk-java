@@ -176,7 +176,7 @@ public class DeviceClient implements RawMessageListener {
     }
 
     /**
-     * 订阅topic，通过该接口可以订阅V3 topic，SDK已实现自动订阅V5 topic, 一般不需要主动调用该接口。
+     * 订阅topic
      *
      * @param topic    topic值
      * @param listener 监听器
