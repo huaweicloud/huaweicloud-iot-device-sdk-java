@@ -35,6 +35,18 @@ public class RawMessage {
     /**
      * 构造函数
      *
+     * @param topic     消息topic
+     * @param payload   消息体
+     */
+    public RawMessage(String topic, byte[] payload) {
+        this.topic = topic;
+        this.payload = payload;
+        this.qos = 1;
+    }
+
+    /**
+     * 构造函数
+     *
      * @param topic   消息topic
      * @param payload 消息体
      * @param qos     qos,0或1

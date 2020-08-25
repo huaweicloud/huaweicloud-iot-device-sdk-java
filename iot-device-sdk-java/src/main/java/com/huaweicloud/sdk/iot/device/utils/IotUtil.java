@@ -6,16 +6,17 @@ import org.apache.log4j.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
-
+import java.util.zip.GZIPOutputStream;
 
 /**
  * IOT工具类
@@ -179,6 +180,25 @@ public class IotUtil {
             return sslContext;
         }
 
+    }
+
+
+    public static byte[] compress(String string, String encoding) {
+        if(null == string || null == encoding) {
+            return null;
+        }
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        GZIPOutputStream gzipOutputStream;
+        try {
+            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+            gzipOutputStream.write(string.getBytes(encoding));
+            gzipOutputStream.close();
+        } catch (IOException e) {
+            log.error("compress failed " + e.getMessage());
+        }
+
+        return byteArrayOutputStream.toByteArray();
     }
 
 
