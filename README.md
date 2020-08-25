@@ -373,4 +373,4 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 
 1、增加压缩接口
 
-2、隐私订阅
+2、隐式订阅
