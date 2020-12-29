@@ -2,8 +2,8 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
-import io.netty.channel.Channel;
 
+import io.netty.channel.Channel;
 
 public class Session {
     String deviceId;
@@ -13,6 +13,7 @@ public class Session {
     Channel channel;
 
     DeviceClient deviceClient;
+
 
     PropertyListener downlinkListener;
 
@@ -58,10 +59,8 @@ public class Session {
 
     @Override
     public String toString() {
-        return "Session{" +
-                "deviceId='" + deviceId + '\'' +
-                ", nodeId='" + nodeId + '\'' +
-                ", channel=" + channel +
-                '}';
+        return "Session{" + "deviceId='" + deviceId + '\''
+            + ", nodeId='" + nodeId + '\'' + ", channel="
+            + channel + '}';
     }
 }

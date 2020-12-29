@@ -7,20 +7,21 @@ import com.huaweicloud.sdk.iot.device.client.requests.CommandV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DevicePropertiesV3;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceData;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * 演示如何使用旧接口（调用V3接口）数据上报/命令下发，一般用不到
  */
 public class PropertyV3AndCmdV3Sample {
 
-    private static final Logger log = Logger.getLogger(PropertyV3AndCmdV3Sample.class);
+    private static final Logger log = LogManager.getLogger(PropertyV3AndCmdV3Sample.class);
 
     public static void main(String[] args) {
 
@@ -41,7 +42,7 @@ public class PropertyV3AndCmdV3Sample {
         serviceData.setServiceId("analog");
 
         Map<String, Object> json1 = new HashMap<>();
-        Random rand = new Random();
+        SecureRandom rand = new SecureRandom();
 
         json1.put("alarm", 1);
         json1.put("temperature", rand.nextFloat() * 100.0f);

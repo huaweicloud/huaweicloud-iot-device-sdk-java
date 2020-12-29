@@ -53,10 +53,10 @@ public class ServiceProperty {
 
     @Override
     public String toString() {
-        return "ServiceProperty{" +
-                "serviceId='" + serviceId + '\'' +
-                ", properties=" + properties +
-                ", eventTime='" + eventTime + '\'' +
-                '}';
+        return "ServiceProperty{"
+                + "serviceId='" + serviceId + '\''
+                + ", properties=" + properties
+                + ", eventTime='" + eventTime + '\''
+                + '}';
     }
 }

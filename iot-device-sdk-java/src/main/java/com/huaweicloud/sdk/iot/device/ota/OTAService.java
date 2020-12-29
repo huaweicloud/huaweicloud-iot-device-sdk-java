@@ -1,17 +1,19 @@
 package com.huaweicloud.sdk.iot.device.ota;
 
+import com.huaweicloud.sdk.iot.device.client.listener.DefaultActionListenerImpl;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
-import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import java.util.concurrent.Future;
 
 /**
  * OTA服务类，提供设备升级相关接口，使用方法：
@@ -24,21 +26,34 @@ public class OTAService extends AbstractService {
 
     //升级上报的错误码，用户也可以扩展自己的错误码
     public static final int OTA_CODE_SUCCESS = 0;//成功
+
     public static final int OTA_CODE_BUSY = 1;  //设备使用中
+
     public static final int OTA_CODE_SIGNAL_BAD = 2;  //信号质量差
+
     public static final int OTA_CODE_NO_NEED = 3;  //已经是最新版本
+
     public static final int OTA_CODE_LOW_POWER = 4;  //电量不足
+
     public static final int OTA_CODE_LOW_SPACE = 5;  //剩余空间不足
+
     public static final int OTA_CODE_DOWNLOAD_TIMEOUT = 6;  //下载超时
+
     public static final int OTA_CODE_CHECK_FAIL = 7;  //升级包校验失败
+
     public static final int OTA_CODE_UNKNOWN_TYPE = 8;  //升级包类型不支持
+
     public static final int OTA_CODE_LOW_MEMORY = 9;  //内存不足
+
     public static final int OTA_CODE_INSTALL_FAIL = 10;  //安装升级包失败
+
     public static final int OTA_CODE_INNER_ERROR = 255;  // 内部异常
 
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = LogManager.getLogger(OTAService.class);
+
     private OTAListener otaListener;
-    private ExecutorService executorService ;//OTA单独起一个线程处理
+
+    private ExecutorService executorService;//OTA单独起一个线程处理
 
     /**
      * 设置OTA监听器
@@ -46,13 +61,12 @@ public class OTAService extends AbstractService {
      * @param otaListener OTA监听器
      */
     public void setOtaListener(OTAListener otaListener) {
-        if (executorService == null){
+        if (executorService == null) {
             executorService = Executors.newSingleThreadExecutor();
         }
 
         this.otaListener = otaListener;
     }
-
 
     /**
      * 上报升级状态
@@ -78,19 +92,10 @@ public class OTAService extends AbstractService {
         deviceEvent.setServiceId("$ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
+        DefaultActionListenerImpl defaultActionListener = new DefaultActionListenerImpl("reportOtaStatus");
 
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-                log.error("reportOtaStatus failed: " + var2.getMessage());
-            }
-        });
+        getIotDevice().getClient().reportEvent(deviceEvent, defaultActionListener);
     }
-
 
     /**
      * 上报固件版本信息
@@ -109,17 +114,9 @@ public class OTAService extends AbstractService {
         deviceEvent.setServiceId("$ota");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
+        DefaultActionListenerImpl defaultActionListener = new DefaultActionListenerImpl("reportVersion");
 
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-                log.error("reportVersion failed: " + var2.getMessage());
-            }
-        });
+        getIotDevice().getClient().reportEvent(deviceEvent, defaultActionListener);
 
     }
 
@@ -139,16 +136,21 @@ public class OTAService extends AbstractService {
         if (deviceEvent.getEventType().equalsIgnoreCase("version_query")) {
             otaListener.onQueryVersion();
         } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade")
-        || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade")) {
+            || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade")) {
 
             OTAPackage pkg = JsonUtil.convertMap2Object(deviceEvent.getParas(), OTAPackage.class);
 
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    otaListener.onNewPackage(pkg);
-                }
-            });
+            Future<String> success = executorService.submit(() -> otaListener.onNewPackage(pkg), "success");
+            String result = "";
+            try {
+                result = success.get();
+            } catch (Exception e) {
+                log.error("get submit result failed " + e.getMessage());
+            }
+
+            if (result.equals("success")) {
+                log.debug("submit task succeeded");
+            }
 
         }
     }

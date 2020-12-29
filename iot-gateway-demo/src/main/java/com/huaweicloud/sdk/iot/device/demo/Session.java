@@ -5,9 +5,10 @@ import io.netty.channel.Channel;
 public class Session {
 
     String nodeId;
-    Channel channel;
+
     String deviceId;
 
+    Channel channel;
 
     public String getNodeId() {
         return nodeId;
@@ -15,6 +16,14 @@ public class Session {
 
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public Channel getChannel() {
@@ -25,21 +34,10 @@ public class Session {
         this.channel = channel;
     }
 
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
     @Override
     public String toString() {
-        return "Session{" +
-                "nodeId='" + nodeId + '\'' +
-                ", channel=" + channel +
-                ", deviceId='" + deviceId + '\'' +
-                '}';
+        return "Session{"
+            + "nodeId='" + nodeId + '\'' + ", channel="
+            + channel + ", deviceId='" + deviceId + '\'' + '}';
     }
 }

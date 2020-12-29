@@ -14,7 +14,8 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.SubDevicesInfo;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import io.netty.channel.Channel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SimpleGateway extends AbstractGateway {
 
-    private static final Logger log = Logger.getLogger(SimpleGateway.class);
+    private static final Logger log = LogManager.getLogger(SimpleGateway.class);
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 

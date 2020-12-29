@@ -4,7 +4,9 @@ import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.bootstrap.BootstrapClient;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.KeyStore;
 
@@ -12,7 +14,7 @@ import java.security.KeyStore;
  * 演示自注册场景，设备启动时，通过引导服务获取真实的服务器地址(证书方式)
  */
 public class BootsrapSelfRegSample {
-    private static final Logger log = Logger.getLogger(BootsrapSelfRegSample.class);
+    private static final Logger log = LogManager.getLogger(BootsrapSelfRegSample.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -20,17 +22,26 @@ public class BootsrapSelfRegSample {
         // String scopeId = "myScopeId"; //设备组方式用到
         String bootstrapUri = "ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883";
 
-
         //读取pem格式证书
-        KeyStore keyStore = X509CertificateDeviceSample.getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
+        KeyStore keyStore = X509CertificateDeviceSample.getKeyStore("D:\\SDK\\cert\\deviceCert.pem",
+            "D:\\SDK\\cert\\deviceCert.key", "");
 
-        //读取keystore格式证书
-//        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//        keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
+        /**
+         * 读取keystore格式证书
+         *
+         * KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+         * keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
+         *
+         */
 
         //创建引导客户端，发起引导
         BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord");
-        // BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord", scopeId);//设备组方式用到
+
+        /**
+         * 设备组方式用到
+         * BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, keyStore, "yourPassWord", scopeId);
+         *
+         */
         bootstrapClient.bootstrap(new ActionListener() {
             @Override
             public void onSuccess(Object context) {

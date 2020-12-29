@@ -1,8 +1,9 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,13 +16,14 @@ import java.util.Map;
 public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
     private Map<String, Map<String, String>> deviceIdentityMap;
-    private static final Logger log = Logger.getLogger(DefaultDeviceIdentityRegistry.class);
+
+    private static final Logger log = LogManager.getLogger(DefaultDeviceIdentityRegistry.class);
 
     public DefaultDeviceIdentityRegistry() {
 
-
         String content = null;
-        try (InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader().getResourceAsStream("deviceIdentity.json");){
+        try (InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader()
+            .getResourceAsStream("deviceIdentity.json");) {
             content = readInputStream2String(inputStream);
         } catch (IOException e) {
             log.error(e);

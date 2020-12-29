@@ -3,7 +3,8 @@ package com.huaweicloud.sdk.iot.device.demo;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -13,8 +14,7 @@ import java.util.Map;
  */
 public class CommandSample {
 
-    private static final Logger log = Logger.getLogger(CommandSample.class);
-
+    private static final Logger log = LogManager.getLogger(CommandSample.class);
 
     public static void main(String[] args) throws InterruptedException {
 

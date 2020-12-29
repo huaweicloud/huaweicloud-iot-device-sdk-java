@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-
 /**
  * 设备事件
  */
@@ -36,5 +35,12 @@ public class DeviceEvents {
 
     public void setServices(List<DeviceEvent> services) {
         this.services = services;
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceEvents{"
+            + "deviceId='" + deviceId + '\''
+            + ", services=" + services + '}';
     }
 }

@@ -29,9 +29,9 @@ public class SubDevInfo {
 
     @Override
     public String toString() {
-        return "SubDevInfo{" +
-                "version=" + version +
-                ", subdevices=" + subdevices +
-                '}';
+        return "SubDevInfo{"
+                + "version=" + version
+                + ", subdevices=" + subdevices
+                + '}';
     }
 }

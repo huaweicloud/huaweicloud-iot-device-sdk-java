@@ -6,8 +6,11 @@ import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import org.apache.log4j.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +23,7 @@ import java.util.Random;
  */
 public class PropertySample {
 
-
-    private static final Logger log = Logger.getLogger(PropertySample.class);
+    private static final Logger log = LogManager.getLogger(PropertySample.class);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -66,7 +68,7 @@ public class PropertySample {
 
                 log.info("OnPropertiesGet " + serviceId);
                 Map<String, Object> json = new HashMap<>();
-                Random rand = new Random();
+                Random rand = new SecureRandom();
                 json.put("alarm", 1);
                 json.put("temperature", rand.nextFloat() * 100.0f);
                 json.put("humidity", rand.nextFloat() * 100.0f);
@@ -84,7 +86,7 @@ public class PropertySample {
         while (true) {
 
             Map<String, Object> json = new HashMap<>();
-            Random rand = new Random();
+            Random rand = new SecureRandom();
 
             //按照物模型设置属性
             json.put("alarm", 1);

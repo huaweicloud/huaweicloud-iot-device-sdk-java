@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
 import java.io.Serializable;
 import java.util.List;

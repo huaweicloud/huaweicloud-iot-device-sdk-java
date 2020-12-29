@@ -23,6 +23,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
+
 package com.huaweicloud.sdk.iot.device.client.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

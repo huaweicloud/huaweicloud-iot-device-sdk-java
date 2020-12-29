@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -16,14 +18,11 @@ import java.util.Map;
  * json工具类
  */
 public class JsonUtil {
-    private static Logger log = Logger.getLogger(JsonUtil.class);
+    private static final Logger log = LogManager.getLogger(JsonUtil.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
-
-    public JsonUtil() {
     }
 
     public static <T> ObjectNode convertObject2ObjectNode(T object) {
@@ -45,7 +44,7 @@ public class JsonUtil {
         try {
             return objectMapper.convertValue(fromValue, toValueType);
         } catch (IllegalArgumentException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
+            log.error("convert value failed " + e.getMessage());
             return null;
         }
     }
@@ -60,7 +59,7 @@ public class JsonUtil {
                 rStr = objectMapper.writeValueAsString(object);
                 return rStr;
             } catch (JsonProcessingException var3) {
-                log.error(ExceptionUtil.getBriefStackTrace(var3));
+                log.error("write value as string failed" + var3.getMessage());
                 return null;
             }
         }
@@ -76,7 +75,7 @@ public class JsonUtil {
 
     }
 
-    public static <T> T convertMap2Object(Map map, Class<T> cls) {
+    public static <T> T convertMap2Object(Map<String, Object> map, Class<T> cls) {
         if (null == map) {
             return null;
         }
@@ -94,7 +93,7 @@ public class JsonUtil {
                 T object = objectMapper.readValue(jsonString, cls);
                 return object;
             } catch (Exception var3) {
-                var3.printStackTrace();
+                log.error("read value failed" + var3.getMessage());
                 return null;
             }
         }
@@ -108,7 +107,7 @@ public class JsonUtil {
 
                 return (T) objectMapper.readValue(jsonString, valueTypeRef);
             } catch (Exception var3) {
-                log.error(ExceptionUtil.getBriefStackTrace(var3));
+                log.error("read value failed" + var3.getMessage());
                 return null;
             }
         }
@@ -149,7 +148,7 @@ public class JsonUtil {
             try {
                 rStr = mapper.writeValueAsString(object);
             } catch (JsonProcessingException var4) {
-                log.error(ExceptionUtil.getBriefStackTrace(var4));
+                log.error("write value as string failed" + var4.getMessage());
             }
 
             return rStr;

@@ -47,10 +47,7 @@ public class ServiceData {
 
     @Override
     public String toString() {
-        return "ServiceData{" +
-                "serviceId='" + serviceId + '\'' +
-                ", eventTime='" + eventTime + '\'' +
-                ", serviceData=" + serviceData +
-                '}';
+        return "ServiceData{" + "serviceId='" + serviceId + '\'' + ", eventTime='"
+            + eventTime + '\'' + ", serviceData=" + serviceData + '}';
     }
 }

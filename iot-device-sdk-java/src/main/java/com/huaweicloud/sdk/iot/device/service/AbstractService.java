@@ -1,18 +1,24 @@
 package com.huaweicloud.sdk.iot.device.service;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 抽象服务类，提供了属性自动读写和命令调用能力，用户可以继承此类，根据物模型定义自己的服务
@@ -20,21 +26,26 @@ import java.util.*;
 @JsonFilter("AbstractService")
 public abstract class AbstractService implements IService {
 
-    private static final Logger log = Logger.getLogger(AbstractService.class);
+    private static final Logger log = LogManager.getLogger(AbstractService.class);
 
     private AbstractDevice iotDevice;
+
     private Map<String, Method> commands = new HashMap<>();
+
     private Map<String, Field> writeableFields = new HashMap<>();
+
     private Map<String, FieldPair> readableFields = new HashMap<>();
-    private int reportInterval = 0;
+
     private Timer timer;
+
     private String serviceId;
 
-    private static class  FieldPair{
+    private static class FieldPair {
         public String propertyName;
+
         public Field field;
 
-        public FieldPair(String propertyName, Field field ){
+        public FieldPair(String propertyName, Field field) {
             this.propertyName = propertyName;
             this.field = field;
         }
@@ -110,7 +121,6 @@ public abstract class AbstractService implements IService {
 
     }
 
-
     /**
      * 读属性回调
      *
@@ -151,7 +161,6 @@ public abstract class AbstractService implements IService {
 
     }
 
-
     /**
      * 写属性。收到平台下发的写属性操作时此接口被自动调用。
      * 如果用户希望在写属性时增加额外处理，可以重写此接口
@@ -161,7 +170,6 @@ public abstract class AbstractService implements IService {
      */
     @Override
     public IotResult onWrite(Map<String, Object> properties) {
-
 
         List<String> changedProps = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -285,15 +293,16 @@ public abstract class AbstractService implements IService {
 
     /**
      * 开启自动周期上报属性
+     *
      * @param reportInterval 上报周期，单位ms
      */
-    public void enableAutoReport(int reportInterval){
-        if (timer != null){
+    public void enableAutoReport(int reportInterval) {
+        if (timer != null) {
             log.error("timer is already enabled");
             return;
         }
 
-        if (timer == null){
+        if (timer == null) {
             timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -307,8 +316,8 @@ public abstract class AbstractService implements IService {
     /**
      * 关闭自动周期上报，您可以通过firePropertiesChanged触发上报
      */
-    public void disableAutoReport(){
-        if (timer != null){
+    public void disableAutoReport() {
+        if (timer != null) {
             timer.cancel();
             timer = null;
         }

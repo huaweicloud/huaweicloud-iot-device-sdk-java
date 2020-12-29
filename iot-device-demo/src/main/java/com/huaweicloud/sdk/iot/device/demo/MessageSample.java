@@ -1,24 +1,21 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-
 import com.huaweicloud.sdk.iot.device.IoTDevice;
-import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
-import org.apache.log4j.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 演示如何直接使用DeviceClient进行消息透传
  */
 public class MessageSample {
 
-    private static final Logger log = Logger.getLogger(MessageSample.class);
-
+    private static final Logger log = LogManager.getLogger(BootsrapSelfRegSample.class);
 
     public static void main(String[] args) throws InterruptedException {
-
 
         //创建设备
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
@@ -29,13 +26,8 @@ public class MessageSample {
         }
 
         //接收平台下行消息
-        device.getClient().setDeviceMessageListener(new DeviceMessageListener() {
-            @Override
-            public void onDeviceMessage(DeviceMessage deviceMessage) {
-                log.info("onDeviceMessage:" + deviceMessage.toString());
-            }
-        });
-
+        device.getClient().setDeviceMessageListener(
+            deviceMessage -> log.info("onDeviceMessage:" + deviceMessage.toString()));
 
         while (true) {
 
@@ -51,21 +43,20 @@ public class MessageSample {
                 }
             });
 
-
             //上报自定义topic消息，注意需要先在平台配置自定义topic
-            String topic = "$oc/devices/"+  device.getDeviceId() + "/user/wpy";
+            String topic = "$oc/devices/" + device.getDeviceId() + "/user/wpy";
             device.getClient().publishRawMessage(new RawMessage(topic, "hello raw message "),
-                    new ActionListener() {
-                        @Override
-                        public void onSuccess(Object context) {
-                            log.info("publishRawMessage ok: ");
-                        }
+                new ActionListener() {
+                    @Override
+                    public void onSuccess(Object context) {
+                        log.info("publishRawMessage ok: ");
+                    }
 
-                        @Override
-                        public void onFailure(Object context, Throwable var2) {
-                            log.error("publishRawMessage fail: " + var2);
-                        }
-                    });
+                    @Override
+                    public void onFailure(Object context, Throwable var2) {
+                        log.error("publishRawMessage fail: " + var2);
+                    }
+                });
 
             Thread.sleep(5000);
         }

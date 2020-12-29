@@ -1,6 +1,5 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,8 +12,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,21 +26,20 @@ public class TcpDevice {
 
     private final String host;
     private final int port;
-    private static final Logger log = Logger.getLogger(TcpDevice.class);
+    private static final Logger log = LogManager.getLogger(TcpDevice.class);
 
-    public TcpDevice(String host, int port) {
+    private TcpDevice(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    public static void main(String[] args) throws Exception {
-        Logger.getLogger("io.netty").setLevel(Level.INFO);
+    public static void main(String[] args) {
         new TcpDevice("localhost", 8080).run();
     }
 
-    public void run() throws Exception {
+    private void run() {
         EventLoopGroup group = new NioEventLoopGroup();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))){
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
             Bootstrap bootstrap = new Bootstrap()
                     .group(group)
                     .channel(NioSocketChannel.class)
@@ -53,16 +51,14 @@ public class TcpDevice {
                 channel.writeAndFlush(in.readLine());
             }
         } catch (Exception e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
-        } finally {
+            log.error("run task failed" + e.getMessage());
             group.shutdownGracefully();
         }
-
     }
 
     public class SimpleClientHandler extends SimpleChannelInboundHandler<String> {
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
+        protected void channelRead0(ChannelHandlerContext ctx, String s) {
             log.info("channelRead0:" + s);
         }
 
@@ -76,11 +72,10 @@ public class TcpDevice {
     public class SimpleClientInitializer extends ChannelInitializer<SocketChannel> {
 
         @Override
-        public void initChannel(SocketChannel ch) throws Exception {
+        public void initChannel(SocketChannel ch) {
             ChannelPipeline pipeline = ch.pipeline();
             log.info("initChannel...");
 
-            //pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
             pipeline.addLast("decoder", new StringDecoder());
             pipeline.addLast("encoder", new StringEncoder());
             pipeline.addLast("handler", new SimpleClientHandler());

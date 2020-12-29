@@ -126,18 +126,18 @@ public class DeviceInfo {
 
     @Override
     public String toString() {
-        return "DeviceInfo{" +
-                "parent='" + parent + '\'' +
-                ", nodeId='" + nodeId + '\'' +
-                ", deviceId='" + deviceId + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", manufacturerId='" + manufacturerId + '\'' +
-                ", model='" + model + '\'' +
-                ", productId='" + productId + '\'' +
-                ", fwVersion='" + fwVersion + '\'' +
-                ", swVersion='" + swVersion + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return "DeviceInfo{"
+                + "parent='" + parent + '\''
+                + ", nodeId='" + nodeId + '\''
+                + ", deviceId='" + deviceId + '\''
+                + ", name='" + name + '\''
+                + ", description='" + description + '\''
+                + ", manufacturerId='" + manufacturerId + '\''
+                + ", model='" + model + '\''
+                + ", productId='" + productId + '\''
+                + ", fwVersion='" + fwVersion + '\''
+                + ", swVersion='" + swVersion + '\''
+                + ", status='" + status + '\''
+                + '}';
     }
 }

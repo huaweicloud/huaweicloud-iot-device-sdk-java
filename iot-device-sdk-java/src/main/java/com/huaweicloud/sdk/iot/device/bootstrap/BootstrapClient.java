@@ -8,11 +8,14 @@ import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
 import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * 引导客户端，用于设备引导来获取服务端地址
@@ -20,11 +23,14 @@ import java.util.concurrent.Executors;
 public class BootstrapClient implements RawMessageListener {
 
     private String deviceId;
+
     private Connection connection;
+
     private ActionListener listener;
+
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private static final Logger log = Logger.getLogger(BootstrapClient.class);
+    private static final Logger log = LogManager.getLogger(BootstrapClient.class);
 
     /**
      * 构造函数，使用密码创建
@@ -68,13 +74,14 @@ public class BootstrapClient implements RawMessageListener {
     /**
      * 构造函数，自注册场景下证书创建
      *
-     * @param bootstrapUri  bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
-     * @param deviceId      设备id
-     * @param keyStore      证书容器
-     * @param keyPassword   证书密码
-     * @param scopeId       scopeId, 自注册场景可从物联网平台获取
+     * @param bootstrapUri bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId     设备id
+     * @param keyStore     证书容器
+     * @param keyPassword  证书密码
+     * @param scopeId      scopeId, 自注册场景可从物联网平台获取
      */
-    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, String scopeId) {
+    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword,
+        String scopeId) {
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(bootstrapUri);
         clientConf.setDeviceId(deviceId);
@@ -94,12 +101,18 @@ public class BootstrapClient implements RawMessageListener {
             String address = node.get("address").asText();
             log.info("bootstrap ok address:" + address);
 
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onSuccess(address);
-                }
-            });
+            Future<String> success = executorService.submit(() -> listener.onSuccess(address), "success");
+            String result = "";
+            try {
+                result = success.get();
+            } catch (Exception e) {
+                log.error("get submit result failed " + e.getMessage());
+            }
+
+            if (result.equals("success")) {
+                log.debug("submit task succeeded");
+            }
+
         }
     }
 
@@ -120,36 +133,13 @@ public class BootstrapClient implements RawMessageListener {
         }
 
         String bsTopic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/down";
-        connection.subscribeTopic(bsTopic, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
 
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-                log.error("subscribeTopic failed:" + bsTopic);
-                listener.onFailure(context, var2);
-
-            }
-        }, 0);
+        connection.subscribeTopic(bsTopic, listener, 0);
 
         String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
         RawMessage rawMessage = new RawMessage(topic, "");
 
-        connection.publishMessage(rawMessage, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
-
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-
-                listener.onFailure(context, var2);
-            }
-        });
-
+        connection.publishMessage(rawMessage, listener);
 
     }
 
