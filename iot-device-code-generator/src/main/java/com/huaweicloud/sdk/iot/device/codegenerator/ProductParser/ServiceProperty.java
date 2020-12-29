@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -60,7 +60,7 @@ public class ServiceProperty implements Serializable {
      */
     private String description;
 
-    private transient ObjectNode extendparam;
+    private ObjectNode extendParam;
 
     public String getPropertyName() {
         return propertyName;
@@ -142,12 +142,12 @@ public class ServiceProperty implements Serializable {
         this.enumList = enumList;
     }
 
-    public ObjectNode getExtendparam() {
-        return extendparam;
+    public ObjectNode getExtendParam() {
+        return extendParam;
     }
 
-    public void setExtendparam(ObjectNode extendparam) {
-        this.extendparam = extendparam;
+    public void setExtendParam(ObjectNode extendParam) {
+        this.extendParam = extendParam;
     }
 
     public String getDescription() {

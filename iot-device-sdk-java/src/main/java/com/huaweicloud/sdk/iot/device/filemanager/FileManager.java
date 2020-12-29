@@ -1,22 +1,31 @@
 package com.huaweicloud.sdk.iot.device.filemanager;
 
+import com.huaweicloud.sdk.iot.device.client.listener.DefaultActionListenerImpl;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
-import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * 未完成
  */
 public class FileManager extends AbstractService {
-    private static final Logger log = Logger.getLogger(FileManager.class);
+    private static final Logger log = LogManager.getLogger(FileManager.class);
+
     private FileMangerListener fileMangerListener;
+
+    public FileManager() {
+    }
+
+    public FileManager(FileMangerListener fileMangerListener) {
+        this.fileMangerListener = fileMangerListener;
+    }
 
     /**
      * 获取文件上传url
@@ -34,17 +43,9 @@ public class FileManager extends AbstractService {
         deviceEvent.setServiceId("$file_manager");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
+        DefaultActionListenerImpl defaultActionListener = new DefaultActionListenerImpl("reportEvent");
 
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-                log.error("reportEvent failed: " + var2.getMessage());
-            }
-        });
+        getIotDevice().getClient().reportEvent(deviceEvent, defaultActionListener);
 
     }
 
@@ -64,17 +65,9 @@ public class FileManager extends AbstractService {
         deviceEvent.setServiceId("$file_manager");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        getIotDevice().getClient().reportEvent(deviceEvent, new ActionListener() {
-            @Override
-            public void onSuccess(Object context) {
+        DefaultActionListenerImpl defaultActionListener = new DefaultActionListenerImpl("reportEvent");
 
-            }
-
-            @Override
-            public void onFailure(Object context, Throwable var2) {
-                log.error("reportEvent failed: " + var2.getMessage());
-            }
-        });
+        getIotDevice().getClient().reportEvent(deviceEvent, defaultActionListener);
 
     }
 

@@ -68,13 +68,8 @@ public class OTAPackage {
 
     @Override
     public String toString() {
-        return "OTAPackage{" +
-                "url='" + url + '\'' +
-                ", version='" + version + '\'' +
-                ", fileSize=" + fileSize +
-                ", token='" + token + '\'' +
-                ", expires=" + expires +
-                ", sign='" + sign + '\'' +
-                '}';
+        return "OTAPackage{" + "url='" + url + '\'' + ", version='" + version
+            + '\'' + ", fileSize=" + fileSize + ", token='" + token + '\''
+            + ", expires=" + expires + ", sign='" + sign + '\'' + '}';
     }
 }

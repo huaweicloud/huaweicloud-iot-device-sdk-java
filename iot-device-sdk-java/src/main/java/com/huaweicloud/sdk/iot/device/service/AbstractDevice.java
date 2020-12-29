@@ -3,13 +3,25 @@ package com.huaweicloud.sdk.iot.device.service;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.requests.*;
+import com.huaweicloud.sdk.iot.device.client.requests.Command;
+import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
+import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
+import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
+import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.devicelog.DeviceLogService;
+import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnActionLogListener;
+import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnLogListener;
 import com.huaweicloud.sdk.iot.device.filemanager.FileManager;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.KeyStore;
 import java.util.ArrayList;
@@ -18,22 +30,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * 抽象设备类
  */
 public class AbstractDevice {
 
-    private static final Logger log = Logger.getLogger(AbstractDevice.class);
+    private static final Logger log = LogManager.getLogger(AbstractService.class);
 
     private DeviceClient client;
+
     private String deviceId;
 
     private Map<String, AbstractService> services = new ConcurrentHashMap<>();
+
     private OTAService otaService;
+
     private FileManager fileManager;
+
     private TimeSyncService timeSyncService;
 
+    private DeviceLogService deviceLogService;
 
     /**
      * 构造函数，使用密码创建设备
@@ -100,8 +116,10 @@ public class AbstractDevice {
 
         this.timeSyncService = new TimeSyncService();
         this.addService("$time_sync", timeSyncService);
-    }
 
+        this.deviceLogService = new DeviceLogService();
+        this.addService("$log", deviceLogService);
+    }
 
     /**
      * 初始化，创建到平台的连接
@@ -109,6 +127,17 @@ public class AbstractDevice {
      * @return 如果连接成功，返回0；否则返回-1
      */
     public int init() {
+
+        //如果日志上报开关是关闭状态或者已过日志收集结束时间，则取消上报设备连接状态相关日志
+        if (deviceLogService.canReportLog()) {
+            DefaultConnLogListener defaultConnLogListener = new DefaultConnLogListener(deviceLogService);
+            client.setConnectListener(defaultConnLogListener);
+
+            DefaultConnActionLogListener defaultConnActionLogListener = new DefaultConnActionLogListener(
+                deviceLogService);
+            client.setConnectActionListener(defaultConnActionLogListener);
+        }
+
         return client.connect();
     }
 
@@ -128,12 +157,12 @@ public class AbstractDevice {
 
     /**
      * 删除服务
+     *
      * @param serviceId 服务id
      */
-    public void delService(String serviceId){
+    public void delService(String serviceId) {
         services.remove(serviceId);
     }
-
 
     /**
      * 查询服务
@@ -145,7 +174,6 @@ public class AbstractDevice {
 
         return services.get(serviceId);
     }
-
 
     /**
      * 触发属性变化，SDK会上报变化的属性
@@ -238,7 +266,6 @@ public class AbstractDevice {
         return client;
     }
 
-
     /**
      * 查询设备id
      *
@@ -248,7 +275,6 @@ public class AbstractDevice {
         return deviceId;
     }
 
-
     /**
      * 命令回调函数，由SDK自动调用
      *
@@ -256,7 +282,6 @@ public class AbstractDevice {
      * @param command   命令
      */
     public void onCommand(String requestId, Command command) {
-
 
         IService service = getService(command.getServiceId());
 
@@ -274,7 +299,6 @@ public class AbstractDevice {
      * @param propsSet  属性设置请求
      */
     public void onPropertiesSet(String requestId, PropsSet propsSet) {
-
 
         for (ServiceProperty serviceProp : propsSet.getServices()) {
             IService deviceService = getService(serviceProp.getServiceId());
@@ -373,9 +397,14 @@ public class AbstractDevice {
 
     /**
      * 获取时间同步服务
+     *
      * @return
      */
     public TimeSyncService getTimeSyncService() {
         return timeSyncService;
+    }
+
+    public DeviceLogService getDeviceLogService() {
+        return deviceLogService;
     }
 }

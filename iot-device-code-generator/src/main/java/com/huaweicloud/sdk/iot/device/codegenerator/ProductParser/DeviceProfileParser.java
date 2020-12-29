@@ -1,30 +1,36 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.log4j.Logger;
 
-import java.io.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
 
 public class DeviceProfileParser {
     private static final String DEVICETYPE_CAPABILITY = "devicetype-capability";
-    private static final String SERVICETYPE_CAPABILITY = "servicetype-capability";
-    private static final String DEVICES_TITLE = "devices";
-    private static final String SERVICES_TITLE = "services";
-    private static final int BUFFER = 1024;
-    private static final Logger log = Logger.getLogger(DeviceProfileParser.class);
 
-    private static final long MAX_FILE_NUM = 1000;
-    private static final long MAX_PACKAGE_SIZE = 4 * 1024 * 1024;
+    private static final String SERVICETYPE_CAPABILITY = "servicetype-capability";
+
+    private static final String DEVICES_TITLE = "devices";
+
+    private static final String SERVICES_TITLE = "services";
+
+    private static final Logger log = LogManager.getLogger(DeviceProfileParser.class);
 
     public static ProductInfo parseProductFile(String zipfile) {
 
@@ -35,7 +41,8 @@ public class DeviceProfileParser {
             // 读取设备能力及服务能力
             List<DeviceCapability> deviceCapabilities = null;
             Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
-            List<String> files = unZipFiles(zipfile,"tmp\\");
+            List<String> files = unZipFiles(zipfile, "tmp\\");
+
             if (files != null) {
                 for (String outpath : files) {
                     if (outpath == null) {
@@ -55,14 +62,17 @@ public class DeviceProfileParser {
                 }
             }
 
+            if (deviceCapabilities == null) {
+                return productInfo;
+            }
+
             productInfo.setDeviceCapability(deviceCapabilities.get(0));
             productInfo.setServiceCapabilityMap(serviceCapabilityMap);
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            log.error("parse product file error " + e.getMessage());
         }
-
 
         return productInfo;
     }
@@ -77,8 +87,8 @@ public class DeviceProfileParser {
         ObjectMapper objectMapper = new ObjectMapper(factory);
         File from = new File(filePath);
 
-        TypeReference<HashMap<String, List<DeviceService>>> typeRef = new TypeReference<HashMap<String, List<DeviceService>>>() {
-        };
+        TypeReference<HashMap<String, List<DeviceService>>> typeRef
+            = new TypeReference<HashMap<String, List<DeviceService>>>() {};
         HashMap<String, List<DeviceService>> hm = null;
         Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
         try {
@@ -123,7 +133,7 @@ public class DeviceProfileParser {
             }
             return serviceCapabilityMap;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("getServiceCapability error " + e.getMessage());
         }
         return null;
     }
@@ -138,9 +148,9 @@ public class DeviceProfileParser {
         ObjectMapper objectMapper = new ObjectMapper(factory);
 
         File from = new File(filePath);
-        TypeReference<HashMap<String, List<DeviceCapability>>> typeRef = new TypeReference<HashMap<String, List<DeviceCapability>>>() {
-        };
-        HashMap<String, List<DeviceCapability>> hm = null;
+        TypeReference<HashMap<String, List<DeviceCapability>>> typeRef
+            = new TypeReference<HashMap<String, List<DeviceCapability>>>() {};
+        HashMap<String, List<DeviceCapability>> hm;
 
         try {
             hm = objectMapper.readValue(from, typeRef);
@@ -158,14 +168,17 @@ public class DeviceProfileParser {
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
 
-        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))){
+        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))) {
             String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
 
             List<String> files = new ArrayList<>();
 
             File pathFile = new File(descDir + name);
             if (!pathFile.exists()) {
-                pathFile.mkdirs();
+                boolean mkdirs = pathFile.mkdirs();
+                if (!mkdirs) {
+                    log.error("make dir failed");
+                }
             }
 
             for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
@@ -177,7 +190,10 @@ public class DeviceProfileParser {
                 // 判断路径是否存在,不存在则创建文件路径
                 File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
                 if (!file.exists()) {
-                    file.mkdirs();
+                    boolean mkdirs = file.mkdirs();
+                    if (!mkdirs) {
+                        log.error("make dir failed");
+                    }
                 }
                 // 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
                 if (new File(outPath).isDirectory()) {
@@ -185,7 +201,8 @@ public class DeviceProfileParser {
                 }
 
                 try (InputStream in = zip.getInputStream(entry);
-                     FileOutputStream out = new FileOutputStream(outPath)) {
+
+                    FileOutputStream out = FileUtils.openOutputStream(FileUtils.getFile(outPath))) {
 
                     byte[] buf1 = new byte[1024];
                     int len;
@@ -200,21 +217,5 @@ public class DeviceProfileParser {
         }
 
     }
-    private static String getPathName(String path) {
-        String name = "";
 
-        path = Normalizer.normalize(path, Form.NFKC);
-        int index = path.lastIndexOf("/");
-        if (-1 == index) {
-            return name;
-        }
-
-        name = path.substring(0, index + 1);
-        return name;
-    }
-
-//    public static void main(String[] args) {
-//
-//        log.info(parseProductFile("src/main/resources/smokeDetector_cb097d20d77b4240adf1f33d36b3c278_smokeDetector.zip"));
-//    }
 }

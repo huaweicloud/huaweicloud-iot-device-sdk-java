@@ -5,8 +5,10 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceInfo;
 import com.huaweicloud.sdk.iot.device.gateway.requests.SubDevicesInfo;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +22,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
     private final Lock readLock = readWriteLock.readLock();
+
     private final Lock writeLock = readWriteLock.writeLock();
-    private static final Logger log = Logger.getLogger(SubDevicesFilePersistence.class);
+
+    private static final Logger log = LogManager.getLogger(SubDevicesFilePersistence.class);
+
     private SubDevInfo subDevInfoCache;
 
     public SubDevicesFilePersistence() {
@@ -39,7 +45,6 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         log.info("subDevInfo:" + subDevInfoCache.toString());
     }
 
-
     @Override
     public DeviceInfo getSubDevice(String nodeId) {
 
@@ -52,16 +57,19 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
     }
 
     @Override
-    public int addSubDevices(SubDevicesInfo SubDevicesInfo) {
+    public int addSubDevices(SubDevicesInfo subDevicesInfo) {
+        if (subDevicesInfo == null) {
+            return -1;
+        }
 
         writeLock.lock();
         try {
-            if (SubDevicesInfo.getVersion() > 0 && SubDevicesInfo.getVersion() <= subDevInfoCache.getVersion()) {
-                log.info("version too low: " + SubDevicesInfo.getVersion());
+            if (subDevicesInfo.getVersion() > 0 && subDevicesInfo.getVersion() <= subDevInfoCache.getVersion()) {
+                log.info("version too low: " + subDevicesInfo.getVersion());
                 return -1;
             }
 
-            if (addSubDeviceToFile(SubDevicesInfo) != 0) {
+            if (addSubDeviceToFile(subDevicesInfo) != 0) {
                 log.info("write file fail ");
                 return -1;
             }
@@ -70,12 +78,12 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
                 subDevInfoCache.setSubdevices(new HashMap<>());
             }
 
-            SubDevicesInfo.getDevices().forEach((dev) -> {
+            subDevicesInfo.getDevices().forEach((dev) -> {
                 subDevInfoCache.getSubdevices().put(dev.getNodeId(), dev);
                 log.info("add subdev: " + dev.getNodeId());
             });
-            subDevInfoCache.setVersion(SubDevicesInfo.getVersion());
-            log.info("version update to "+subDevInfoCache.getVersion());
+            subDevInfoCache.setVersion(subDevicesInfo.getVersion());
+            log.info("version update to " + subDevInfoCache.getVersion());
 
         } finally {
             writeLock.unlock();
@@ -106,7 +114,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         });
 
         subDevInfoCache.setVersion(subDevicesInfo.getVersion());
-        log.info("local version update to "+subDevicesInfo.getVersion());
+        log.info("local version update to " + subDevicesInfo.getVersion());
 
         return 0;
     }
@@ -116,10 +124,9 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         return subDevInfoCache.getVersion();
     }
 
-
     private int addSubDeviceToFile(SubDevicesInfo subDevicesInfo) {
-        String confFile = SubDevicesFilePersistence.class.getClassLoader().getResource("subdevices.json").getPath();
-        File file = new File(confFile);
+        String addConfFile = SubDevicesFilePersistence.class.getClassLoader().getResource("subdevices.json").getPath();
+        File file = new File(addConfFile);
 
         String content;
         try {
@@ -135,7 +142,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
             subDevInfo.setSubdevices(new HashMap<>());
         }
         subDevicesInfo.getDevices().forEach((dev) ->
-                subDevInfo.getSubdevices().put(dev.getNodeId(), dev));
+            subDevInfo.getSubdevices().put(dev.getNodeId(), dev));
         subDevInfo.setVersion(subDevicesInfo.getVersion());
 
         try {
@@ -148,8 +155,8 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
     }
 
     private int rmvSubDeviceToFile(SubDevicesInfo subDevicesInfo) {
-        String confFile = SubDevicesFilePersistence.class.getClassLoader().getResource("subdevices.json").getPath();
-        File file = new File(confFile);
+        String rmvConfFile = SubDevicesFilePersistence.class.getClassLoader().getResource("subdevices.json").getPath();
+        File file = new File(rmvConfFile);
 
         String content;
         try {
@@ -166,7 +173,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         }
 
         subDevicesInfo.getDevices().forEach((dev) ->
-                subDevInfo.getSubdevices().remove(dev.getNodeId()));
+            subDevInfo.getSubdevices().remove(dev.getNodeId()));
         subDevInfo.setVersion(subDevicesInfo.getVersion());
 
         try {

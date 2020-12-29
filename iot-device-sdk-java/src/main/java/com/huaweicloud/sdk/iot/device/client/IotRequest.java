@@ -2,24 +2,33 @@ package com.huaweicloud.sdk.iot.device.client;
 
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class IotRequest {
-    private static final Logger log = Logger.getLogger(IotRequest.class);
+    private static final Logger log = LogManager.getLogger(IotRequest.class);
+
     private String requestId;
+
     private int timeout;
+
     private RawMessage rawMessage;
+
     private Object result = null;
+
     private boolean sync = true;
+
     /**
      * 异步请求才有
      */
     private RequestListener listener;
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();;
+
+    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public IotRequest(RawMessage rawMessage, String requestId, int timeout) {
 
@@ -66,8 +75,12 @@ public class IotRequest {
     public void runSync() {
 
         synchronized (this) {
+
             try {
-                wait(timeout);
+                while (timeout != 0) {
+                    wait(timeout);
+                    timeout = 0;
+                }
             } catch (InterruptedException e) {
                 log.error(ExceptionUtil.getBriefStackTrace(e));
             }

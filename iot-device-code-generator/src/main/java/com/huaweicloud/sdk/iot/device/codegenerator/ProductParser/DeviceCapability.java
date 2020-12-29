@@ -1,12 +1,7 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 
@@ -73,7 +68,7 @@ public class DeviceCapability implements Serializable {
      * 定制能力
      * 目前dm使用，定义设备的软件升级、固件升级和配置更新的能力
      */
-    private transient ObjectNode omCapability;
+    private ObjectNode omCapability;
 
     /**
      * 图标
@@ -264,22 +259,6 @@ public class DeviceCapability implements Serializable {
         builder.append(serviceTypeCapabilities);
         builder.append("]");
         return builder.toString();
-    }
-
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-
-        ObjectMapper mapper = new ObjectMapper();
-        oos.writeUTF(mapper.writeValueAsString(omCapability));
-    }
-
-    private void readObject(ObjectInputStream ois) throws IOException,
-            ClassNotFoundException {
-        ois.defaultReadObject();
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(ois.readUTF());
-        omCapability = (ObjectNode) node;
     }
 
 }

@@ -15,18 +15,18 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 一个传输字符串数据的tcp server，客户端建链后，首条消息是鉴权消息，携带设备标识nodeId。server将收到的消息通过bridge转发给平台
  */
-public class StringTcpServer {
+public class TcpServer {
 
-    private static Logger log = Logger.getLogger(StringTcpServer.class);
+    private static final Logger log = LogManager.getLogger(TcpServer.class);
     private int port;
 
-    public StringTcpServer(int port) {
+    public TcpServer(int port) {
         this.port = port;
     }
 

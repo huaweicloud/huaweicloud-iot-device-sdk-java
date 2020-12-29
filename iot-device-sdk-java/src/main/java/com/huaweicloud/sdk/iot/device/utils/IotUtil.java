@@ -1,11 +1,16 @@
 package com.huaweicloud.sdk.iot.device.utils;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,6 +19,7 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
@@ -23,9 +29,10 @@ import java.util.zip.GZIPOutputStream;
  */
 public class IotUtil {
 
-
     private static final String TLS_VER = "TLSv1.2";
-    private static Logger log = Logger.getLogger(IotUtil.class);
+
+    private static final Logger log = LogManager.getLogger(IotUtil.class);
+
     private static AtomicLong requestId = new AtomicLong(0);
 
     /**
@@ -80,9 +87,9 @@ public class IotUtil {
      */
     public static String getTimeStamp() {
 
-        String MSG_TIMESTAMP_FORMAT = "yyyyMMdd'T'HHmmss'Z'";
+        String timeStampFormat = "yyyyMMdd'T'HHmmss'Z'";
 
-        SimpleDateFormat df = new SimpleDateFormat(MSG_TIMESTAMP_FORMAT);
+        SimpleDateFormat df = new SimpleDateFormat(timeStampFormat);
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         return df.format(new Date(System.currentTimeMillis()));
 
@@ -94,7 +101,6 @@ public class IotUtil {
      * @return requestId
      */
     public static String generateRequestId() {
-
 
         return Long.toString(requestId.incrementAndGet());
 
@@ -110,10 +116,10 @@ public class IotUtil {
     public static String sha256_mac(String str, String timeStamp) {
         String passWord = null;
         try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret_key = new SecretKeySpec(timeStamp.getBytes("UTF-8"), "HmacSHA256");
-            sha256_HMAC.init(secret_key);
-            byte[] bytes = sha256_HMAC.doFinal(str.getBytes("UTF-8"));
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(timeStamp.getBytes("UTF-8"), "HmacSHA256");
+            sha256Hmac.init(secretKey);
+            byte[] bytes = sha256Hmac.doFinal(str.getBytes("UTF-8"));
             passWord = byteArrayToHexString(bytes);
         } catch (Exception e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
@@ -137,9 +143,8 @@ public class IotUtil {
             }
             hs.append(stmp);
         }
-        return hs.toString().toLowerCase();
+        return hs.toString().toLowerCase(Locale.CHINESE);
     }
-
 
     private static TrustManager[] getTrustManager() throws Exception {
 
@@ -182,30 +187,18 @@ public class IotUtil {
 
     }
 
-
     public static byte[] compress(String string, String encoding) {
-        if(null == string || null == encoding) {
-            return null;
+        if (null == string || null == encoding) {
+            return new byte[0];
         }
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        GZIPOutputStream gzipOutputStream;
-        try {
-            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(string.getBytes(encoding));
-            gzipOutputStream.close();
         } catch (IOException e) {
             log.error("compress failed " + e.getMessage());
         }
 
         return byteArrayOutputStream.toByteArray();
     }
-
-
-//    public static void main(String args[]) {
-//
-//
-//    }
-
-
 }

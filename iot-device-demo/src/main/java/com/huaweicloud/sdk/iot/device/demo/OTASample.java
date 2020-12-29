@@ -1,35 +1,34 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.ota.OTAListener;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackage;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.apache.log4j.Logger;
 
-import javax.net.ssl.HostnameVerifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.DatatypeConverter;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,13 +38,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class OTASample implements OTAListener {
 
-
-    private static final Logger log = Logger.getLogger(OTASample.class);
+    private static final Logger log = LogManager.getLogger(OTASample.class);
 
     private IoTDevice device;
+
     private OTAService otaService;
+
     private OkHttpClient okHttpClient;
-    private String version ; //当前版本号
+
+    private String version; //当前版本号
+
     private String packageSavePath; //升级包保存路径
 
     public OTASample(IoTDevice device, String packageSavePath) throws Exception {
@@ -56,16 +58,13 @@ public class OTASample implements OTAListener {
         this.version = "v1.0"; //修改为实际值
 
         this.okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(600, TimeUnit.SECONDS)
-                .sslSocketFactory(createSSLSocketFactory()).hostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String s, SSLSession sslSession) {
-                        log.info("verify " + s);
-                        return true;
-                    }
-                })
-                .build();
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(600, TimeUnit.SECONDS)
+            .sslSocketFactory(createSSLSocketFactory()).hostnameVerifier((s, sslSession) -> {
+                log.info("verify " + s);
+                return true;
+            })
+            .build();
 
     }
 
@@ -78,25 +77,12 @@ public class OTASample implements OTAListener {
         try {
 
             SSLContext sc = SSLContext.getInstance("TLSv1.2");
-            sc.init(null, new TrustManager[]{new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
 
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }}, new SecureRandom());
+            DefaultX509TrustManager defaultX509TrustManager = new DefaultX509TrustManager();
+            sc.init(null, new TrustManager[] {defaultX509TrustManager}, new SecureRandom());
             ssfFactory = sc.getSocketFactory();
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Exception e) {
+            log.error("create SSL Socket Factory error" + e.getMessage());
         }
 
         return ssfFactory;
@@ -105,8 +91,8 @@ public class OTASample implements OTAListener {
     private void downloadPackage(String url, String token, ActionListener listener) {
 
         Request request = new Request.Builder()
-                .url(url).header("Authorization", "Bearer " + token)
-                .build();
+            .url(url).header("Authorization", "Bearer " + token)
+            .build();
         Call call = okHttpClient.newCall(request);
 
         call.enqueue(new Callback() {
@@ -116,7 +102,7 @@ public class OTASample implements OTAListener {
                 log.error("onFailure " + e.toString());
 
                 otaService.reportOtaStatus(OTAService.OTA_CODE_DOWNLOAD_TIMEOUT,
-                        0, version, null);
+                    0, version, null);
                 listener.onFailure(null, e);
             }
 
@@ -131,14 +117,14 @@ public class OTASample implements OTAListener {
 
                 if (!response.isSuccessful()) {
                     otaService.reportOtaStatus(OTAService.OTA_CODE_DOWNLOAD_TIMEOUT,
-                            0, version, "download response fail");
+                        0, version, "download response fail");
                     listener.onFailure(response, new RuntimeException("response fail"));
                     return;
                 }
 
                 try (ResponseBody responseBody = response.body();
-                     BufferedInputStream bufferedInputStream = new BufferedInputStream(responseBody.byteStream());
-                     FileOutputStream fileOutputStream = new FileOutputStream(new File(packageSavePath))) {
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(responseBody.byteStream());
+                    FileOutputStream fileOutputStream = new FileOutputStream(new File(packageSavePath))) {
 
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
@@ -161,7 +147,7 @@ public class OTASample implements OTAListener {
                     }
 
                     if (current == total) {
-                        String md5 = DatatypeConverter.printHexBinary(digest.digest()).toLowerCase();
+                        String md5 = DatatypeConverter.printHexBinary(digest.digest()).toLowerCase(Locale.CHINA);
                         log.info("md5 = " + md5);
 
                         otaService.reportOtaStatus(OTAService.OTA_CODE_SUCCESS, 100, version, null);
@@ -170,7 +156,7 @@ public class OTASample implements OTAListener {
 
                 } catch (Exception e) {
                     otaService.reportOtaStatus(OTAService.OTA_CODE_DOWNLOAD_TIMEOUT,
-                            0, version, e.getMessage());
+                        0, version, e.getMessage());
                     listener.onFailure(response, e);
                 }
 
@@ -201,8 +187,12 @@ public class OTASample implements OTAListener {
         //TODO
         log.info("installPackage ok");
 
-        //如果安装失败，上报OTA_CODE_INSTALL_FAIL
-        //otaService.reportOtaStatus(OTAService.OTA_CODE_INSTALL_FAIL, 0, version,null);
+        /**
+         * 如果安装失败，上报OTA_CODE_INSTALL_FAIL
+         * otaService.reportOtaStatus(OTAService.OTA_CODE_INSTALL_FAIL, 0, version,null);
+         *
+         */
+
         return 0;
     }
 
@@ -216,7 +206,11 @@ public class OTASample implements OTAListener {
 
         //todo 对版本号、剩余空间、剩余电量、信号质量等进行检查，如果不允许升级，上报OTAService中定义的错误码或者自定义错误码，返回-1
 
-        //otaService.reportOtaStatus(OTAService.OTA_CODE_NO_NEED, 0, null);
+        /**
+         * 上报升级状态
+         * otaService.reportOtaStatus(OTAService.OTA_CODE_NO_NEED, 0, null);
+         *
+         */
 
         return 0;
     }
@@ -266,11 +260,10 @@ public class OTASample implements OTAListener {
 
     }
 
-
     public static void main(String[] args) throws Exception {
 
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "deviceid", "secret");
+            "deviceid", "secret");
 
         OTASample otaSample = new OTASample(device, "image.bin");
         otaSample.init();

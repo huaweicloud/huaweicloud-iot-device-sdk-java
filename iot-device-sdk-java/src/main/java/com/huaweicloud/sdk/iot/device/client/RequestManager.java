@@ -2,7 +2,9 @@ package com.huaweicloud.sdk.iot.device.client;
 
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -11,9 +13,10 @@ import java.util.concurrent.ConcurrentMap;
  * 请求管理器
  */
 public class RequestManager {
-    private static final Logger log = Logger.getLogger(RequestManager.class);
+   
     private DeviceClient iotClient;
     private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
+    private static final Logger log = LogManager.getLogger(RequestManager.class);
 
     /**
      * 构造函数

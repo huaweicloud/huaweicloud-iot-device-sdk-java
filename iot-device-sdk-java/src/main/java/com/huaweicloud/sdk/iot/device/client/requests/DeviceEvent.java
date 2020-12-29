@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
-
 /**
  * 服务的事件
  */
@@ -32,6 +31,17 @@ public class DeviceEvent {
      * 事件具体的参数
      */
     Map<String, Object> paras;
+
+    @JsonProperty("event_id")
+    String eventId;
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
 
     public String getServiceId() {
         return serviceId;
@@ -63,5 +73,15 @@ public class DeviceEvent {
 
     public void setParas(Map<String, Object> paras) {
         this.paras = paras;
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceEvent{"
+            + "serviceId='" + serviceId + '\''
+            + ", eventType='" + eventType + '\''
+            + ", eventTime='" + eventTime + '\''
+            + ", paras=" + paras
+            + ", eventId='" + eventId + '\'' + '}';
     }
 }

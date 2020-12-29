@@ -5,11 +5,12 @@ import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 import com.huaweicloud.sdk.iot.device.service.DeviceCommand;
 import com.huaweicloud.sdk.iot.device.service.Property;
-import org.apache.log4j.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
-
 
 /**
  * 此例用来演示面向物模型编程的方法。用户只需要根据物模型定义自己的设备服务类，就可以直接对设备服务进行读写操作，SDK会自动
@@ -19,7 +20,7 @@ import java.util.Random;
 
 public class SmokeDetector {
 
-    public static void main(String args[]) throws InterruptedException {
+    public static void main(String[] args) {
 
         String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
@@ -67,7 +68,7 @@ public class SmokeDetector {
         @Property(writeable = false)
         float temperature;
 
-        private Logger log = Logger.getLogger(this.getClass());
+        private final Logger log = LogManager.getLogger(this.getClass());
 
         //定义命令，注意接口入参和返回值类型是固定的不能修改，否则会出现运行时错误
         @DeviceCommand(name = "ringAlarm")
@@ -81,7 +82,7 @@ public class SmokeDetector {
         public int getHumidity() {
 
             //模拟从传感器读取数据
-            humidity = new Random().nextInt(100);
+            humidity = new SecureRandom().nextInt(100);
             return humidity;
         }
 
@@ -92,7 +93,7 @@ public class SmokeDetector {
         public float getTemperature() {
 
             //模拟从传感器读取数据
-            temperature = new Random().nextInt(100);
+            temperature = new SecureRandom().nextInt(100);
             return temperature;
         }
 
@@ -103,7 +104,8 @@ public class SmokeDetector {
         public float getConcentration() {
 
             //模拟从传感器读取数据
-            concentration = new Random().nextFloat()*100.0f;
+            concentration = new SecureRandom().nextFloat() * 100.0f;
+
             return concentration;
         }
 
@@ -118,7 +120,7 @@ public class SmokeDetector {
         public void setSmokeAlarm(int smokeAlarm) {
 
             this.smokeAlarm = smokeAlarm;
-            if (smokeAlarm == 0){
+            if (smokeAlarm == 0) {
                 log.info("alarm is cleared by app");
             }
         }

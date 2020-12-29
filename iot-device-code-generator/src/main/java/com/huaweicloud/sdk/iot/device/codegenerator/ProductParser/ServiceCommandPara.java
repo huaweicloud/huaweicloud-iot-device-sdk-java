@@ -1,4 +1,4 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -8,32 +8,25 @@ import java.util.List;
 public class ServiceCommandPara implements Serializable {
     private static final long serialVersionUID = 4565399257931903508L;
 
-
     private String paraName;
 
     private String dataType;
 
     private boolean required;
 
-
     private String min;
-
 
     private String max;
 
-
     private double step;
-
 
     private int maxLength;
 
-
     private String unit;
-
 
     private List<String> enumList;
 
-    private transient ObjectNode extendparam;
+    private ObjectNode extendParam;
 
     /**
      * 描述
@@ -113,12 +106,12 @@ public class ServiceCommandPara implements Serializable {
         this.enumList = enumList;
     }
 
-    public ObjectNode getExtendparam() {
-        return extendparam;
+    public ObjectNode getExtendParam() {
+        return extendParam;
     }
 
-    public void setExtendparam(ObjectNode extendparam) {
-        this.extendparam = extendparam;
+    public void setExtendParam(ObjectNode extendParam) {
+        this.extendParam = extendParam;
     }
 
     public String getDescription() {
@@ -132,13 +125,12 @@ public class ServiceCommandPara implements Serializable {
     @Override
     public String toString() {
         return new StringBuilder().append("ServiceCommandPara [paraName=").append(paraName).append(", dataType=")
-                .append(dataType).append(", required=").append(required).append(", min=").append(min).append(", max=")
-                .append(max).append(", step=").append(step).append(", maxLength=").append(maxLength).append(", unit=")
-                .append(unit).append(", enumList=").append(enumList).append(", description=")
-                .append(description).append("]").toString();
+            .append(dataType).append(", required=").append(required).append(", min=").append(min).append(", max=")
+            .append(max).append(", step=").append(step).append(", maxLength=").append(maxLength).append(", unit=")
+            .append(unit).append(", enumList=").append(enumList).append(", description=")
+            .append(description).append("]").toString();
 
     }
-
 
 }
 

@@ -1,14 +1,19 @@
 package com.huaweicloud.sdk.iot.device.transport.mqtt;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.listener.DefaultPublishListenerImpl;
+import com.huaweicloud.sdk.iot.device.client.listener.DefaultSubscribeListenerImpl;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import com.huaweicloud.sdk.iot.device.transport.ConnectActionListener;
 import com.huaweicloud.sdk.iot.device.transport.ConnectListener;
 import com.huaweicloud.sdk.iot.device.transport.Connection;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
 import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -22,6 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import javax.net.ssl.SSLContext;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,18 +39,30 @@ import java.time.format.DateTimeFormatter;
 public class MqttConnection implements Connection {
 
     private static final int DEFAULT_QOS = 1;
-    private static final int DEFAULT_SUBSCRIBE_QOS = 0;
+
     private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+
     private static final int DEFAULT_KEEPLIVE = 120;
-    private static final String connectType = "0";
-    private static final String checkTimestamp = "0";
+
+    private static final String CONNECT_TYPE = "0";
+
+    private static final String CHECK_TIMESTAMP = "0";
+
     private ClientConf clientConf;
+
     private boolean connectFinished = false;
+
     private MqttAsyncClient mqttAsyncClient;
+
     private ConnectListener connectListener;
+
+    private ConnectActionListener connectActionListener;
+
     private RawMessageListener rawMessageListener;
 
-    private static final Logger log = Logger.getLogger(MqttConnection.class);
+    private int connectResultCode;
+
+    private static final Logger log = LogManager.getLogger(MqttConnection.class);
 
     public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener) {
         this.clientConf = clientConf;
@@ -63,7 +81,7 @@ public class MqttConnection implements Connection {
         }
 
         @Override
-        public void messageArrived(String topic, MqttMessage message) throws Exception {
+        public void messageArrived(String topic, MqttMessage message) {
             log.info("messageArrived topic =  " + topic + ", msg = " + message.toString());
             RawMessage rawMessage = new RawMessage(topic, message.toString());
             try {
@@ -77,7 +95,6 @@ public class MqttConnection implements Connection {
 
         }
 
-
         @Override
         public void deliveryComplete(IMqttDeliveryToken token) {
 
@@ -90,11 +107,8 @@ public class MqttConnection implements Connection {
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
             }
-
         }
-
     };
-
 
     @Override
     public int connect() {
@@ -102,12 +116,12 @@ public class MqttConnection implements Connection {
         try {
 
             String timeStamp = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC"))
-                    .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             String clientId = null;
             if (clientConf.getScopeId() == null) {
-                clientId = clientConf.getDeviceId() + "_" + connectType + "_" + checkTimestamp + "_" + timeStamp;
+                clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + CHECK_TIMESTAMP + "_" + timeStamp;
             } else {
-                clientId = clientConf.getDeviceId() + "_" + connectType + "_" + clientConf.getScopeId();
+                clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + clientConf.getScopeId();
             }
 
             try {
@@ -152,29 +166,7 @@ public class MqttConnection implements Connection {
 
             log.info("try to connect to " + clientConf.getServerUri());
 
-
-            mqttAsyncClient.connect(options, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken iMqttToken) {
-
-                    log.info("connect success " + clientConf.getServerUri());
-
-                    synchronized (MqttConnection.this) {
-                        connectFinished = true;
-                        MqttConnection.this.notifyAll();
-                    }
-                }
-
-                @Override
-                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                    log.info("connect failed " + throwable.toString());
-
-                    synchronized (MqttConnection.this) {
-                        connectFinished = true;
-                        MqttConnection.this.notifyAll();
-                    }
-                }
-            });
+            mqttAsyncClient.connect(options, null, getCallback());
 
             synchronized (this) {
 
@@ -188,13 +180,51 @@ public class MqttConnection implements Connection {
                 }
             }
 
-
         } catch (MqttException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
 
         }
 
-        return mqttAsyncClient.isConnected() ? 0 : -1;
+        if (mqttAsyncClient.isConnected()) {
+            return 0;
+        }
+
+        return connectResultCode;
+    }
+
+    private IMqttActionListener getCallback() {
+        return new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken iMqttToken) {
+
+                log.info("connect success " + clientConf.getServerUri());
+
+                if (connectActionListener != null) {
+                    connectActionListener.onSuccess(iMqttToken);
+                }
+
+                synchronized (MqttConnection.this) {
+                    connectFinished = true;
+                    MqttConnection.this.notifyAll();
+                }
+            }
+
+            @Override
+            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                log.info("connect failed " + throwable.toString());
+                MqttException me = (MqttException) throwable;
+                connectResultCode = me.getReasonCode();
+
+                if (connectActionListener != null) {
+                    connectActionListener.onFailure(iMqttToken, throwable);
+                }
+
+                synchronized (MqttConnection.this) {
+                    connectFinished = true;
+                    MqttConnection.this.notifyAll();
+                }
+            }
+        };
     }
 
     @Override
@@ -204,23 +234,9 @@ public class MqttConnection implements Connection {
             MqttMessage mqttMessage = new MqttMessage(message.getPayload());
             mqttMessage.setQos(message.getQos() == 0 ? 0 : DEFAULT_QOS);
 
-            mqttAsyncClient.publish(message.getTopic(), mqttMessage, message.getTopic(), new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken iMqttToken) {
-                    if (listener != null) {
-                        listener.onSuccess(null);
-                    }
-                }
+            DefaultPublishListenerImpl defaultPublishListener = new DefaultPublishListenerImpl(listener, message);
 
-                @Override
-                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                    log.error("publish message failed   " + message);
-                    if (listener != null) {
-                        listener.onFailure(null, throwable);
-                    }
-
-                }
-            });
+            mqttAsyncClient.publish(message.getTopic(), mqttMessage, message.getTopic(), defaultPublishListener);
             log.info("publish message topic =  " + message.getTopic() + ", msg = " + message.toString());
         } catch (MqttException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
@@ -229,7 +245,6 @@ public class MqttConnection implements Connection {
             }
         }
     }
-
 
     public void close() {
 
@@ -250,14 +265,19 @@ public class MqttConnection implements Connection {
         return mqttAsyncClient.isConnected();
     }
 
+    @Override
     public void setConnectListener(ConnectListener connectListener) {
         this.connectListener = connectListener;
+    }
+
+    @Override
+    public void setConnectActionListener(ConnectActionListener connectActionListener) {
+        this.connectActionListener = connectActionListener;
     }
 
     public void setRawMessageListener(RawMessageListener rawMessageListener) {
         this.rawMessageListener = rawMessageListener;
     }
-
 
     /**
      * 订阅指定主题
@@ -266,24 +286,10 @@ public class MqttConnection implements Connection {
      */
     public void subscribeTopic(String topic, ActionListener listener, int qos) {
 
+        DefaultSubscribeListenerImpl defaultSubscribeListener = new DefaultSubscribeListenerImpl(topic, listener);
+
         try {
-            mqttAsyncClient.subscribe(topic, qos, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken iMqttToken) {
-
-                    if (listener != null) {
-                        listener.onSuccess(topic);
-                    }
-                }
-
-                @Override
-                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                    log.error("subscribe topic failed:" + topic);
-                    if (listener != null) {
-                        listener.onFailure(topic, throwable);
-                    }
-                }
-            });
+            mqttAsyncClient.subscribe(topic, qos, null, defaultSubscribeListener);
         } catch (MqttException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
             if (listener != null) {
@@ -292,6 +298,5 @@ public class MqttConnection implements Connection {
         }
 
     }
-
 
 }

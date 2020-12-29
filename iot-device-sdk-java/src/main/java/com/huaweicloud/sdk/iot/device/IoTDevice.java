@@ -4,11 +4,9 @@ import com.huaweicloud.sdk.iot.device.client.ClientConf;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.service.AbstractDevice;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
-import org.apache.log4j.Logger;
 
 import java.security.KeyStore;
 import java.util.List;
-
 
 /**
  * IOT设备类，SDK的入口类，提供两种使用方式：
@@ -43,9 +41,6 @@ import java.util.List;
  * device.getClient().reportProperties(....)
  */
 public class IoTDevice extends AbstractDevice {
-
-    private Logger log = Logger.getLogger(IoTDevice.class);
-
 
     /**
      * 构造函数，使用密码创建设备
@@ -101,7 +96,6 @@ public class IoTDevice extends AbstractDevice {
         super.addService(serviceId, deviceService);
     }
 
-
     /**
      * 查询服务
      *
@@ -112,7 +106,6 @@ public class IoTDevice extends AbstractDevice {
 
         return super.getService(serviceId);
     }
-
 
     /**
      * 触发属性变化，SDK会上报变化的属性

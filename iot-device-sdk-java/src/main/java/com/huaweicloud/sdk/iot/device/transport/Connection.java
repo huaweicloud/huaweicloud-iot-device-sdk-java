@@ -33,9 +33,9 @@ public interface Connection {
     boolean isConnected();
 
     /**
-     * 设置连接监听器
+     * 设置链路监听器
      *
-     * @param connectListener 连接监听器
+     * @param connectListener 链路监听器
      */
     void setConnectListener(ConnectListener connectListener);
 
@@ -45,5 +45,12 @@ public interface Connection {
      * @param qos            qos
      */
     void subscribeTopic(String topic, ActionListener actionListener, int qos);
+
+    /**
+     * 设置连接动作监听器
+     *
+     * @param connectActionListener 连接动作监听器
+     */
+    void setConnectActionListener(ConnectActionListener connectActionListener);
 
 }

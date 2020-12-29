@@ -1,18 +1,11 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
-import com.huaweicloud.sdk.iot.device.client.IotResult;
-import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
-import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
-import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
-import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import io.netty.channel.Channel;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Bridge {
 
     private static Bridge instance;
-    private static final Logger log = Logger.getLogger(Bridge.class);
+    private static final Logger log = LogManager.getLogger(Bridge.class);
     DeviceIdentityRegistry deviceIdentityRegistry;
     String serverUri;
     private Map<String, Session> deviceIdToSesseionMap;
@@ -57,10 +50,9 @@ public class Bridge {
 
         int port = 8080;
 
-        Logger.getLogger("io.netty").setLevel(Level.INFO);
         Bridge.createBridge(serverUri, null);
 
-        new StringTcpServer(port).run();
+        new TcpServer(port).run();
 
     }
 
@@ -103,43 +95,22 @@ public class Bridge {
         session.setDeviceClient(ioTDevice.getClient());
 
         //设置下行回调
-        ioTDevice.getClient().setDeviceMessageListener(new DeviceMessageListener() {
-            @Override
-            public void onDeviceMessage(DeviceMessage deviceMessage) {
+        ioTDevice.getClient().setDeviceMessageListener(deviceMessage -> {
 
-                //这里可以根据需要进行消息格式转换
-                channel.writeAndFlush(deviceMessage.getContent());
-            }
+            //这里可以根据需要进行消息格式转换
+            channel.writeAndFlush(deviceMessage.getContent());
         });
 
-        ioTDevice.getClient().setCommandListener(new CommandListener() {
-            @Override
-            public void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras) {
+        ioTDevice.getClient().setCommandListener((requestId, serviceId, commandName, paras) -> {
 
-                //这里可以根据需要进行消息格式转换
-                channel.writeAndFlush(paras);
+            //这里可以根据需要进行消息格式转换
+            channel.writeAndFlush(paras);
 
-                //为了简化处理，我们在这里直接回命令响应。更合理做法是在设备处理完后再回响应
-                ioTDevice.getClient().respondCommand(requestId, new CommandRsp(0));
-            }
+            //为了简化处理，我们在这里直接回命令响应。更合理做法是在设备处理完后再回响应
+            ioTDevice.getClient().respondCommand(requestId, new CommandRsp(0));
         });
 
-        ioTDevice.getClient().setPropertyListener(new PropertyListener() {
-            @Override
-            public void onPropertiesSet(String requestId, List<ServiceProperty> services) {
-
-                //这里可以根据需要进行消息格式转换
-                channel.writeAndFlush(services);
-                ioTDevice.getClient().respondPropsSet(requestId, IotResult.SUCCESS);
-            }
-
-            @Override
-            public void onPropertiesGet(String requestId, String serviceId) {
-
-                log.error("not supporte onSubdevPropertiesGet");
-                ioTDevice.getClient().respondPropsSet(requestId, IotResult.FAIL);
-            }
-        });
+        ioTDevice.getClient().setPropertyListener(new DefaultBridgePropertyListener(channel, ioTDevice));
 
         //保存会话
         deviceIdToSesseionMap.put(deviceId, session);

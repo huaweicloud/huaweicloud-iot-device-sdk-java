@@ -1,10 +1,11 @@
-package com.huaweicloud.sdk.iot.device.codegenerator.ProductParser;
+package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
 import java.util.Map;
 
 public class ProductInfo {
 
     DeviceCapability deviceCapability;
+
     Map<String, DeviceService> serviceCapabilityMap;
 
     public DeviceCapability getDeviceCapability() {
@@ -25,9 +26,7 @@ public class ProductInfo {
 
     @Override
     public String toString() {
-        return "ProductInfo{" +
-                "deviceCapability=" + deviceCapability +
-                ", serviceCapabilityMap=" + serviceCapabilityMap +
-                '}';
+        return "ProductInfo{" + "deviceCapability=" + deviceCapability
+            + ", serviceCapabilityMap=" + serviceCapabilityMap + '}';
     }
 }

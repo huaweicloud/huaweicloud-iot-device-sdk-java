@@ -3,7 +3,9 @@ package com.huaweicloud.sdk.iot.device.demo;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
@@ -29,22 +31,24 @@ import java.util.Random;
  */
 public class X509CertificateDeviceSample {
 
-    private static final Logger log = Logger.getLogger(X509CertificateDeviceSample.class);
+    private static final Logger log = LogManager.getLogger(X509CertificateDeviceSample.class);
 
-    public static void main(String args[]) throws Exception {
-
+    public static void main(String[] args) throws Exception {
 
         //读取pem格式证书
         KeyStore keyStore = getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
 
-        //读取keystore格式证书
-//        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//        keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
+        /**
+         * 读取keystore格式证书
+         *
+         * KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+         * keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
+         *
+         */
 
         //使用证书创建设备
         IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo3", keyStore, "");
-
+            "5e06bfee334dd4f33759f5b3_demo3", keyStore, "");
 
         if (iotDevice.init() != 0) {
             return;
@@ -82,7 +86,8 @@ public class X509CertificateDeviceSample {
         }
     }
 
-    public static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword) throws Exception {
+    public static KeyStore getKeyStore(String certificateFile, String privateKeyFile, String keyPassword)
+        throws Exception {
         if (certificateFile == null || privateKeyFile == null) {
             log.error("input null");
             return null;
@@ -104,7 +109,8 @@ public class X509CertificateDeviceSample {
             BouncyCastleProvider provider = new BouncyCastleProvider();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(provider);
             if (object instanceof PEMEncryptedKeyPair) {
-                PEMDecryptorProvider decryptionProvider = new JcePEMDecryptorProviderBuilder().setProvider(provider).build(keyPassword.toCharArray());
+                PEMDecryptorProvider decryptionProvider = new JcePEMDecryptorProviderBuilder().setProvider(provider)
+                    .build(keyPassword.toCharArray());
                 PEMKeyPair keypair = ((PEMEncryptedKeyPair) object).decryptKeyPair(decryptionProvider);
                 keyPair = converter.getKeyPair(keypair);
             } else {
@@ -120,7 +126,7 @@ public class X509CertificateDeviceSample {
         keyStore.load(null, null);
         keyStore.setCertificateEntry("certificate", cert);
         keyStore.setKeyEntry("private-key", keyPair.getPrivate(), keyPassword.toCharArray(),
-                new Certificate[]{cert});
+            new Certificate[] {cert});
 
         return keyStore;
     }
