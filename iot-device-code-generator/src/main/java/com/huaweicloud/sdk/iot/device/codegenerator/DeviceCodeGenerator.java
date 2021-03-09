@@ -51,7 +51,7 @@ public class DeviceCodeGenerator {
         generateDevice(productInfo);
 
         log.info("demo code generated to: " + new File("").getCanonicalPath() + File.separator + File.separator
-            + "generated-demo");
+                + "generated-demo");
 
         //删除临时文件
         deleteFile(new File(CONTENT + File.separator + File.separator));
@@ -65,18 +65,18 @@ public class DeviceCodeGenerator {
         }
         //提取资源文件到当前目录
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-            .getResourceAsStream("generated-demo.zip");
-            OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")) {
+                .getResourceAsStream("generated-demo.zip");
+             OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")) {
             IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-            .getResourceAsStream("device.ftl");
-            OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")) {
+                .getResourceAsStream("device.ftl");
+             OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")) {
             IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-            .getResourceAsStream("service.ftl");
-            OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")) {
+                .getResourceAsStream("service.ftl");
+             OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")) {
             IOUtils.copy(inputStream, outputStream);
         }
     }
@@ -114,8 +114,8 @@ public class DeviceCodeGenerator {
             for (String sid : productInfo.getServiceCapabilityMap().keySet()) {
                 DeviceService deviceService = productInfo.getServiceCapabilityMap().get(sid);
                 File file = FileUtils.getFile(
-                    "generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/" + deviceService.getServiceType()
-                        + "Service.java");
+                        "generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/" + deviceService.getServiceType()
+                                + "Service.java");
 
                 Map<String, Object> root = new HashMap<String, Object>();
                 root.put("service", deviceService);
@@ -158,8 +158,9 @@ public class DeviceCodeGenerator {
 
         boolean delete = dirFile.delete();
         if (!delete) {
-            String name = dirFile.getName();
-            log.error("delete file error, the file name is {}", name);
+            dirFile.getName();
+//            String name = dirFile.getName();
+//            log.error("delete file error, the file name is {}", name);
         }
     }
 
