@@ -60,7 +60,7 @@ public class ServiceProperty implements Serializable {
      */
     private String description;
 
-    private ObjectNode extendParam;
+    private transient ObjectNode extendparam;
 
     public String getPropertyName() {
         return propertyName;
@@ -142,12 +142,12 @@ public class ServiceProperty implements Serializable {
         this.enumList = enumList;
     }
 
-    public ObjectNode getExtendParam() {
-        return extendParam;
+    public ObjectNode getExtendparam() {
+        return extendparam;
     }
 
-    public void setExtendParam(ObjectNode extendParam) {
-        this.extendParam = extendParam;
+    public void setExtendparam(ObjectNode extendparam) {
+        this.extendparam = extendparam;
     }
 
     public String getDescription() {
