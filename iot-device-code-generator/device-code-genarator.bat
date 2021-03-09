@@ -1,8 +1,8 @@
 ::请修改自己的参数，productZip为产品模型包路径
-set  productZip="D:\Smoke_cb097d20d77b4240adf1f33d36b3c278_abc.zip"
+set  productZip=".\iot-device-code-generator\src\main\resources\smokeDetector_cb097d20d77b4240adf1f33d36b3c278_smokeDetector.zip"
 set  deviceId="5e06bfee334dd4f33759f5b3_demo"
 set  secret="******"
-git ..
+cd ..
 call mvn clean install
 call java -jar iot-device-code-generator\target\iot-device-code-generator-1.1.1-with-deps.jar %productZip% 
 cd generated-demo
