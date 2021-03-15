@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 public class DefaultBootstrapActionListener implements ActionListener {
 
-    private static final Logger log = LogManager.getLogger(BootsrapSelfRegSample.class);
+    private static final Logger log = LogManager.getLogger(DefaultBootstrapActionListener.class);
 
     private String deviceId;
 
