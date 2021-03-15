@@ -134,12 +134,12 @@ public class BootstrapClient implements RawMessageListener {
 
         String bsTopic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/down";
 
-        connection.subscribeTopic(bsTopic, listener, 0);
+        connection.subscribeTopic(bsTopic, null, 0);
 
         String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
         RawMessage rawMessage = new RawMessage(topic, "");
 
-        connection.publishMessage(rawMessage, listener);
+        connection.publishMessage(rawMessage, null);
 
     }
 
