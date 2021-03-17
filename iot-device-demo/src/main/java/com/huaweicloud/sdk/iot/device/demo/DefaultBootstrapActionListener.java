@@ -2,6 +2,7 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.bootstrap.BootstrapClient;
+import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 
@@ -12,16 +13,21 @@ public class DefaultBootstrapActionListener implements ActionListener {
 
     private static final Logger log = LogManager.getLogger(DefaultBootstrapActionListener.class);
 
+    private static final String BOOTSTRAP_MESSAGE = "BootstrapRequestTrigger";  //BootstrapRequestTrigger是平台系统字段，如果收到此字段，设备侧需要发起引导。
+
     private String deviceId;
 
     private String secret;
 
     private BootstrapClient bootstrapClient;
 
-    public DefaultBootstrapActionListener(String deviceId, String secret, BootstrapClient bootstrapClient) {
+    private String bootstrapUri;
+
+    public DefaultBootstrapActionListener(String deviceId, String secret, BootstrapClient bootstrapClient, String bootstrapUri) {
         this.deviceId = deviceId;
         this.secret = secret;
         this.bootstrapClient = bootstrapClient;
+        this.bootstrapUri = bootstrapUri;
     }
 
     @Override
@@ -36,6 +42,21 @@ public class DefaultBootstrapActionListener implements ActionListener {
             return;
 
         }
+
+        device.getClient().setDeviceMessageListener(deviceMessage -> {
+
+            if (BOOTSTRAP_MESSAGE.equals(deviceMessage.getContent())) {
+
+                device.getClient().close();
+
+                //创建引导客户端，发起引导
+                BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, secret);
+                DefaultBootstrapActionListener defaultBootstrapActionListener = new DefaultBootstrapActionListener(deviceId,
+                        secret, bootstrapClient, bootstrapUri);
+                bootstrapClient.bootstrap(defaultBootstrapActionListener);
+            }
+        });
+
 
         //上报消息
         device.getClient().reportDeviceMessage(new DeviceMessage("hello"), null);

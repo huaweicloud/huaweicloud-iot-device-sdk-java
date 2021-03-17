@@ -391,6 +391,10 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 
 10、sdk日志组件更改
 
+11、增加消息发放功能
+
+12、修改发放功能问题
+
 
 
 release版本，请下载：https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases
