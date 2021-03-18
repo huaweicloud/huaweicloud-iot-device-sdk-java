@@ -17,7 +17,7 @@ public class BootstrapSample {
         //创建引导客户端，发起引导
         BootstrapClient bootstrapClient = new BootstrapClient(bootstrapUri, deviceId, secret);
         DefaultBootstrapActionListener defaultBootstrapActionListener = new DefaultBootstrapActionListener(deviceId,
-            secret, bootstrapClient);
+            secret, bootstrapClient, bootstrapUri);
         bootstrapClient.bootstrap(defaultBootstrapActionListener);
 
     }

@@ -157,6 +157,7 @@ public class DeviceClient implements RawMessageListener {
                 log.error("sleep failed, the reason is {}", e.getMessage());
             }
             retryTimes++;
+            close();
             ret = connection.connect();
         }
 
@@ -503,6 +504,7 @@ public class DeviceClient implements RawMessageListener {
 
     public void close() {
         connection.close();
+        executorService.shutdown();
     }
 
     /**
