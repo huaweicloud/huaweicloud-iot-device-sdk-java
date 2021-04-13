@@ -9,6 +9,8 @@ import com.huaweicloud.sdk.iot.device.service.Property;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Map;
 
@@ -33,8 +35,12 @@ public class SmokeDetector {
             secret = args[2];
         }
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = SmokeDetector.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         //创建设备
-        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, file);
 
         //创建设备服务
         SmokeDetectorService smokeDetectorService = new SmokeDetectorService();

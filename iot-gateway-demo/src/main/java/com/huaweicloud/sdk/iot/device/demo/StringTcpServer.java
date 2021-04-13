@@ -20,6 +20,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,9 +49,13 @@ public class StringTcpServer {
             port = 8080;
         }
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = StringTcpServer.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
             "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            "5e06bfee334dd4f33759f5b3_demo", "secret");
+            "5e06bfee334dd4f33759f5b3_demo", "secret", file);
 
         if (simpleGateway.init() != 0) {
             return;

@@ -6,6 +6,8 @@ import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,8 +22,12 @@ public class NtpSample {
         String deviceId = "702b1038-a174-4a1d-969f-f67f8df43c4a";
         String secret = "mysecret";
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = NtpSample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         //创建设备
-        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, file);
 
         if (device.init() != 0) {
             return;

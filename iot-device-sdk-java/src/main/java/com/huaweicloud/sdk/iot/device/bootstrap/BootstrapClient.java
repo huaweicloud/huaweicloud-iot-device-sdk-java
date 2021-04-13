@@ -81,7 +81,7 @@ public class BootstrapClient implements RawMessageListener {
      * @param scopeId      scopeId, 自注册场景可从物联网平台获取
      */
     public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword,
-        String scopeId) {
+                           String scopeId) {
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(bootstrapUri);
         clientConf.setDeviceId(deviceId);

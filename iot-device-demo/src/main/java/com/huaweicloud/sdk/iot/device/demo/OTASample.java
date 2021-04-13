@@ -26,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Locale;
@@ -262,8 +263,12 @@ public class OTASample implements OTAListener {
 
     public static void main(String[] args) throws Exception {
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = OTASample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            "deviceid", "secret");
+            "deviceid", "secret", file);
 
         OTASample otaSample = new OTASample(device, "image.bin");
         otaSample.init();

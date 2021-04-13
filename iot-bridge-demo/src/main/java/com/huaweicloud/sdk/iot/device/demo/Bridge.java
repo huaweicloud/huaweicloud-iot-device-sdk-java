@@ -6,6 +6,8 @@ import io.netty.channel.Channel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,8 +82,12 @@ public class Bridge {
             return -1;
         }
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = Bridge.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         String deviceId = deviceIdentity.getDeviceId();
-        IoTDevice ioTDevice = new IoTDevice(serverUri, deviceId, deviceIdentity.getSecret());
+        IoTDevice ioTDevice = new IoTDevice(serverUri, deviceId, deviceIdentity.getSecret(), file);
         int ret = ioTDevice.init();
         if (ret != 0) {
             return ret;

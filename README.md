@@ -39,7 +39,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 创建设备并初始化
 ```java
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret");
+                "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
         if (device.init() != 0) {
             return;
         }
@@ -306,7 +306,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 ```java
     //创建设备
    IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-           "5e06bfee334dd4f33759f5b3_demo", "mysecret");
+           "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
 
    //创建设备服务
    SmokeDetectorService smokeDetectorService = new SmokeDetectorService();
@@ -349,7 +349,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 然后使用证书创建设备
 ```java
     IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword");
+                "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword", file);
 ```
 
 
@@ -389,8 +389,10 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 
 12、修改发放功能问题
 
+13、兼容多region不同证书场景
 
 
-*2021/3/17*
+
+*2021/4/13*
 
 release版本，请下载：https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases

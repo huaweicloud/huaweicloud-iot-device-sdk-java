@@ -23,6 +23,7 @@ import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,13 +58,15 @@ public class AbstractDevice {
      * @param serverUri    平台访问地址，比如ssl://iot-acc.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId     设备id
      * @param deviceSecret 设备密码
+     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
-    public AbstractDevice(String serverUri, String deviceId, String deviceSecret) {
+    public AbstractDevice(String serverUri, String deviceId, String deviceSecret, File iotCertFile) {
 
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(serverUri);
         clientConf.setDeviceId(deviceId);
         clientConf.setSecret(deviceSecret);
+        clientConf.setFile(iotCertFile);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
@@ -78,14 +81,16 @@ public class AbstractDevice {
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
+     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
-    public AbstractDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword) {
+    public AbstractDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword, File iotCertFile) {
 
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(serverUri);
         clientConf.setDeviceId(deviceId);
         clientConf.setKeyPassword(keyPassword);
         clientConf.setKeyStore(keyStore);
+        clientConf.setFile(iotCertFile);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
@@ -93,7 +98,7 @@ public class AbstractDevice {
     }
 
     /**
-     * 构造函数，直接使用客户端配置创建设备，一般不推荐这种做法
+     * 构造函数，直接使用客户端配置创建设备
      *
      * @param clientConf 客户端配置
      */
@@ -134,7 +139,7 @@ public class AbstractDevice {
             client.setConnectListener(defaultConnLogListener);
 
             DefaultConnActionLogListener defaultConnActionLogListener = new DefaultConnActionLogListener(
-                deviceLogService);
+                    deviceLogService);
             client.setConnectActionListener(defaultConnActionLogListener);
         }
 

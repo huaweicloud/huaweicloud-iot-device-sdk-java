@@ -10,6 +10,8 @@ import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,9 +30,13 @@ public class PropertyV3AndCmdV3Sample {
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "mysecret";
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = PropertyV3AndCmdV3Sample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         //创建设备并初始化
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                deviceId, secret);
+                deviceId, secret, file);
         if (device.init() != 0) {
             return;
         }

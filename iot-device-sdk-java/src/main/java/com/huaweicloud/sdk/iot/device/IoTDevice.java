@@ -5,6 +5,7 @@ import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.service.AbstractDevice;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
 
+import java.io.File;
 import java.security.KeyStore;
 import java.util.List;
 
@@ -48,9 +49,10 @@ public class IoTDevice extends AbstractDevice {
      * @param serverUri    平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId     设备id
      * @param deviceSecret 设备密码
+     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
-    public IoTDevice(String serverUri, String deviceId, String deviceSecret) {
-        super(serverUri, deviceId, deviceSecret);
+    public IoTDevice(String serverUri, String deviceId, String deviceSecret, File iotCertFile) {
+        super(serverUri, deviceId, deviceSecret, iotCertFile);
 
     }
 
@@ -61,10 +63,11 @@ public class IoTDevice extends AbstractDevice {
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
+     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
-    public IoTDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword) {
+    public IoTDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword, File iotCertFile) {
 
-        super(serverUri, deviceId, keyStore, keyPassword);
+        super(serverUri, deviceId, keyStore, keyPassword, iotCertFile);
     }
 
     /**

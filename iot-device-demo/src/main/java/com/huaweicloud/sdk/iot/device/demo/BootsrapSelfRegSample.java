@@ -8,6 +8,8 @@ import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.security.KeyStore;
 
 /**
@@ -25,6 +27,10 @@ public class BootsrapSelfRegSample {
         //读取pem格式证书
         KeyStore keyStore = X509CertificateDeviceSample.getKeyStore("D:\\SDK\\cert\\deviceCert.pem",
             "D:\\SDK\\cert\\deviceCert.key", "");
+
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = BootsrapSelfRegSample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
 
         /**
          * 读取keystore格式证书
@@ -50,7 +56,7 @@ public class BootsrapSelfRegSample {
 
                 //引导成功后关闭客户端
                 bootstrapClient.close();
-                IoTDevice device = new IoTDevice("ssl://" + address, deviceId, keyStore, "yourPassWord");
+                IoTDevice device = new IoTDevice("ssl://" + address, deviceId, keyStore, "yourPassWord", file);
                 if (device.init() != 0) {
                     return;
 

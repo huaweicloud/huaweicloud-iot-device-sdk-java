@@ -14,8 +14,10 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyStore;
@@ -46,9 +48,13 @@ public class X509CertificateDeviceSample {
          *
          */
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = X509CertificateDeviceSample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         //使用证书创建设备
         IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            "5e06bfee334dd4f33759f5b3_demo3", keyStore, "");
+            "5e06bfee334dd4f33759f5b3_demo3", keyStore, "", file);
 
         if (iotDevice.init() != 0) {
             return;

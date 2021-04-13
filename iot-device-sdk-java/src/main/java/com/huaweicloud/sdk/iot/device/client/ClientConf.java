@@ -2,6 +2,7 @@ package com.huaweicloud.sdk.iot.device.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.io.File;
 import java.security.KeyStore;
 
 /**
@@ -57,6 +58,19 @@ public class ClientConf {
      * scopeId,在设备发放的自注册场景下使用
      */
     private String scopeId;
+
+    /**
+     * file, iot平台的ca证书，用于设备侧校验平台
+     */
+    File file;
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
 
     public String getDeviceId() {
         return deviceId;
