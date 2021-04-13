@@ -9,6 +9,9 @@ import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
+
 public class DefaultBootstrapActionListener implements ActionListener {
 
     private static final Logger log = LogManager.getLogger(DefaultBootstrapActionListener.class);
@@ -37,7 +40,12 @@ public class DefaultBootstrapActionListener implements ActionListener {
 
         //引导成功后关闭客户端
         bootstrapClient.close();
-        IoTDevice device = new IoTDevice("ssl://" + address, deviceId, secret);
+
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = DefaultBootstrapActionListener.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
+        IoTDevice device = new IoTDevice("ssl://" + address, deviceId, secret, file);
         if (device.init() != 0) {
             return;
 

@@ -13,8 +13,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.sql.Date;
@@ -146,9 +147,9 @@ public class IotUtil {
         return hs.toString().toLowerCase(Locale.CHINESE);
     }
 
-    private static TrustManager[] getTrustManager() throws Exception {
+    private static TrustManager[] getTrustManager(File iotCertFile) throws Exception {
 
-        try (InputStream stream = IotUtil.class.getClassLoader().getResourceAsStream("ca.jks")) {
+        try (FileInputStream stream = new FileInputStream(iotCertFile)) {
             KeyStore ts = KeyStore.getInstance("JKS");
             ts.load(stream, null);
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -158,12 +159,12 @@ public class IotUtil {
         }
     }
 
-    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword) throws Exception {
+    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword, File iotCertFile) throws Exception {
         SSLContext context = SSLContext.getInstance(TLS_VER);
 
         KeyManagerFactory managerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         managerFactory.init(keyStore, keyPassword.toCharArray());
-        context.init(managerFactory.getKeyManagers(), getTrustManager(), null);
+        context.init(managerFactory.getKeyManagers(), getTrustManager(iotCertFile), null);
         return context;
     }
 
@@ -178,10 +179,10 @@ public class IotUtil {
 
         if (clientConf.getKeyStore() != null) {
 
-            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword());
+            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword(), clientConf.getFile());
         } else {
             SSLContext sslContext = SSLContext.getInstance(TLS_VER);
-            sslContext.init(null, getTrustManager(), new SecureRandom());
+            sslContext.init(null, getTrustManager(clientConf.getFile()), new SecureRandom());
             return sslContext;
         }
 

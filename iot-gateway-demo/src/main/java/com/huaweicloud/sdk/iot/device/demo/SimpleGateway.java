@@ -17,6 +17,7 @@ import io.netty.channel.Channel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,8 +33,8 @@ public class SimpleGateway extends AbstractGateway {
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 
-    public SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret) {
-        super(subDevicesPersistence, serverUri, deviceId, deviceSecret);
+    public SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret, File file) {
+        super(subDevicesPersistence, serverUri, deviceId, deviceSecret, file);
         this.nodeIdToSesseionMap = new ConcurrentHashMap<>();
         this.channelIdToSessionMap = new ConcurrentHashMap<>();
     }

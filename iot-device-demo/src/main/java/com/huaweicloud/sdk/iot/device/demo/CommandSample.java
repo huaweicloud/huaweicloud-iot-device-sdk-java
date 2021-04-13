@@ -6,6 +6,8 @@ import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 
@@ -29,8 +31,12 @@ public class CommandSample {
             secret = args[2];
         }
 
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = CommandSample.class.getClassLoader().getResource("ca.jks");
+        File file = new File(resource.getPath());
+
         //创建设备
-        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, file);
 
         //设置监听器接收下行
         device.getClient().setCommandListener(new CommandListener() {

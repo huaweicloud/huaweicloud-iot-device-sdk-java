@@ -26,6 +26,7 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,10 +53,11 @@ public abstract class AbstractGateway extends IoTDevice {
      * @param serverUri             平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId              设备id
      * @param deviceSecret          设备密码
+     * @param file                  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
     public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId,
-        String deviceSecret) {
-        super(serverUri, deviceId, deviceSecret);
+                           String deviceSecret, File file) {
+        super(serverUri, deviceId, deviceSecret, file);
         this.subDevicesPersistence = subDevicesPersistence;
 
         getClient().setConnectListener(new ConnectListener() {
@@ -80,10 +82,11 @@ public abstract class AbstractGateway extends IoTDevice {
      * @param deviceId              设备id
      * @param keyStore              证书容器
      * @param keyPassword           证书密码
+     * @param file                  iot平台的ca证书，用于双向校验时设备侧校验平台
      */
     public AbstractGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId,
-        KeyStore keyStore, String keyPassword) {
-        super(serverUri, deviceId, keyStore, keyPassword);
+                           KeyStore keyStore, String keyPassword, File file) {
+        super(serverUri, deviceId, keyStore, keyPassword, file);
         this.subDevicesPersistence = subDevicesPersistence;
         getClient().setConnectListener(new ConnectListener() {
             @Override
