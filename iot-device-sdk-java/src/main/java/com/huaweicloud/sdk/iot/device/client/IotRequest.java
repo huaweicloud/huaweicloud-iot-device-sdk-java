@@ -93,7 +93,7 @@ public class IotRequest {
 
     }
 
-    public void runAync(RequestListener listener) {
+    public void runAsync(RequestListener listener) {
 
         sync = false;
         this.listener = listener;

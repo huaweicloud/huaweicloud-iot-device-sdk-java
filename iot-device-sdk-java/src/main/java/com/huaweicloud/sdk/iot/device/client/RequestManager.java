@@ -53,7 +53,7 @@ public class RequestManager {
         RawMessage rawMessage = iotRequest.getRawMessage();
         iotClient.publishRawMessage(rawMessage, null);
         pendingRequests.put(iotRequest.getRequestId(), iotRequest);
-        iotRequest.runAync(listener);
+        iotRequest.runAsync(listener);
     }
 
     /**
