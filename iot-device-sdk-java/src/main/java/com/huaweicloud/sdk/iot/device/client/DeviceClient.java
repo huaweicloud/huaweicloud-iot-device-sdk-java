@@ -149,8 +149,8 @@ public class DeviceClient implements RawMessageListener {
             long randomBackOff = random.nextInt(highBound - lowBound);
             long backOffWithJitter = (int) (Math.pow(2.0, (double) retryTimes)) * (randomBackOff + lowBound);
             long waitTImeUntilNextRetry = (int) (minBackoff + backOffWithJitter) > maxBackoff
-                ? maxBackoff
-                : (minBackoff + backOffWithJitter);
+                    ? maxBackoff
+                    : (minBackoff + backOffWithJitter);
             try {
                 Thread.sleep(waitTImeUntilNextRetry);
             } catch (InterruptedException e) {
@@ -321,7 +321,7 @@ public class DeviceClient implements RawMessageListener {
      * @param listener         发布监听器
      */
     public void reportSubDeviceProperties(List<DeviceProperty> deviceProperties,
-        ActionListener listener) {
+                                          ActionListener listener) {
 
         ObjectNode node = JsonUtil.createObjectNode();
         node.putPOJO("devices", deviceProperties);
@@ -339,7 +339,7 @@ public class DeviceClient implements RawMessageListener {
      * @param listener         发布监听器
      */
     public void reportCompressedSubDeviceProperties(List<DeviceProperty> deviceProperties,
-        ActionListener listener) {
+                                                    ActionListener listener) {
 
         ObjectNode node = JsonUtil.createObjectNode();
         node.putPOJO("devices", deviceProperties);
@@ -362,7 +362,7 @@ public class DeviceClient implements RawMessageListener {
 
         //只处理直连设备的，子设备的由AbstractGateway处理
         if (propertyListener != null && (propsSet.getDeviceId() == null || propsSet.getDeviceId()
-            .equals(getDeviceId()))) {
+                .equals(getDeviceId()))) {
 
             propertyListener.onPropertiesSet(requestId, propsSet.getServices());
             return;
@@ -382,7 +382,7 @@ public class DeviceClient implements RawMessageListener {
         }
 
         if (propertyListener != null && (propsGet.getDeviceId() == null || propsGet.getDeviceId()
-            .equals(getDeviceId()))) {
+                .equals(getDeviceId()))) {
             propertyListener.onPropertiesGet(requestId, propsGet.getServiceId());
             return;
         }
@@ -403,7 +403,7 @@ public class DeviceClient implements RawMessageListener {
 
         if (commandListener != null && (command.getDeviceId() == null || command.getDeviceId().equals(getDeviceId()))) {
             commandListener.onCommand(requestId, command.getServiceId(),
-                command.getCommandName(), command.getParas());
+                    command.getCommandName(), command.getParas());
             return;
         }
 
@@ -425,14 +425,14 @@ public class DeviceClient implements RawMessageListener {
 
     private void onDeviceMessage(RawMessage message) {
         DeviceMessage deviceMessage = JsonUtil.convertJsonStringToObject(message.toString(),
-            DeviceMessage.class);
+                DeviceMessage.class);
         if (deviceMessage == null) {
             log.error("invalid deviceMessage: " + message.toString());
             return;
         }
 
         if (deviceMessageListener != null && (deviceMessage.getDeviceId() == null || deviceMessage.getDeviceId()
-            .equals(getDeviceId()))) {
+                .equals(getDeviceId()))) {
             deviceMessageListener.onDeviceMessage(deviceMessage);
             return;
         }
@@ -504,7 +504,9 @@ public class DeviceClient implements RawMessageListener {
 
     public void close() {
         connection.close();
-        executorService.shutdown();
+        if (null != executorService) {
+            executorService.shutdown();
+        }
     }
 
     /**
@@ -585,7 +587,7 @@ public class DeviceClient implements RawMessageListener {
      * @param qos                qos
      */
     public void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener,
-        int qos) {
+                               int qos) {
         connection.subscribeTopic(topic, actionListener, qos);
         rawMessageListenerMap.put(topic, rawMessageListener);
     }
