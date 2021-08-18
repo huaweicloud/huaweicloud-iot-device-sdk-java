@@ -32,6 +32,9 @@ public class BootstrapClient implements RawMessageListener {
 
     private static final Logger log = LogManager.getLogger(BootstrapClient.class);
 
+    private static final String BOOTSTRAP_PUBLISH_TOPIC = "$oc/devices/%s/sys/bootstrap/up";
+    private static final String BOOTSTRAP_SUBSCRIBE_TOPIC = "$oc/devices/%s/sys/bootstrap/down";
+
     /**
      * 构造函数，使用密码创建
      *
@@ -95,8 +98,8 @@ public class BootstrapClient implements RawMessageListener {
 
     @Override
     public void onMessageReceived(RawMessage message) {
-
-        if (message.getTopic().contains("/sys/bootstrap/down")) {
+        String bsTopic = String.format(BOOTSTRAP_SUBSCRIBE_TOPIC, this.deviceId);
+        if (message.getTopic().equals(bsTopic)) {
             ObjectNode node = JsonUtil.convertJsonStringToObject(message.toString(), ObjectNode.class);
             String address = node.get("address").asText();
             log.info("bootstrap ok address:" + address);
@@ -132,11 +135,11 @@ public class BootstrapClient implements RawMessageListener {
             return;
         }
 
-        String bsTopic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/down";
+        String bsTopic = String.format(BOOTSTRAP_SUBSCRIBE_TOPIC, this.deviceId);
 
         connection.subscribeTopic(bsTopic, null, 0);
 
-        String topic = "$oc/devices/" + this.deviceId + "/sys/bootstrap/up";
+        String topic = String.format(BOOTSTRAP_PUBLISH_TOPIC, this.deviceId);
         RawMessage rawMessage = new RawMessage(topic, "");
 
         connection.publishMessage(rawMessage, null);
