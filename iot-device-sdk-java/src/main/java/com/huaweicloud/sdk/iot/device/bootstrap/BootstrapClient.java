@@ -12,6 +12,8 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.net.URL;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +34,7 @@ public class BootstrapClient implements RawMessageListener {
 
     private static final Logger log = LogManager.getLogger(BootstrapClient.class);
 
+    private static final String BOOTSTRAP_CA_RES_PATH = "bsca.jks";
     private static final String BOOTSTRAP_PUBLISH_TOPIC = "$oc/devices/%s/sys/bootstrap/up";
     private static final String BOOTSTRAP_SUBSCRIBE_TOPIC = "$oc/devices/%s/sys/bootstrap/down";
 
@@ -46,6 +49,7 @@ public class BootstrapClient implements RawMessageListener {
 
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(bootstrapUri);
+        clientConf.setFile(getBootstrapPlatformCaFile());
         clientConf.setDeviceId(deviceId);
         clientConf.setSecret(deviceSecret);
         this.deviceId = deviceId;
@@ -66,6 +70,7 @@ public class BootstrapClient implements RawMessageListener {
 
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(bootstrapUri);
+        clientConf.setFile(getBootstrapPlatformCaFile());
         clientConf.setDeviceId(deviceId);
         clientConf.setKeyPassword(keyPassword);
         clientConf.setKeyStore(keyStore);
@@ -87,6 +92,7 @@ public class BootstrapClient implements RawMessageListener {
                            String scopeId) {
         ClientConf clientConf = new ClientConf();
         clientConf.setServerUri(bootstrapUri);
+        clientConf.setFile(getBootstrapPlatformCaFile());
         clientConf.setDeviceId(deviceId);
         clientConf.setKeyStore(keyStore);
         clientConf.setKeyPassword(keyPassword);
@@ -94,6 +100,12 @@ public class BootstrapClient implements RawMessageListener {
         this.deviceId = deviceId;
         this.connection = new MqttConnection(clientConf, this);
         log.info("create BootstrapClient: " + clientConf.getDeviceId());
+    }
+
+    public File getBootstrapPlatformCaFile() {
+        //加载iot平台的ca证书，进行服务端校验
+        URL resource = BootstrapClient.class.getClassLoader().getResource(BOOTSTRAP_CA_RES_PATH);
+        return new File(resource.getPath());
     }
 
     @Override
