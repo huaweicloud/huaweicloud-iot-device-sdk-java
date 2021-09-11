@@ -34,7 +34,14 @@ public class BootstrapClient implements RawMessageListener {
 
     private static final Logger log = LogManager.getLogger(BootstrapClient.class);
 
+    /**
+     * 设备发放的设备侧CA证书，注意与IoTDA的设备侧区分开
+     */
     private static final String BOOTSTRAP_CA_RES_PATH = "bsca.jks";
+
+    /**
+     * 设备发放定义的TOPIC
+     */
     private static final String BOOTSTRAP_PUBLISH_TOPIC = "$oc/devices/%s/sys/bootstrap/up";
     private static final String BOOTSTRAP_SUBSCRIBE_TOPIC = "$oc/devices/%s/sys/bootstrap/down";
 
@@ -103,7 +110,7 @@ public class BootstrapClient implements RawMessageListener {
     }
 
     public File getBootstrapPlatformCaFile() {
-        //加载iot平台的ca证书，进行服务端校验
+        //加载iot平台（设备发放）的ca证书，进行服务端校验
         URL resource = BootstrapClient.class.getClassLoader().getResource(BOOTSTRAP_CA_RES_PATH);
         return new File(resource.getPath());
     }
