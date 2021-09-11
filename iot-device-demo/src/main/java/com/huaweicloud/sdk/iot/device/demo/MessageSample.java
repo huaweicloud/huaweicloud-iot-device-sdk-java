@@ -16,7 +16,7 @@ import java.net.URL;
  */
 public class MessageSample {
 
-    private static final Logger log = LogManager.getLogger(BootsrapSelfRegSample.class);
+    private static final Logger log = LogManager.getLogger(MessageSample.class);
 
     public static void main(String[] args) throws InterruptedException {
 
