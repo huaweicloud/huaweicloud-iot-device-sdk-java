@@ -19,7 +19,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
 
 ## 支持特性
-- 支持设备消息、属性上报、属性读写、命令下发
+- 支持设备消息、属性上报、属性读写、命令下发 
 - 支持网关服务、子设备管理、子设备消息转发
 - 支持设备OTA服务
 - 支持面向物模型编程
