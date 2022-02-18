@@ -13,6 +13,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [面向物模型编程](#面向物模型编程)
 * [使用设备代码生成器](#使用设备代码生成器)
 * [使用证书认证](#使用证书认证)
+* [设备使用权威CA认证平台](#设备使用权威CA认证平台)
 * [如何贡献代码](#如何贡献代码)
 * [版本更新说明](#版本更新说明)
 * [接口文档](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
