@@ -6,8 +6,6 @@ import java.util.Map;
  * 命令监听器，用于接收平台下发的命令
  */
 public interface CommandListener {
-
-
     /**
      * 命令处理
      *

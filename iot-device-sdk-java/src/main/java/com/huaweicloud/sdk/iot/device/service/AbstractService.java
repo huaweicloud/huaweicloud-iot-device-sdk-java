@@ -25,7 +25,6 @@ import java.util.TimerTask;
  */
 @JsonFilter("AbstractService")
 public abstract class AbstractService implements IService {
-
     private static final Logger log = LogManager.getLogger(AbstractService.class);
 
     private AbstractDevice iotDevice;
@@ -41,18 +40,17 @@ public abstract class AbstractService implements IService {
     private String serviceId;
 
     private static class FieldPair {
-        public String propertyName;
+        String propertyName;
 
-        public Field field;
+        Field field;
 
-        public FieldPair(String propertyName, Field field) {
+        FieldPair(String propertyName, Field field) {
             this.propertyName = propertyName;
             this.field = field;
         }
     }
 
     public AbstractService() {
-
         for (Field field : this.getClass().getDeclaredFields()) {
 
             Property property = field.getAnnotation(Property.class);
@@ -83,11 +81,9 @@ public abstract class AbstractService implements IService {
             }
             commands.put(name, method);
         }
-
     }
 
     private Object getFiledValue(String fieldName) {
-
         Field field = readableFields.get(fieldName).field;
         if (field == null) {
             log.error("field is null: " + fieldName);
@@ -109,16 +105,12 @@ public abstract class AbstractService implements IService {
         }
 
         try {
-            Object value = method.invoke(this);
-            return value;
-        } catch (IllegalAccessException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
-        } catch (InvocationTargetException e) {
+            return method.invoke(this);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
         }
 
         return null;
-
     }
 
     /**
@@ -129,13 +121,11 @@ public abstract class AbstractService implements IService {
      */
     @Override
     public Map<String, Object> onRead(String... fields) {
-
         Map<String, Object> ret = new HashMap<>();
 
-        //读取指定的字段
+        // 读取指定的字段
         if (fields.length > 0) {
             for (String fieldName : fields) {
-
                 if (readableFields.get(fieldName) == null) {
                     log.error("field is not readable:" + fieldName);
                     continue;
@@ -150,7 +140,7 @@ public abstract class AbstractService implements IService {
             return ret;
         }
 
-        //读取全部字段
+        // 读取全部字段
         for (Map.Entry<String, FieldPair> entry : readableFields.entrySet()) {
             Object value = getFiledValue(entry.getKey());
             if (value != null) {
@@ -170,7 +160,6 @@ public abstract class AbstractService implements IService {
      */
     @Override
     public IotResult onWrite(Map<String, Object> properties) {
-
         List<String> changedProps = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
 
@@ -193,13 +182,13 @@ public abstract class AbstractService implements IService {
             }
 
             if (method == null) {
-                log.error("method not found： " + setter);
+                log.error("method not found, the method is {}", setter);
                 return new IotResult(-1, "method not found： " + setter);
             }
 
             try {
                 method.invoke(this, value);
-                log.info("write property ok:" + entry.getKey());
+                log.info("write property ok, {}", entry.getKey());
                 changedProps.add(field.getName());
             } catch (Exception e) {
                 log.error(ExceptionUtil.getBriefStackTrace(e));
@@ -250,15 +239,7 @@ public abstract class AbstractService implements IService {
         }
 
         try {
-
             return (CommandRsp) method.invoke(this, command.getParas());
-
-        } catch (IllegalAccessException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
-            return new CommandRsp(CommandRsp.FAIL, e.getCause());
-        } catch (InvocationTargetException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
-            return new CommandRsp(CommandRsp.FAIL, e.getCause());
         } catch (Exception e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
             return new CommandRsp(CommandRsp.FAIL, e.getCause());
@@ -270,7 +251,7 @@ public abstract class AbstractService implements IService {
      *
      * @return 设备实例
      */
-    public AbstractDevice getIotDevice() {
+    protected AbstractDevice getIotDevice() {
         return iotDevice;
     }
 
@@ -279,7 +260,7 @@ public abstract class AbstractService implements IService {
      *
      * @param iotDevice 设备实例
      */
-    public void setIotDevice(AbstractDevice iotDevice) {
+    void setIotDevice(AbstractDevice iotDevice) {
         this.iotDevice = iotDevice;
     }
 
@@ -302,15 +283,13 @@ public abstract class AbstractService implements IService {
             return;
         }
 
-        if (timer == null) {
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    firePropertiesChanged();
-                }
-            }, reportInterval, reportInterval);
-        }
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                firePropertiesChanged();
+            }
+        }, reportInterval, reportInterval);
     }
 
     /**

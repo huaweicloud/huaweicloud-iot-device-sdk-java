@@ -1,37 +1,35 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-
 import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceInfo;
 
 import java.util.Map;
 
 public class SubDevInfo {
+    private long version;
 
-    long version;
+    private Map<String, DeviceInfo> subdevices;
 
-    Map<String, DeviceInfo> subdevices;
-
-    public long getVersion() {
+    long getVersion() {
         return version;
     }
 
-    public void setVersion(long version) {
+    void setVersion(long version) {
         this.version = version;
     }
 
-    public Map<String, DeviceInfo> getSubdevices() {
+    Map<String, DeviceInfo> getSubdevices() {
         return subdevices;
     }
 
-    public void setSubdevices(Map<String, DeviceInfo> subdevices) {
+    void setSubdevices(Map<String, DeviceInfo> subdevices) {
         this.subdevices = subdevices;
     }
 
     @Override
     public String toString() {
         return "SubDevInfo{"
-                + "version=" + version
-                + ", subdevices=" + subdevices
-                + '}';
+            + "version=" + version
+            + ", subdevices=" + subdevices
+            + '}';
     }
 }

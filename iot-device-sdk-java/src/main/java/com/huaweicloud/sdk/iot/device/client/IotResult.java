@@ -7,11 +7,11 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
  * 处理结果
  */
 public class IotResult {
-
     public final static IotResult SUCCESS = new IotResult(0, "Success");
-    public final static IotResult FAIL = new IotResult(1, "Fail");
-    public final static IotResult TIMEOUT = new IotResult(2, "Timeout");
 
+    public final static IotResult FAIL = new IotResult(1, "Fail");
+
+    final static IotResult TIMEOUT = new IotResult(2, "Timeout");
 
     /**
      * 结果码，0表示成功，其他为失败
@@ -24,7 +24,6 @@ public class IotResult {
      */
     @JsonProperty("result_desc")
     private String resultDesc;
-
 
     /**
      * 处理结果

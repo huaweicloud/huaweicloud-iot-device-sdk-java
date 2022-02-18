@@ -30,7 +30,7 @@ public class ExceptionUtil {
         }
     }
 
-    public static String getExceptionStackTrace(Throwable e, int lineNum) {
+    private static String getExceptionStackTrace(Throwable e, int lineNum) {
         if (e == null) {
             return "";
         } else {

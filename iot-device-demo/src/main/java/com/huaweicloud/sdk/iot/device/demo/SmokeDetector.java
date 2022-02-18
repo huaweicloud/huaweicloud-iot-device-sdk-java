@@ -23,7 +23,6 @@ import java.util.Map;
 public class SmokeDetector {
 
     public static void main(String[] args) {
-
         String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "secret";
@@ -80,7 +79,7 @@ public class SmokeDetector {
         @DeviceCommand(name = "ringAlarm")
         public CommandRsp alarm(Map<String, Object> paras) {
             int duration = (int) paras.get("duration");
-            log.info("ringAlarm  duration = " + duration);
+            log.info("ringAlarm  duration is {}", duration);
             return new CommandRsp(0);
         }
 

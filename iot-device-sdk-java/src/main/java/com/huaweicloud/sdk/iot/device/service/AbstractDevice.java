@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 抽象设备类
  */
 public class AbstractDevice {
-
     private static final Logger log = LogManager.getLogger(AbstractService.class);
 
     private DeviceClient client;
@@ -70,7 +69,7 @@ public class AbstractDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device, the deviceId is {}", clientConf.getDeviceId());
 
     }
 
@@ -81,7 +80,7 @@ public class AbstractDevice {
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
-     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
+     * @param iotCertFile iot平台的ca证书，用于双向校验时设备侧校验平台
      */
     public AbstractDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword, File iotCertFile) {
 
@@ -94,7 +93,7 @@ public class AbstractDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device {} ", clientConf.getDeviceId());
     }
 
     /**
@@ -106,7 +105,7 @@ public class AbstractDevice {
         this.client = new DeviceClient(clientConf, this);
         this.deviceId = clientConf.getDeviceId();
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device: {}", clientConf.getDeviceId());
     }
 
     /**
@@ -129,7 +128,7 @@ public class AbstractDevice {
     /**
      * 初始化，创建到平台的连接
      *
-     * @return 如果连接成功，返回0；否则返回-1
+     * @return 如果连接成功，返回0；其它表示失败
      */
     public int init() {
 
@@ -139,7 +138,7 @@ public class AbstractDevice {
             client.setConnectListener(defaultConnLogListener);
 
             DefaultConnActionLogListener defaultConnActionLogListener = new DefaultConnActionLogListener(
-                    deviceLogService);
+                deviceLogService);
             client.setConnectActionListener(defaultConnActionLogListener);
         }
 

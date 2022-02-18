@@ -3,16 +3,15 @@ package com.huaweicloud.sdk.iot.device.filemanager;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UrlParam {
-
-    String url;
+    private String url;
 
     @JsonProperty("bucket_name")
-    String bucketName;
+    private String bucketName;
 
     @JsonProperty("object_name")
-    String objectName;
+    private String objectName;
 
-    Integer expire;
+    private Integer expire;
 
     public String getUrl() {
         return url;

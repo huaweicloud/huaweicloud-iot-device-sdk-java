@@ -7,14 +7,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 扫描子设备通知
  */
 public class ScanSubdeviceNotify {
-    String protocol;
-    String channel;
+    private String protocol;
+
+    private String channel;
 
     @JsonProperty("parent_device_id")
-    String parent;
+    private String parent;
 
     @JsonProperty("scan_settings")
-    ObjectNode settings;
+    private ObjectNode settings;
 
     public String getProtocol() {
         return protocol;

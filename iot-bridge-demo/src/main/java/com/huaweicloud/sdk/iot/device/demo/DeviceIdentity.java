@@ -5,12 +5,11 @@ package com.huaweicloud.sdk.iot.device.demo;
  */
 public class DeviceIdentity {
 
+    private String deviceId;
 
-    String deviceId;
-    String secret;
+    private String secret;
 
-
-    public String getDeviceId() {
+    String getDeviceId() {
         return deviceId;
     }
 
@@ -18,7 +17,7 @@ public class DeviceIdentity {
         this.deviceId = deviceId;
     }
 
-    public String getSecret() {
+    String getSecret() {
         return secret;
     }
 

@@ -29,10 +29,9 @@ import java.util.zip.GZIPOutputStream;
  * IOT工具类
  */
 public class IotUtil {
+    private static final Logger log = LogManager.getLogger(IotUtil.class);
 
     private static final String TLS_VER = "TLSv1.2";
-
-    private static final Logger log = LogManager.getLogger(IotUtil.class);
 
     private static AtomicLong requestId = new AtomicLong(0);
 
@@ -114,7 +113,7 @@ public class IotUtil {
      * @param timeStamp 时间戳
      * @return hash后的字符串
      */
-    public static String sha256_mac(String str, String timeStamp) {
+    public static String sha256Mac(String str, String timeStamp) {
         String passWord = null;
         try {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
@@ -134,7 +133,7 @@ public class IotUtil {
      * @param b bytes
      * @return 十六进制字符串
      */
-    public static String byteArrayToHexString(byte[] b) {
+    private static String byteArrayToHexString(byte[] b) {
         StringBuilder hs = new StringBuilder();
         String stmp;
         for (int n = 0; b != null && n < b.length; n++) {
@@ -159,7 +158,8 @@ public class IotUtil {
         }
     }
 
-    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword, File iotCertFile) throws Exception {
+    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword, File iotCertFile)
+        throws Exception {
         SSLContext context = SSLContext.getInstance(TLS_VER);
 
         KeyManagerFactory managerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -179,7 +179,8 @@ public class IotUtil {
 
         if (clientConf.getKeyStore() != null) {
 
-            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword(), clientConf.getFile());
+            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword(),
+                clientConf.getFile());
         } else {
             SSLContext sslContext = SSLContext.getInstance(TLS_VER);
             sslContext.init(null, getTrustManager(clientConf.getFile()), new SecureRandom());
@@ -193,13 +194,13 @@ public class IotUtil {
             return new byte[0];
         }
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(string.getBytes(encoding));
+            return byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
             log.error("compress failed " + e.getMessage());
         }
-
-        return byteArrayOutputStream.toByteArray();
+        return new byte[0];
     }
 }

@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 此工具根据产品模型文件自动生成设备代码
@@ -41,7 +42,7 @@ public class DeviceCodeGenerator {
         }
         String productZipPath = args[0];
 
-        //提取资源文件到当前目录
+        // 提取资源文件到当前目录
         extractResources();
 
         DeviceProfileParser.unZipFiles(CONTENT + File.separator + File.separator + "generated-demo.zip", "");
@@ -50,10 +51,10 @@ public class DeviceCodeGenerator {
         generateService(productInfo);
         generateDevice(productInfo);
 
-        log.info("demo code generated to: " + new File("").getCanonicalPath() + File.separator + File.separator
-                + "generated-demo");
+        log.info("demo code generated to: {}{}{}generated-demo", new File("").getCanonicalPath(), File.separator,
+            File.separator);
 
-        //删除临时文件
+        // 删除临时文件
         deleteFile(new File(CONTENT + File.separator + File.separator));
 
     }
@@ -63,25 +64,25 @@ public class DeviceCodeGenerator {
         if (!mkdir) {
             return;
         }
-        //提取资源文件到当前目录
+        // 提取资源文件到当前目录
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-                .getResourceAsStream("generated-demo.zip");
-             OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")) {
+            .getResourceAsStream("generated-demo.zip");
+            OutputStream outputStream = new FileOutputStream("tmp\\generated-demo.zip")) {
             IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-                .getResourceAsStream("device.ftl");
-             OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")) {
+            .getResourceAsStream("device.ftl");
+            OutputStream outputStream = new FileOutputStream("tmp\\device.ftl")) {
             IOUtils.copy(inputStream, outputStream);
         }
         try (InputStream inputStream = DeviceCodeGenerator.class.getClassLoader()
-                .getResourceAsStream("service.ftl");
-             OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")) {
+            .getResourceAsStream("service.ftl");
+            OutputStream outputStream = new FileOutputStream("tmp\\service.ftl")) {
             IOUtils.copy(inputStream, outputStream);
         }
     }
 
-    public static void generateDevice(ProductInfo productInfo) throws TemplateException, IOException {
+    private static void generateDevice(ProductInfo productInfo) throws TemplateException, IOException {
         Configuration cfg = new Configuration();
         String pathName = "generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/DeviceMain.java";
 
@@ -103,7 +104,7 @@ public class DeviceCodeGenerator {
         }
     }
 
-    public static void generateService(ProductInfo productInfo) throws IOException, TemplateException {
+    private static void generateService(ProductInfo productInfo) throws IOException, TemplateException {
         Configuration cfg = new Configuration();
         cfg.setDirectoryForTemplateLoading(new File("tmp\\"));
         cfg.setObjectWrapper(new DefaultObjectWrapper());
@@ -114,8 +115,8 @@ public class DeviceCodeGenerator {
             for (String sid : productInfo.getServiceCapabilityMap().keySet()) {
                 DeviceService deviceService = productInfo.getServiceCapabilityMap().get(sid);
                 File file = FileUtils.getFile(
-                        "generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/" + deviceService.getServiceType()
-                                + "Service.java");
+                    "generated-demo/src/main/java/com/huaweicloud/sdk/iot/device/demo/" + deviceService.getServiceType()
+                        + "Service.java");
 
                 Map<String, Object> root = new HashMap<String, Object>();
                 root.put("service", deviceService);
@@ -123,7 +124,7 @@ public class DeviceCodeGenerator {
                 try (Writer javaWriter = new FileWriter(file)) {
                     template.process(root, javaWriter);
                     javaWriter.flush();
-                    log.info("文件生成路径：" + file.getCanonicalPath());
+                    log.info("the file generation path is ：{} ", file.getCanonicalPath());
                 }
             }
 
@@ -133,7 +134,7 @@ public class DeviceCodeGenerator {
         }
     }
 
-    public static void deleteFile(File dirFile) {
+    private static void deleteFile(File dirFile) {
 
         if (dirFile == null) {
             return;
@@ -151,16 +152,15 @@ public class DeviceCodeGenerator {
             }
         } else {
 
-            for (File file : dirFile.listFiles()) {
+            for (File file : Objects.requireNonNull(dirFile.listFiles())) {
                 DeviceCodeGenerator.deleteFile(file);
             }
         }
 
         boolean delete = dirFile.delete();
         if (!delete) {
-            dirFile.getName();
-//            String name = dirFile.getName();
-//            log.error("delete file error, the file name is {}", name);
+            String name = dirFile.getName();
+            log.error("delete file error, the file name is {}", name);
         }
     }
 

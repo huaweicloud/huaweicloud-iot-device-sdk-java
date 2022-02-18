@@ -4,7 +4,6 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.GtwAddSubDeviceRsp;
 import com.huaweicloud.sdk.iot.device.gateway.requests.GtwDelSubDeviceRsp;
 
 public interface GtwOperateSubDeviceListener {
-
     /**
      * 处理网关增加子设备返回结果
      *

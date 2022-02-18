@@ -27,13 +27,13 @@ import java.io.InputStreamReader;
  */
 public class TcpDevice {
 
+    private static final Logger log = LogManager.getLogger(TcpDevice.class);
+
     private final String host;
 
     private final int port;
 
-    private static final Logger log = LogManager.getLogger(TcpDevice.class);
-
-    public TcpDevice(String host, int port) {
+    private TcpDevice(String host, int port) {
         this.host = host;
         this.port = port;
     }
@@ -42,7 +42,7 @@ public class TcpDevice {
         new TcpDevice("localhost", 8080).run();
     }
 
-    public void run() throws Exception {
+    private void run() {
         EventLoopGroup group = new NioEventLoopGroup();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
             Bootstrap bootstrap = new Bootstrap()
@@ -63,14 +63,14 @@ public class TcpDevice {
 
     }
 
-    public class SimpleClientHandler extends SimpleChannelInboundHandler<String> {
+    public static class SimpleClientHandler extends SimpleChannelInboundHandler<String> {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
-            log.info("channelRead0:" + s);
+            log.info("the msg of channelRead0 : {}", s);
         }
     }
 
-    public class SimpleClientInitializer extends ChannelInitializer<SocketChannel> {
+    public static class SimpleClientInitializer extends ChannelInitializer<SocketChannel> {
 
         @Override
         public void initChannel(SocketChannel ch) throws Exception {

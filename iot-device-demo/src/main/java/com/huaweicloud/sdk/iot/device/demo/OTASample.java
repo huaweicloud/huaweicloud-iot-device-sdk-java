@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
  * 并上报升级结果。在平台上可以看到升级结果
  */
 public class OTASample implements OTAListener {
-
     private static final Logger log = LogManager.getLogger(OTASample.class);
 
     private IoTDevice device;
@@ -51,7 +50,7 @@ public class OTASample implements OTAListener {
 
     private String packageSavePath; //升级包保存路径
 
-    public OTASample(IoTDevice device, String packageSavePath) throws Exception {
+    private OTASample(IoTDevice device, String packageSavePath) throws Exception {
         this.device = device;
         this.otaService = device.getOtaService();
         otaService.setOtaListener(this);
@@ -62,7 +61,7 @@ public class OTASample implements OTAListener {
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(600, TimeUnit.SECONDS)
             .sslSocketFactory(createSSLSocketFactory()).hostnameVerifier((s, sslSession) -> {
-                log.info("verify " + s);
+                log.info("verify {}", s);
                 return true;
             })
             .build();
@@ -140,7 +139,7 @@ public class OTASample implements OTAListener {
 
                         //计算进度
                         int progress = (int) (100 * current / total);
-                        log.info("progress = " + progress);
+                        log.info("the progress is {}", progress);
 
                         //计算md5
                         digest.update(bytes, 0, len);
@@ -149,7 +148,7 @@ public class OTASample implements OTAListener {
 
                     if (current == total) {
                         String md5 = DatatypeConverter.printHexBinary(digest.digest()).toLowerCase(Locale.CHINA);
-                        log.info("md5 = " + md5);
+                        log.info("the md5 is {}", md5);
 
                         otaService.reportOtaStatus(OTAService.OTA_CODE_SUCCESS, 100, version, null);
                         listener.onSuccess(md5);
@@ -168,7 +167,7 @@ public class OTASample implements OTAListener {
     /**
      * 校验升级包
      */
-    public int checkPackage(OTAPackage otaPackage, String md5) {
+    private int checkPackage(OTAPackage otaPackage, String md5) {
 
         if (!md5.equalsIgnoreCase(otaPackage.getSign())) {
             log.error("md5 check fail");
@@ -183,7 +182,7 @@ public class OTASample implements OTAListener {
     /**
      * 安装升级包，需要用户实现
      */
-    public int installPackage() {
+    private int installPackage() {
 
         //TODO
         log.info("installPackage ok");
@@ -224,7 +223,7 @@ public class OTASample implements OTAListener {
     @Override
     public void onNewPackage(OTAPackage otaPackage) {
 
-        log.info("otaPackage = " + otaPackage.toString());
+        log.info("otaPackage is {}", otaPackage.toString());
 
         if (preCheck(otaPackage) != 0) {
             log.error("preCheck failed");

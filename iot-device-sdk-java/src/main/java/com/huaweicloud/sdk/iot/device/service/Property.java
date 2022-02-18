@@ -1,6 +1,5 @@
 package com.huaweicloud.sdk.iot.device.service;
 
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -16,7 +15,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Property {
-
     /**
      * 属性是否可写。注：所有属性默认都可读
      *

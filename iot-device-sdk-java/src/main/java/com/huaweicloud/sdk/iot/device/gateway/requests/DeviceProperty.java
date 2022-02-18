@@ -9,11 +9,10 @@ import java.util.List;
  * 设备属性
  */
 public class DeviceProperty {
-
     @JsonProperty("device_id")
-    String deviceId;
+    private String deviceId;
 
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public String getDeviceId() {
         return deviceId;

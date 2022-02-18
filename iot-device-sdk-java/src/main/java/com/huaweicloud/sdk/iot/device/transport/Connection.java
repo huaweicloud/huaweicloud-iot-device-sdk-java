@@ -4,7 +4,6 @@ package com.huaweicloud.sdk.iot.device.transport;
  * IOT连接，代表设备和平台之间的一个连接
  */
 public interface Connection {
-
     /**
      * 建立连接
      *

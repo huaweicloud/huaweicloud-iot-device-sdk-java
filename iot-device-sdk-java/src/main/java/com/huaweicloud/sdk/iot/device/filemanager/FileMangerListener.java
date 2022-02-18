@@ -4,7 +4,6 @@ package com.huaweicloud.sdk.iot.device.filemanager;
  * 监听文件上传下载事件
  */
 public interface FileMangerListener {
-
     /**
      * 接收文件上传url
      *

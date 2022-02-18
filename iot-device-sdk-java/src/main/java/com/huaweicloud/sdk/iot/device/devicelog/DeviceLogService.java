@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class DeviceLogService extends AbstractService {
-
     private static final String LOG_CONFIG = "log_config";
 
     private boolean logSwitch = true;

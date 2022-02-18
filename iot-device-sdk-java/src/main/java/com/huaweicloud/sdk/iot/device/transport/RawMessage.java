@@ -1,10 +1,11 @@
 package com.huaweicloud.sdk.iot.device.transport;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * 原始消息类
  */
 public class RawMessage {
-
     /**
      * 消息主题
      */
@@ -35,8 +36,8 @@ public class RawMessage {
     /**
      * 构造函数
      *
-     * @param topic     消息topic
-     * @param payload   消息体
+     * @param topic   消息topic
+     * @param payload 消息体
      */
     public RawMessage(String topic, byte[] payload) {
         this.topic = topic;
@@ -65,7 +66,6 @@ public class RawMessage {
     public String getTopic() {
         return topic;
     }
-
 
     /**
      * 设置topic
@@ -114,6 +114,6 @@ public class RawMessage {
 
     @Override
     public String toString() {
-        return new String(payload);
+        return new String(payload, StandardCharsets.UTF_8);
     }
 }

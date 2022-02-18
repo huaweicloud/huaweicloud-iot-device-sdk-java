@@ -11,8 +11,6 @@ import java.util.Map;
  * 服务接口类
  */
 public interface IService {
-
-
     /**
      * 读属性回调
      *
@@ -28,7 +26,6 @@ public interface IService {
      * @return 操作结果jsonObject
      */
     IotResult onWrite(Map<String, Object> properties);
-
 
     /**
      * 命令回调

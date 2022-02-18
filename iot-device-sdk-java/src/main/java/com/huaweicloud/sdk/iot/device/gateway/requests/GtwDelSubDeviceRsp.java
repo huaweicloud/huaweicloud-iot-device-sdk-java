@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class GtwDelSubDeviceRsp {
-
     @JsonProperty("successful_devices")
     private List<String> successfulDevices;
 

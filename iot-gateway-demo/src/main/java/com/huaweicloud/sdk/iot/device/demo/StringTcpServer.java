@@ -30,14 +30,13 @@ import java.util.Map;
  * 一个传输字符串数据的tcp server，客户端建链后，首条消息是鉴权消息，携带设备标识nodeId。server将收到的消息通过gateway转发给平台
  */
 public class StringTcpServer {
+    private static final Logger log = LogManager.getLogger(StringTcpServer.class);
 
     private static SimpleGateway simpleGateway;
 
-    private static final Logger log = LogManager.getLogger(StringTcpServer.class);
-
     private int port;
 
-    public StringTcpServer(int port) {
+    private StringTcpServer(int port) {
         this.port = port;
     }
 
@@ -70,7 +69,7 @@ public class StringTcpServer {
 
     }
 
-    public void run() throws Exception {
+    private void run() throws Exception {
 
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -78,17 +77,7 @@ public class StringTcpServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast("decoder", new StringDecoder());
-                        ch.pipeline().addLast("encoder", new StringEncoder());
-                        ch.pipeline().addLast("handler", new StringHandler());
-
-                        log.info("initChannel:" + ch.remoteAddress());
-                    }
-                })
+                .childHandler(new channelInitializerImpl())
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -105,17 +94,17 @@ public class StringTcpServer {
         }
     }
 
-    public class StringHandler extends SimpleChannelInboundHandler<String> {
+    public static class StringHandler extends SimpleChannelInboundHandler<String> {
 
         /**
-         * @param ctx
-         * @param s
+         * @param ctx Channel处理上下文
+         * @param s   Channel消息
          * @throws Exception
          */
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
             Channel incoming = ctx.channel();
-            log.info("channelRead0" + incoming.remoteAddress() + " msg :" + s);
+            log.info("channelRead0 is {}, the msg is {}", incoming.remoteAddress(), s);
 
             //如果是首条消息,创建session
             Session session = simpleGateway.getSessionByChannel(incoming.id().asLongText());
@@ -128,7 +117,7 @@ public class StringTcpServer {
                     log.info("close channel");
                     ctx.close();
                 } else {
-                    log.info(session.getDeviceId() + " ready to go online.");
+                    log.info("ready to go online, the deviceId is {}", session.getDeviceId());
                     simpleGateway.reportSubDeviceStatus(session.getDeviceId(), "ONLINE", null);
                 }
 
@@ -159,57 +148,23 @@ public class StringTcpServer {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             Channel incoming = ctx.channel();
-            log.info("exceptionCaught:" + incoming.remoteAddress());
+            log.error("the remote address is {}, caugh exception {}", incoming.remoteAddress(), cause.getMessage());
             // 当出现异常就关闭连接
-            log.error(cause);
             ctx.close();
             simpleGateway.removeSession(incoming.id().asLongText());
         }
     }
 
+    private static class channelInitializerImpl extends ChannelInitializer<SocketChannel> {
 
-  /*  private static void gtwOperateSubDevices() throws InterruptedException {
-        simpleGateway.setGtwOperateSubDeviceListener(new GtwOperateSubDeviceListener() {
-            @Override
-            public void onAddSubDeviceRsp(GtwAddSubDeviceRsp gtwAddSubDeviceRsp, String eventId) {
-                //网关主动添加子设备响应
-            }
+        @Override
+        protected void initChannel(SocketChannel ch) throws Exception {
+            ch.pipeline().addLast("decoder", new StringDecoder());
+            ch.pipeline().addLast("encoder", new StringEncoder());
+            ch.pipeline().addLast("handler", new StringHandler());
 
-            @Override
-            public void onDelSubDeviceRsp(GtwDelSubDeviceRsp gtwDelSubDeviceRsp, String eventId) {
-                //网关主动删除子设备响应
-            }
-        });
-
-        AddedSubDeviceInfo addedSubDeviceInfo = new AddedSubDeviceInfo();
-        addedSubDeviceInfo.setNodeId("nodeId");
-        addedSubDeviceInfo.setDeviceId("yourDeviceId");
-        addedSubDeviceInfo.setName("subDeviceId1");
-        addedSubDeviceInfo.setDescription("descroiption");
-        addedSubDeviceInfo.setProductId("yourProductId");
-
-        AddedSubDeviceInfo addedSubDeviceInfo2 = new AddedSubDeviceInfo();
-        addedSubDeviceInfo2.setNodeId("nodeId");
-        addedSubDeviceInfo2.setDeviceId("yourDeviceId");
-        addedSubDeviceInfo2.setName("subDeviceI2");
-        addedSubDeviceInfo2.setDescription("descroiption");
-        addedSubDeviceInfo2.setProductId("yourProductId");
-
-        List<AddedSubDeviceInfo> list = new ArrayList<>();
-        list.add(addedSubDeviceInfo2);
-        list.add(addedSubDeviceInfo);
-
-        //测试添加子设备
-        simpleGateway.gtwAddSubDevice(list, null, null);
-
-        Thread.sleep(200);  //设备注册完毕后，再测试删除
-
-        //测试网关删除子设备
-        List<String> delSubDevice = new ArrayList<>();
-        delSubDevice.add("subDevice1"); //要删除的子设备Id
-
-        simpleGateway.gtwDelSubDevice(delSubDevice, null, null);
+            log.info("initChannel: {}", ch.remoteAddress());
+        }
     }
 
-*/
 }

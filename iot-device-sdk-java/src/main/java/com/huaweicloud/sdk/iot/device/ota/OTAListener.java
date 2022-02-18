@@ -4,7 +4,6 @@ package com.huaweicloud.sdk.iot.device.ota;
  * OTA监听器
  */
 public interface OTAListener {
-
     /**
      * 接收查询版本通知
      */

@@ -15,18 +15,18 @@ import java.util.Map;
  */
 public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
-    private Map<String, Map<String, String>> deviceIdentityMap;
-
     private static final Logger log = LogManager.getLogger(DefaultDeviceIdentityRegistry.class);
 
-    public DefaultDeviceIdentityRegistry() {
+    private Map<String, Map<String, String>> deviceIdentityMap;
+
+    DefaultDeviceIdentityRegistry() {
 
         String content = null;
         try (InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader()
             .getResourceAsStream("deviceIdentity.json");) {
             content = readInputStream2String(inputStream);
         } catch (IOException e) {
-            log.error(e);
+            log.error("get the file of DeviceIdIdentity failed : " + e.toString());
         }
         deviceIdentityMap = JsonUtil.convertJsonStringToObject(content, Map.class);
 
