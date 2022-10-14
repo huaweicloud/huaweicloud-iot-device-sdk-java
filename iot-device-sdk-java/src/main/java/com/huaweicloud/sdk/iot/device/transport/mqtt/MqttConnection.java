@@ -116,7 +116,7 @@ public class MqttConnection implements Connection {
         try {
 
             String timeStamp = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+                    .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             String clientId = null;
             if (clientConf.getScopeId() == null) {
                 clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + CHECK_TIMESTAMP + "_" + timeStamp;
@@ -187,6 +187,12 @@ public class MqttConnection implements Connection {
 
         if (mqttAsyncClient.isConnected()) {
             return 0;
+        }
+
+        // 处理paho返回的错误码为0的场景
+        if (connectResultCode == 0) {
+            log.error("Client encountered an exception");
+            return -1;
         }
 
         return connectResultCode;
