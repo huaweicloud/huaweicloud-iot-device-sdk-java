@@ -329,7 +329,11 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 代码生成器的源码在iot-device-code-generator目录
 [具体参见](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README.md)
            
-    
+
+### 使用网关和子设备
+使用iot-gateway-demo模块，先启动StringTcpServer服务端，然后再启动TcpDevice客户端，并且TcpDevice启动后，在控制台输入的第一条消息是node_id，然后再发送业务数据。
+
+
 
 
 ### 使用证书认证
