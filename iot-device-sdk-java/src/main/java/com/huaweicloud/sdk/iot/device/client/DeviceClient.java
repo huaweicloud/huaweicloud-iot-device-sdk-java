@@ -149,9 +149,9 @@ public class DeviceClient implements RawMessageListener {
             long randomBackOff = random.nextInt(highBound - lowBound);
             int powParameter = retryTimes & 0x0F;
             long backOffWithJitter = (long) (Math.pow(2.0, (double) powParameter)) * (randomBackOff + lowBound);
-            long waitTImeUntilNextRetry = Math.min(minBackoff + backOffWithJitter, maxBackoff);
+            long waitTimeUntilNextRetry = Math.min(minBackoff + backOffWithJitter, maxBackoff);
             try {
-                Thread.sleep(waitTImeUntilNextRetry);
+                Thread.sleep(waitTimeUntilNextRetry);
             } catch (InterruptedException e) {
                 log.error("sleep failed, the reason is {}", e.getMessage());
             }
