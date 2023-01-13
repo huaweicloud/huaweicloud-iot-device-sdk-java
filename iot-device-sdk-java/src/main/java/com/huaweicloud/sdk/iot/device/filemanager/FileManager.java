@@ -12,9 +12,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 未完成
- */
 public class FileManager extends AbstractService {
     private static final Logger log = LogManager.getLogger(FileManager.class);
 
