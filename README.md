@@ -333,7 +333,8 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 ### 使用网关和子设备
 使用iot-gateway-demo模块，先启动StringTcpServer服务端，然后再启动TcpDevice客户端，并且TcpDevice启动后，在控制台输入的第一条消息是node_id，然后再发送业务数据。
 
-
+### 不用IoTDA接入说明
+除了换服务端的域名以外，需要在各demo的resource下替换对应服务端的ca证书，具体请参考（https://support.huaweicloud.com/devg-iothub/iot_02_1004.html#section3）。
 
 
 ### 使用证书认证
