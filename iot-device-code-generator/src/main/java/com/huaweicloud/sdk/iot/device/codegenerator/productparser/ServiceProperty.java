@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
 import java.util.List;
 
-
 public class ServiceProperty implements Serializable {
 
     public static final String READ = "R";
@@ -18,7 +17,6 @@ public class ServiceProperty implements Serializable {
     public static final String EXECUTE = "E";
 
     private static final long serialVersionUID = 8483808607881241605L;
-
 
     private String propertyName;
 
@@ -46,12 +44,10 @@ public class ServiceProperty implements Serializable {
     private int maxLength = 1024;
 
     // 访问方法：RWE 可读R，可写W，可观察E
-
-    //@Pattern(regexp = "(RWE|RW|RE|WE|E|W|R)")
+    // @Pattern(regexp = "(RWE|RW|RE|WE|E|W|R)")
     private String method;
 
     private String unit;
-
 
     private List<String> enumList;
 
@@ -60,7 +56,7 @@ public class ServiceProperty implements Serializable {
      */
     private String description;
 
-    private transient ObjectNode extendparam;
+    private ObjectNode extendparam;
 
     public String getPropertyName() {
         return propertyName;
@@ -184,15 +180,31 @@ public class ServiceProperty implements Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("ServiceProperty [propertyName=").append(propertyName).append(", dataType=")
-                .append(dataType).append(", required=").append(required).append(", min=").append(min).append(", max=")
-                .append(max).append(", step=").append(step).append(", maxLength=").append(maxLength).append(", method=")
-                .append(method).append(", unit=").append(unit).append(", enumList=").append(enumList).append(", description=")
-                .append(description).append("]")
-                .toString();
+        return "ServiceProperty [propertyName="
+            + propertyName
+            + ", dataType="
+            + dataType
+            + ", required="
+            + required
+            + ", min="
+            + min
+            + ", max="
+            + max
+            + ", step="
+            + step
+            + ", maxLength="
+            + maxLength
+            + ", method="
+            + method
+            + ", unit="
+            + unit
+            + ", enumList="
+            + enumList
+            + ", description="
+            + description
+            + "]";
 
     }
-
 
 }
 

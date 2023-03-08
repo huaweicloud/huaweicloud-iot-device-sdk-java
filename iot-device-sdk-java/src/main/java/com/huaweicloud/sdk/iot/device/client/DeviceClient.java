@@ -1,21 +1,25 @@
 package com.huaweicloud.sdk.iot.device.client;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.huaweicloud.sdk.iot.device.client.handler.CommandHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.CommandV3Handler;
+import com.huaweicloud.sdk.iot.device.client.handler.EventDownHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.MessageHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.MessageReceivedHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.PropertyGetHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.PropertySetHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.ShadowResponseHandler;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandV3Listener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
-import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRspV3;
-import com.huaweicloud.sdk.iot.device.client.requests.CommandV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvents;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
 import com.huaweicloud.sdk.iot.device.client.requests.DevicePropertiesV3;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
-import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
 import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import com.huaweicloud.sdk.iot.device.service.AbstractDevice;
@@ -33,10 +37,13 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -54,6 +61,30 @@ import java.util.concurrent.TimeUnit;
 public class DeviceClient implements RawMessageListener {
     private static final Logger log = LogManager.getLogger(DeviceClient.class);
 
+    private static final int CLIENT_THREAD_COUNT = 1;
+
+    private static final String DEFAULT_GZIP_ENCODING = "UTF-8";
+
+    private static final String SDK_VERSION = "JAVA_v1.1.3";
+
+    private static final String MESSAGE_DOWN_TOPIC = "/messages/down";
+
+    private static final String COMMAND_DOWN_TOPIC = "sys/commands/request_id";
+
+    private static final String PROPERTY_SET_TOPIC = "/sys/properties/set/request_id";
+
+    private static final String PROPERTY_GET_TOPIC = "/sys/properties/get/request_id";
+
+    private static final String SHADOW_RESPONSE_TOPIC = "/desired/properties/get/response";
+
+    private static final String EVENT_DOWN_TOPIC = "/sys/events/down";
+
+    private static final String COMMAND_DOWN_TOPIC_OF_V3 = "/huawei/v1/devices/";
+
+    private static final int MQTTEXCEPTION_OF_BAD_USERNAME_OR_PWD = 4;
+
+    private static final int MQTT_CONNECT_SUCCESS = 0;
+
     private PropertyListener propertyListener;
 
     private CommandListener commandListener;
@@ -64,7 +95,7 @@ public class DeviceClient implements RawMessageListener {
 
     private ClientConf clientConf;
 
-    private Connection connection;
+    protected Connection connection;
 
     private RequestManager requestManager;
 
@@ -76,21 +107,13 @@ public class DeviceClient implements RawMessageListener {
 
     private ScheduledExecutorService executorService;
 
-    private int clientThreadCount = 1;
+    Map<String, MessageReceivedHandler> functionMap = new HashMap<>();
 
-    private long minBackoff = 1000;
-
-    private long maxBackoff = 30 * 1000; //30 seconds
-
-    private long defaultBackoff = 1000;
-
-    private static int retryTimes = 0;
-
-    private SecureRandom random = new SecureRandom();
-
-    private static final String DEFAULT_GZIP_ENCODEING = "UTF-8";
+    public DeviceClient() {
+    }
 
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
+
         checkClientConf(clientConf);
         this.clientConf = clientConf;
         this.deviceId = clientConf.getDeviceId();
@@ -99,6 +122,13 @@ public class DeviceClient implements RawMessageListener {
         this.device = device;
         this.rawMessageListenerMap = new ConcurrentHashMap<>();
 
+        functionMap.put(MESSAGE_DOWN_TOPIC, new MessageHandler(this));
+        functionMap.put(COMMAND_DOWN_TOPIC, new CommandHandler(this));
+        functionMap.put(PROPERTY_SET_TOPIC, new PropertySetHandler(this));
+        functionMap.put(PROPERTY_GET_TOPIC, new PropertyGetHandler(this));
+        functionMap.put(SHADOW_RESPONSE_TOPIC, new ShadowResponseHandler(this));
+        functionMap.put(EVENT_DOWN_TOPIC, new EventDownHandler(this));
+        functionMap.put(COMMAND_DOWN_TOPIC_OF_V3, new CommandV3Handler(this));
     }
 
     public ClientConf getClientConf() {
@@ -132,34 +162,23 @@ public class DeviceClient implements RawMessageListener {
 
         synchronized (this) {
             if (executorService == null) {
-                executorService = Executors.newScheduledThreadPool(clientThreadCount);
+                executorService = Executors.newScheduledThreadPool(CLIENT_THREAD_COUNT);
             }
         }
 
         int ret = connection.connect();
 
-        if (ret == 4) { //如果是userName或password填写错误，则不重连
+        // 如果是userName或password填写错误，则不重连
+        if (ret == MQTTEXCEPTION_OF_BAD_USERNAME_OR_PWD) {
             return ret;
         }
 
-        while (ret != 0) {
-            //退避重连
-            int lowBound = (int) (defaultBackoff * 0.8);
-            int highBound = (int) (defaultBackoff * 1.0);
-            long randomBackOff = random.nextInt(highBound - lowBound);
-            int powParameter = retryTimes & 0x0F;
-            long backOffWithJitter = (long) (Math.pow(2.0, (double) powParameter)) * (randomBackOff + lowBound);
-            long waitTimeUntilNextRetry = Math.min(minBackoff + backOffWithJitter, maxBackoff);
-            try {
-                Thread.sleep(waitTimeUntilNextRetry);
-            } catch (InterruptedException e) {
-                log.error("sleep failed, the reason is {}", e.getMessage());
-            }
-            retryTimes++;
-            close();
-            ret = connection.connect();
+        if (ret != MQTT_CONNECT_SUCCESS) {
+            ret = IotUtil.reConnect(connection);
         }
 
+        // 建链成功后，SDK自动上报版本号，软固件版本号由设备上报
+        reportDeviceInfo(null, null, null);
         return ret;
     }
 
@@ -183,7 +202,7 @@ public class DeviceClient implements RawMessageListener {
      */
     public void reportCompressedDeviceMessage(DeviceMessage deviceMessage, ActionListener listener) {
         String topic = "$oc/devices/" + this.deviceId + "/sys/messages/up?encoding=gzip";
-        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(deviceMessage), DEFAULT_GZIP_ENCODEING);
+        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(deviceMessage), DEFAULT_GZIP_ENCODING);
         this.publishRawMessage(new RawMessage(topic, compress), listener);
     }
 
@@ -254,7 +273,7 @@ public class DeviceClient implements RawMessageListener {
         ObjectNode jsonObject = JsonUtil.createObjectNode();
         jsonObject.putPOJO("services", properties);
 
-        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(jsonObject), DEFAULT_GZIP_ENCODEING);
+        byte[] compress = IotUtil.compress(JsonUtil.convertObject2String(jsonObject), DEFAULT_GZIP_ENCODING);
         connection.publishMessage(new RawMessage(topic, compress), listener);
 
     }
@@ -280,8 +299,8 @@ public class DeviceClient implements RawMessageListener {
      */
     public void reportBinaryV3(Byte[] bytes, ActionListener listener) {
 
-        String deviceId = clientConf.getDeviceId();
-        String topic = "/huawei/v1/devices/" + deviceId + "/data/binary";
+        String deviceIdTmp = clientConf.getDeviceId();
+        String topic = "/huawei/v1/devices/" + deviceIdTmp + "/data/binary";
 
         RawMessage rawMessage = new RawMessage(topic, Arrays.toString(bytes));
         connection.publishMessage(rawMessage, listener);
@@ -320,7 +339,7 @@ public class DeviceClient implements RawMessageListener {
      * @param listener         发布监听器
      */
     public void reportSubDeviceProperties(List<DeviceProperty> deviceProperties,
-                                          ActionListener listener) {
+        ActionListener listener) {
 
         ObjectNode node = JsonUtil.createObjectNode();
         node.putPOJO("devices", deviceProperties);
@@ -338,118 +357,38 @@ public class DeviceClient implements RawMessageListener {
      * @param listener         发布监听器
      */
     public void reportCompressedSubDeviceProperties(List<DeviceProperty> deviceProperties,
-                                                    ActionListener listener) {
+        ActionListener listener) {
 
         ObjectNode node = JsonUtil.createObjectNode();
         node.putPOJO("devices", deviceProperties);
 
         String topic = "$oc/devices/" + getDeviceId() + "/sys/gateway/sub_devices/properties/report?encoding=gzip";
 
-        byte[] compress = IotUtil.compress(node.toString(), DEFAULT_GZIP_ENCODEING);
+        byte[] compress = IotUtil.compress(node.toString(), DEFAULT_GZIP_ENCODING);
         publishRawMessage(new RawMessage(topic, compress), listener);
 
     }
 
-    private void onPropertiesSet(RawMessage message) {
+    /**
+     * 上报设备信息
+     *
+     * @param swVersion 软件版本
+     * @param fwVersion 固件版本
+     * @param listener  监听器
+     */
+    public void reportDeviceInfo(String swVersion, String fwVersion, ActionListener listener) {
+        DeviceEvent deviceEvent = new DeviceEvent();
+        deviceEvent.setServiceId("$sdk_info");
+        deviceEvent.setEventType("sdk_info_report");
+        deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
-        String requestId = IotUtil.getRequestId(message.getTopic());
+        Map<String, Object> map = new HashMap<>();
+        map.put("device_sdk_version", SDK_VERSION);
+        map.put("sw_version", swVersion);
+        map.put("fw_version", fwVersion);
 
-        PropsSet propsSet = JsonUtil.convertJsonStringToObject(message.toString(), PropsSet.class);
-        if (propsSet == null) {
-            return;
-        }
-
-        //只处理直连设备的，子设备的由AbstractGateway处理
-        if (propertyListener != null && (propsSet.getDeviceId() == null || propsSet.getDeviceId()
-                .equals(getDeviceId()))) {
-
-            propertyListener.onPropertiesSet(requestId, propsSet.getServices());
-            return;
-
-        }
-
-        device.onPropertiesSet(requestId, propsSet);
-    }
-
-    private void onPropertiesGet(RawMessage message) {
-
-        String requestId = IotUtil.getRequestId(message.getTopic());
-
-        PropsGet propsGet = JsonUtil.convertJsonStringToObject(message.toString(), PropsGet.class);
-        if (propsGet == null) {
-            return;
-        }
-
-        if (propertyListener != null && (propsGet.getDeviceId() == null || propsGet.getDeviceId()
-                .equals(getDeviceId()))) {
-            propertyListener.onPropertiesGet(requestId, propsGet.getServiceId());
-            return;
-        }
-
-        device.onPropertiesGet(requestId, propsGet);
-
-    }
-
-    private void onCommand(RawMessage message) {
-
-        String requestId = IotUtil.getRequestId(message.getTopic());
-
-        Command command = JsonUtil.convertJsonStringToObject(message.toString(), Command.class);
-        if (command == null) {
-            log.error("invalid command");
-            return;
-        }
-
-        if (commandListener != null && (command.getDeviceId() == null || command.getDeviceId().equals(getDeviceId()))) {
-            commandListener.onCommand(requestId, command.getServiceId(),
-                    command.getCommandName(), command.getParas());
-            return;
-        }
-
-        device.onCommand(requestId, command);
-
-    }
-
-    private void onCommandV3(RawMessage message) {
-        CommandV3 commandV3 = JsonUtil.convertJsonStringToObject(message.toString(), CommandV3.class);
-        if (commandV3 == null) {
-            log.error("invalid commandV3");
-            return;
-        }
-
-        if (commandV3Listener != null) {
-            commandV3Listener.onCommandV3(commandV3);
-        }
-    }
-
-    private void onDeviceMessage(RawMessage message) {
-        DeviceMessage deviceMessage = JsonUtil.convertJsonStringToObject(message.toString(),
-                DeviceMessage.class);
-        if (deviceMessage == null) {
-            log.error("invalid deviceMessage: " + message.toString());
-            return;
-        }
-
-        if (deviceMessageListener != null && (deviceMessage.getDeviceId() == null || deviceMessage.getDeviceId()
-                .equals(getDeviceId()))) {
-            deviceMessageListener.onDeviceMessage(deviceMessage);
-            return;
-        }
-        device.onDeviceMessage(deviceMessage);
-    }
-
-    private void onEvent(RawMessage message) {
-
-        DeviceEvents deviceEvents = JsonUtil.convertJsonStringToObject(message.toString(), DeviceEvents.class);
-        if (deviceEvents == null) {
-            log.error("invalid events");
-            return;
-        }
-        device.onEvent(deviceEvents);
-    }
-
-    private void onResponse(RawMessage message) {
-        requestManager.onRequestResponse(message);
+        deviceEvent.setParas(map);
+        reportEvent(deviceEvent, listener);
     }
 
     @Override
@@ -460,42 +399,28 @@ public class DeviceClient implements RawMessageListener {
             return;
         }
 
-        executorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String topic = message.getTopic();
+        executorService.schedule(() -> {
+            try {
+                String topic = message.getTopic();
 
-                    RawMessageListener listener = rawMessageListenerMap.get(topic);
-                    if (listener != null) {
-                        listener.onMessageReceived(message);
-                        return;
-                    }
-
-                    if (topic.contains("/messages/down")) {
-                        onDeviceMessage(message);
-                    } else if (topic.contains("sys/commands/request_id")) {
-                        onCommand(message);
-
-                    } else if (topic.contains("/sys/properties/set/request_id")) {
-                        onPropertiesSet(message);
-
-                    } else if (topic.contains("/sys/properties/get/request_id")) {
-                        onPropertiesGet(message);
-
-                    } else if (topic.contains("/desired/properties/get/response")) {
-                        onResponse(message);
-                    } else if (topic.contains("/sys/events/down")) {
-                        onEvent(message);
-                    } else if (topic.contains("/huawei/v1/devices") && topic.contains("/command/")) {
-                        onCommandV3(message);
-                    } else {
-                        log.error("unknown topic: " + topic);
-                    }
-
-                } catch (Exception e) {
-                    log.error(ExceptionUtil.getBriefStackTrace(e));
+                RawMessageListener listener = rawMessageListenerMap.get(topic);
+                if (listener != null) {
+                    listener.onMessageReceived(message);
+                    return;
                 }
+
+                Set<Map.Entry<String, MessageReceivedHandler>> entries = functionMap.entrySet();
+                Iterator<Map.Entry<String, MessageReceivedHandler>> iterator = entries.iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, MessageReceivedHandler> next = iterator.next();
+                    if (topic.contains(next.getKey())) {
+                        functionMap.get(next.getKey()).messageHandler(message);
+                        break;
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error(ExceptionUtil.getBriefStackTrace(e));
             }
         }, 0, TimeUnit.MILLISECONDS);
 
@@ -586,7 +511,7 @@ public class DeviceClient implements RawMessageListener {
      * @param qos                qos
      */
     public void subscribeTopic(String topic, ActionListener actionListener, RawMessageListener rawMessageListener,
-                               int qos) {
+        int qos) {
         connection.subscribeTopic(topic, actionListener, qos);
         rawMessageListenerMap.put(topic, rawMessageListener);
     }
@@ -611,6 +536,30 @@ public class DeviceClient implements RawMessageListener {
         this.commandListener = commandListener;
     }
 
+    public CommandListener getCommandListener() {
+        return commandListener;
+    }
+
+    public AbstractDevice getDevice() {
+        return device;
+    }
+
+    public DeviceMessageListener getDeviceMessageListener() {
+        return deviceMessageListener;
+    }
+
+    public RequestManager getRequestManager() {
+        return requestManager;
+    }
+
+    public PropertyListener getPropertyListener() {
+        return propertyListener;
+    }
+
+    public CommandV3Listener getCommandV3Listener() {
+        return commandV3Listener;
+    }
+
     /**
      * 设置消息监听器，用于接收平台下发的消息
      * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
@@ -630,6 +579,25 @@ public class DeviceClient implements RawMessageListener {
         this.commandV3Listener = commandV3Listener;
     }
 
+    /**
+     * 获取各类topic处理的handler
+     *
+     * @return 各类topic处理的handler
+     */
+    public Map<String, MessageReceivedHandler> getFunctionMap() {
+        return functionMap;
+    }
+
+    /**
+     * 设置各类topic处理的handler
+     *
+     * @param functionMap 各类topic处理的handler
+     */
+    public void setFunctionMap(
+        Map<String, MessageReceivedHandler> functionMap) {
+        this.functionMap = functionMap;
+    }
+
     public void setDevice(AbstractDevice device) {
         this.device = device;
     }
@@ -644,9 +612,9 @@ public class DeviceClient implements RawMessageListener {
 
         DeviceEvents events = new DeviceEvents();
         events.setDeviceId(getDeviceId());
-        events.setServices(Arrays.asList(event));
-        String deviceId = clientConf.getDeviceId();
-        String topic = "$oc/devices/" + deviceId + "/sys/events/up";
+        events.setServices(Collections.singletonList(event));
+        String deviceIdTmp = clientConf.getDeviceId();
+        String topic = "$oc/devices/" + deviceIdTmp + "/sys/events/up";
 
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
         connection.publishMessage(rawMessage, listener);
@@ -666,10 +634,11 @@ public class DeviceClient implements RawMessageListener {
     }
 
     public int getClientThreadCount() {
-        return clientThreadCount;
+        return CLIENT_THREAD_COUNT;
     }
 
-    public void setClientThreadCount(int clientThreadCount) {
-        this.clientThreadCount = clientThreadCount;
+    // 在网桥场景下会使用到，主要用于bridgeClient重写
+    public void reportEvent(String deviceId, DeviceEvent event, ActionListener listener) {
     }
+
 }

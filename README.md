@@ -19,7 +19,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
 
 ## 支持特性
-- 支持设备消息、属性上报、属性读写、命令下发 
+- 支持设备消息、属性上报、属性读写、命令下发
 - 支持网关服务、子设备管理、子设备消息转发
 - 支持设备OTA服务
 - 支持面向物模型编程
@@ -53,7 +53,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
        device.getClient().reportDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
         @Override
         public void onSuccess(Object context) {
-            log.info("reportDeviceMessage success: ");
+            log.info("reportDeviceMessage success");
         }
 
         @Override
@@ -153,12 +153,12 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
         //遍历service
         for (ServiceProperty serviceProperty: services){
 
-            log.info("OnPropertiesSet, serviceId =  " + serviceProperty.getServiceId());
+            log.info("OnPropertiesSet, serviceId is {}", serviceProperty.getServiceId());
 
             //遍历属性
             for (String name :serviceProperty.getProperties().keySet()){
-                log.info("property name = "+ name);
-                log.info("set property value = "+ serviceProperty.getProperties().get(name));
+                log.info("property name is {}", name);
+                log.info("set property value is {}", serviceProperty.getProperties().get(name));
                 if (name.equals("alarm")){
                     //修改本地值
                     alarm = (Integer) serviceProperty.getProperties().get(name);
@@ -174,7 +174,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
     @Override
     public void onPropertiesGet(String requestId, String serviceId) {
 
-        log.info("OnPropertiesGet " + serviceId);
+        log.info("OnPropertiesGet, the serviceId is {}", serviceId);
         Map<String ,Object> json = new HashMap<>();
         Random rand = new Random();
         json.put("alarm", alarm);
@@ -199,9 +199,9 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
     client.setCommandListener(new CommandListener() {
     @Override
     public void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras) {
-        log.info("onCommand, serviceId = " +serviceId);
-        log.info("onCommand , name = " + commandName);
-        log.info("onCommand, paras =  " + paras.toString());
+        log.info("onCommand, serviceId is {}", serviceId);
+        log.info("onCommand , name is {}", commandName);
+        log.info("onCommand, paras is {}", paras.toString());
 
         //处理命令
 
@@ -329,13 +329,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 代码生成器的源码在iot-device-code-generator目录
 [具体参见](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README.md)
            
-
-### 使用网关和子设备
-使用iot-gateway-demo模块，先启动StringTcpServer服务端，然后再启动TcpDevice客户端，并且TcpDevice启动后，在控制台输入的第一条消息是node_id，然后再发送业务数据。
-
-
-### 不同IoTDA接入说明
-除了换服务端的域名以外，需要在各demo的resource下替换对应服务端的ca证书，具体请参考（https://support.huaweicloud.com/devg-iothub/iot_02_1004.html#section3）。
+    
 
 
 ### 使用证书认证
@@ -358,6 +352,14 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword", file);
 ```
 
+### 设备使用权威CA认证平台
+当前，平台使用了 [DigiCert Global Root CA.](https://global-root-ca.chain-demos.digicert.com/info/index.html) 和 [GlobalSign Root CA - R3](https://valid.r3.roots.globalsign.com/) 两个权威CA签发的证书。
+
+官方文档的 [证书资源](https://support.huaweicloud.com/devg-iothub/iot_02_1004.html#section3) 章节提供了详细的说明。
+
+本代码仓的 [iot-device-demo/src/main/resources/rootca](iot-device-demo/src/main/resources/rootca) 目录提供了各类格式的组合和单独的CA证书文件。
+
+您在连接平台多个设备侧时，为了保持编程界面的一致性，我们建议您使用组合的根CA证书文件（huaweicloud-iot-root-ca-list.bks\huaweicloud-iot-root-ca-list.jks\huaweicloud-iot-root-ca-list.pem，即各Sample工程中的ca.jks）。
 
 ## License
 SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
@@ -397,12 +399,13 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 
 13、兼容多region不同证书场景
 
-14、解决异常连接场景错误码为0的问题
+14、设备信息上报
 
-15、解决消息中文乱码问题
+*2021/6/8*
 
-
-
-*2022/11/30*
+### 1.1.3
+1. BootstrapClient构造方法传入平台根CA证书方式优化，原有构造方法标为已废弃；
+2. 更新Samples中的ca.jks为包含平台各区域实例设备侧证书的所有权威根CA证书的证书文件；
+3. 修复部分拼写错误。
 
 release版本，请下载：https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases

@@ -4,15 +4,15 @@ import java.util.Map;
 
 public class ProductInfo {
 
-    DeviceCapability deviceCapability;
+    private DeviceCapability deviceCapability;
 
-    Map<String, DeviceService> serviceCapabilityMap;
+    private Map<String, DeviceService> serviceCapabilityMap;
 
     public DeviceCapability getDeviceCapability() {
         return deviceCapability;
     }
 
-    public void setDeviceCapability(DeviceCapability deviceCapability) {
+    void setDeviceCapability(DeviceCapability deviceCapability) {
         this.deviceCapability = deviceCapability;
     }
 
@@ -20,7 +20,7 @@ public class ProductInfo {
         return serviceCapabilityMap;
     }
 
-    public void setServiceCapabilityMap(Map<String, DeviceService> serviceCapabilityMap) {
+    void setServiceCapabilityMap(Map<String, DeviceService> serviceCapabilityMap) {
         this.serviceCapabilityMap = serviceCapabilityMap;
     }
 

@@ -31,7 +31,6 @@ public class DeviceCapability implements Serializable {
     /**
      * 应用id
      */
-
     private String appId;
 
     /**
@@ -232,33 +231,32 @@ public class DeviceCapability implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(100);
-        builder.append("DeviceCapability [appId=");
-        builder.append(appId);
-        builder.append(", deviceType=");
-        builder.append(deviceType);
-        builder.append(", manufacturerId=");
-        builder.append(manufacturerId);
-        builder.append(", manufacturerName=");
-        builder.append(manufacturerName);
-        builder.append(", model=");
-        builder.append(model);
-        builder.append(", protocolType=");
-        builder.append(protocolType);
-        builder.append(", nodeType=");
-        builder.append(nodeType);
-        builder.append(", description=");
-        builder.append(description);
-        builder.append(", omCapability=");
-        builder.append(omCapability);
-        builder.append(", icon=");
-        builder.append(icon);
-        builder.append(", lastModifyTime=");
-        builder.append(lastModifyTime);
-        builder.append(", serviceTypeCapabilities=");
-        builder.append(serviceTypeCapabilities);
-        builder.append("]");
-        return builder.toString();
+        String builder = "DeviceCapability [appId="
+            + appId
+            + ", deviceType="
+            + deviceType
+            + ", manufacturerId="
+            + manufacturerId
+            + ", manufacturerName="
+            + manufacturerName
+            + ", model="
+            + model
+            + ", protocolType="
+            + protocolType
+            + ", nodeType="
+            + nodeType
+            + ", description="
+            + description
+            + ", omCapability="
+            + omCapability
+            + ", icon="
+            + icon
+            + ", lastModifyTime="
+            + lastModifyTime
+            + ", serviceTypeCapabilities="
+            + serviceTypeCapabilities
+            + "]";
+        return builder;
     }
 
 }

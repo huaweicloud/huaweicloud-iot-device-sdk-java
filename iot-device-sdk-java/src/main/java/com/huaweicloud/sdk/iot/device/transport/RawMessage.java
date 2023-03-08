@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
  * 原始消息类
  */
 public class RawMessage {
-
     /**
      * 消息主题
      */
@@ -67,7 +66,6 @@ public class RawMessage {
     public String getTopic() {
         return topic;
     }
-
 
     /**
      * 设置topic

@@ -22,7 +22,7 @@ public class DeviceMain
            return;
        }
 
-       //从命令行获取设备参数
+       // 从命令行获取设备参数
        deviceId = args[0];
        secret = args[1];
 
@@ -30,7 +30,7 @@ public class DeviceMain
            serverUri = args[2];
        }
 
-        //创建设备
+        // 创建设备
         IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
 
         <#list device.serviceTypeCapabilities as service>

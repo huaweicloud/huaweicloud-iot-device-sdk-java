@@ -15,6 +15,7 @@ public class IotRequest {
 
     private String requestId;
 
+    // 单位：毫秒
     private int timeout;
 
     private RawMessage rawMessage;
@@ -30,12 +31,12 @@ public class IotRequest {
 
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    public IotRequest(RawMessage rawMessage, String requestId, int timeout) {
+    public IotRequest(RawMessage rawMessage, String requestId, int timeoutOfMilliSeconds) {
 
-        if (timeout <= 0) {
-            timeout = 10000;
+        if (timeoutOfMilliSeconds <= 0) {
+            timeoutOfMilliSeconds = 10000;
         }
-        this.timeout = timeout;
+        this.timeout = timeoutOfMilliSeconds;
         this.rawMessage = rawMessage;
         this.requestId = requestId;
     }

@@ -9,7 +9,6 @@ import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 
 public class DefaultPublishListenerImpl implements IMqttActionListener {
-
     private static final Logger log = LogManager.getLogger(DefaultActionListenerImpl.class);
 
     private ActionListener listener;

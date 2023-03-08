@@ -8,15 +8,11 @@ import java.security.KeyStore;
 /**
  * 客户端配置
  */
-
-public class ClientConf {
-
-
+public class ClientConf implements Cloneable {
     /**
      * 设备id，在平台注册设备获得，生成规则：productId_nodeId
      */
     private String deviceId;
-
 
     /**
      * 设备密码，使用密码认证时填写
@@ -60,9 +56,14 @@ public class ClientConf {
     private String scopeId;
 
     /**
+     * 0代表直连方式，3代表网桥方式(跟平台保持一致)。默认是0
+     */
+    private int mode;
+
+    /**
      * file, iot平台的ca证书，用于设备侧校验平台
      */
-    File file;
+    private File file;
 
     public File getFile() {
         return file;
@@ -74,6 +75,14 @@ public class ClientConf {
 
     public String getDeviceId() {
         return deviceId;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 
     /**
@@ -182,5 +191,10 @@ public class ClientConf {
 
     public void setScopeId(String scopeId) {
         this.scopeId = scopeId;
+    }
+
+    @Override
+    public ClientConf clone() throws CloneNotSupportedException {
+        return (ClientConf) super.clone();
     }
 }

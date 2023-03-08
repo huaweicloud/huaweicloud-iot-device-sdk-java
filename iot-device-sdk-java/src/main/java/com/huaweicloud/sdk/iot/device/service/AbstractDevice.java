@@ -11,10 +11,11 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.constants.Constants;
 import com.huaweicloud.sdk.iot.device.devicelog.DeviceLogService;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnActionLogListener;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnLogListener;
-import com.huaweicloud.sdk.iot.device.filemanager.FileManager;
+import com.huaweicloud.sdk.iot.device.filemanager.FileManagerService;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -35,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 抽象设备类
  */
 public class AbstractDevice {
-
     private static final Logger log = LogManager.getLogger(AbstractService.class);
 
     private DeviceClient client;
@@ -46,7 +46,7 @@ public class AbstractDevice {
 
     private OTAService otaService;
 
-    private FileManager fileManager;
+    private FileManagerService fileManagerService;
 
     private TimeSyncService timeSyncService;
 
@@ -70,7 +70,7 @@ public class AbstractDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device, the deviceId is {}", clientConf.getDeviceId());
 
     }
 
@@ -81,7 +81,7 @@ public class AbstractDevice {
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
-     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
+     * @param iotCertFile iot平台的ca证书，用于双向校验时设备侧校验平台
      */
     public AbstractDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword, File iotCertFile) {
 
@@ -94,7 +94,7 @@ public class AbstractDevice {
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device {} ", clientConf.getDeviceId());
     }
 
     /**
@@ -103,10 +103,13 @@ public class AbstractDevice {
      * @param clientConf 客户端配置
      */
     public AbstractDevice(ClientConf clientConf) {
-        this.client = new DeviceClient(clientConf, this);
+        if (clientConf.getMode() == Constants.CONNECT_OF_NORMAL_DEVICE_MODE) {
+            this.client = new DeviceClient(clientConf, this);
+        }
+
         this.deviceId = clientConf.getDeviceId();
         initSysServices();
-        log.info("create device: " + clientConf.getDeviceId());
+        log.info("create device: {}", clientConf.getDeviceId());
     }
 
     /**
@@ -115,8 +118,8 @@ public class AbstractDevice {
     private void initSysServices() {
         this.otaService = new OTAService();
         this.addService("$ota", otaService);
-        this.fileManager = new FileManager();
-        this.addService("$file_manager", fileManager);
+        this.fileManagerService = new FileManagerService();
+        this.addService("$file_manager", fileManagerService);
         this.addService("$sdk", new SdkInfo());
 
         this.timeSyncService = new TimeSyncService();
@@ -129,7 +132,7 @@ public class AbstractDevice {
     /**
      * 初始化，创建到平台的连接
      *
-     * @return 如果连接成功，返回0；否则返回-1
+     * @return 如果连接成功，返回0；其它表示失败
      */
     public int init() {
 
@@ -139,7 +142,7 @@ public class AbstractDevice {
             client.setConnectListener(defaultConnLogListener);
 
             DefaultConnActionLogListener defaultConnActionLogListener = new DefaultConnActionLogListener(
-                    deviceLogService);
+                deviceLogService);
             client.setConnectActionListener(defaultConnActionLogListener);
         }
 
@@ -383,6 +386,21 @@ public class AbstractDevice {
     }
 
     /**
+     * 事件回调，网桥场景下使用
+     *
+     * @param deviceId     设备Id
+     * @param deviceEvents 设备事件内容
+     */
+    public void onBridgeEvent(String deviceId, DeviceEvents deviceEvents) {
+        for (DeviceEvent event : deviceEvents.getServices()) {
+            IService deviceService = getService(event.getServiceId());
+            if (deviceService != null) {
+                deviceService.onBridgeEvent(deviceId, event);
+            }
+        }
+    }
+
+    /**
      * 消息回调，由SDK自动调用
      *
      * @param message 消息
@@ -411,5 +429,13 @@ public class AbstractDevice {
 
     public DeviceLogService getDeviceLogService() {
         return deviceLogService;
+    }
+
+    public FileManagerService getFileManagerService() {
+        return fileManagerService;
+    }
+
+    public void setFileManagerService(FileManagerService fileManagerService) {
+        this.fileManagerService = fileManagerService;
     }
 }

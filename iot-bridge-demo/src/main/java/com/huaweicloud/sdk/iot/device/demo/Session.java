@@ -6,22 +6,21 @@ import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import io.netty.channel.Channel;
 
 public class Session {
-    String deviceId;
+    private String deviceId;
 
-    String nodeId;
+    private String nodeId;
 
-    Channel channel;
+    private Channel channel;
 
-    DeviceClient deviceClient;
+    private DeviceClient deviceClient;
 
+    private PropertyListener downlinkListener;
 
-    PropertyListener downlinkListener;
-
-    public String getDeviceId() {
+    String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
 
@@ -29,7 +28,7 @@ public class Session {
         return nodeId;
     }
 
-    public void setNodeId(String nodeId) {
+    void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
 
@@ -37,15 +36,15 @@ public class Session {
         return channel;
     }
 
-    public void setChannel(Channel channel) {
+    void setChannel(Channel channel) {
         this.channel = channel;
     }
 
-    public DeviceClient getDeviceClient() {
+    DeviceClient getDeviceClient() {
         return deviceClient;
     }
 
-    public void setDeviceClient(DeviceClient deviceClient) {
+    void setDeviceClient(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;
     }
 

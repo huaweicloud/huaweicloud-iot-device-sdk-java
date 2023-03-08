@@ -7,6 +7,7 @@ import com.huaweicloud.sdk.iot.device.client.requests.CommandV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DevicePropertiesV3;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceData;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,7 +23,6 @@ import java.util.Map;
  * 演示如何使用旧接口（调用V3接口）数据上报/命令下发，一般用不到
  */
 public class PropertyV3AndCmdV3Sample {
-
     private static final Logger log = LogManager.getLogger(PropertyV3AndCmdV3Sample.class);
 
     public static void main(String[] args) {
@@ -36,7 +36,7 @@ public class PropertyV3AndCmdV3Sample {
 
         //创建设备并初始化
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                deviceId, secret, file);
+            deviceId, secret, file);
         if (device.init() != 0) {
             return;
         }
@@ -59,9 +59,6 @@ public class PropertyV3AndCmdV3Sample {
         List<ServiceData> list = new ArrayList<>();
         list.add(serviceData);
         devicePropertiesV3.setServiceDatas(list);
-
-        System.out.println(devicePropertiesV3.toString());
-
 
         //订阅V3 TOPIC
         device.getClient().subscribeTopic("/huawei/v1/devices/" + deviceId + "/command/json", new ActionListener() {
@@ -93,11 +90,11 @@ public class PropertyV3AndCmdV3Sample {
         device.getClient().setCommandV3Listener(new CommandV3Listener() {
             @Override
             public void onCommandV3(CommandV3 commandV3) {
-                log.info("onCommand, msgType = " + commandV3.getMsgType());
-                log.info("onCommand, serviceId = " + commandV3.getServiceId());
-                log.info("onCommand, cmd = " + commandV3.getCmd());
-                log.info("onCommand, mid = " + commandV3.getMid());
-                log.info("onCommand, paras = " + commandV3.getParas().toString());
+                log.info("onCommand, msgType = {}", commandV3.getMsgType());
+                log.info("onCommand, serviceId = {}", commandV3.getServiceId());
+                log.info("onCommand, cmd = {}", commandV3.getCmd());
+                log.info("onCommand, mid = {}", commandV3.getMid());
+                log.info("onCommand, paras = {}", commandV3.getParas().toString());
 
                 //处理命令
 

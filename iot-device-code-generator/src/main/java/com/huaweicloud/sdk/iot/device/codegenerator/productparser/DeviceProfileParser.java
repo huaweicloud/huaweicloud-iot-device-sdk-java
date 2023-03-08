@@ -12,16 +12,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class DeviceProfileParser {
+    private static final Logger log = LogManager.getLogger(DeviceProfileParser.class);
+
     private static final String DEVICETYPE_CAPABILITY = "devicetype-capability";
 
     private static final String SERVICETYPE_CAPABILITY = "servicetype-capability";
@@ -30,7 +33,29 @@ public class DeviceProfileParser {
 
     private static final String SERVICES_TITLE = "services";
 
-    private static final Logger log = LogManager.getLogger(DeviceProfileParser.class);
+    private static final String INT = "int";
+
+    private static final String LONG = "long";
+
+    private static final String BOOLEAN = "boolean";
+
+    private static final String DECIMAL = "decimal";
+
+    private static final String DOUBLE = "double";
+
+    private static final String STRING = "String";
+
+    private static final String TRUE = "true";
+
+    private static final String FALSE = "false";
+
+    private static final String RANDOM_INT = "random.nextInt(100)";
+
+    private static final String RANDOM_LONG = "random.nextLong(100)";
+
+    private static final String RANDOM_DOUBLE = "random.nextDouble()";
+
+    private static final String STRING_HELLO = "\"hello\"";
 
     public static ProductInfo parseProductFile(String zipfile) {
 
@@ -43,21 +68,19 @@ public class DeviceProfileParser {
             Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
             List<String> files = unZipFiles(zipfile, "tmp\\");
 
-            if (files != null) {
-                for (String outpath : files) {
-                    if (outpath == null) {
-                        continue;
-                    }
-                    // 读取设备能力
-                    if (outpath.contains(DEVICETYPE_CAPABILITY)) {
-                        deviceCapabilities = getDeviceCapability(outpath);
-                    }
-                    // 读取服务能力
-                    if (outpath.contains(SERVICETYPE_CAPABILITY)) {
-                        Map<String, DeviceService> serviceCapability = getServiceCapability(outpath, false);
-                        if (serviceCapability != null) {
-                            serviceCapabilityMap.putAll(serviceCapability);
-                        }
+            for (String outpath : files) {
+                if (outpath == null) {
+                    continue;
+                }
+                // 读取设备能力
+                if (outpath.contains(DEVICETYPE_CAPABILITY)) {
+                    deviceCapabilities = getDeviceCapability(outpath);
+                }
+                // 读取服务能力
+                if (outpath.contains(SERVICETYPE_CAPABILITY)) {
+                    Map<String, DeviceService> serviceCapability = getServiceCapability(outpath);
+                    if (serviceCapability != null) {
+                        serviceCapabilityMap.putAll(serviceCapability);
                     }
                 }
             }
@@ -77,7 +100,7 @@ public class DeviceProfileParser {
         return productInfo;
     }
 
-    private static Map<String, DeviceService> getServiceCapability(String filePath, boolean checkForDataType) {
+    private static Map<String, DeviceService> getServiceCapability(String filePath) {
         if (filePath == null) {
             log.debug("service capability file path is null.");
             return null;
@@ -88,9 +111,10 @@ public class DeviceProfileParser {
         File from = new File(filePath);
 
         TypeReference<HashMap<String, List<DeviceService>>> typeRef
-            = new TypeReference<HashMap<String, List<DeviceService>>>() {};
-        HashMap<String, List<DeviceService>> hm = null;
-        Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
+            = new TypeReference<HashMap<String, List<DeviceService>>>() {
+        };
+        HashMap<String, List<DeviceService>> hm;
+        Map<String, DeviceService> serviceCapabilityMap = new HashMap<>();
         try {
             hm = objectMapper.readValue(from, typeRef);
             if (hm == null) {
@@ -104,28 +128,32 @@ public class DeviceProfileParser {
                 for (ServiceProperty property : serviceCapability.getProperties()) {
 
                     // 创建实体属性一
-                    //int|long|decimal|string|DateTime|jsonObject|enum|boolean|string
+                    // int|long|decimal|string|DateTime|jsonObject|enum|boolean|string
                     String dataType = property.getDataType();
-                    if (dataType.equalsIgnoreCase("int")) {
-                        property.setJavaType("int");
-                        property.setVal("random.nextInt(100)");
-                    } else if (dataType.equalsIgnoreCase("long")) {
-                        property.setJavaType("long");
-                        property.setVal("random.nextInt(100)");
-                    } else if (dataType.equalsIgnoreCase("boolean")) {
-                        property.setJavaType("boolean");
-                        property.setVal("true");
-                    } else if (dataType.equalsIgnoreCase("decimal")) {
-                        property.setJavaType("double");
-                        property.setVal("random.nextFloat()");
+                    if (dataType == null) {
+                        continue;
+                    }
+
+                    if (dataType.equalsIgnoreCase(INT)) {
+                        property.setJavaType(INT);
+                        property.setVal(RANDOM_INT);
+                    } else if (dataType.equalsIgnoreCase(LONG)) {
+                        property.setJavaType(LONG);
+                        property.setVal(RANDOM_LONG);
+                    } else if (dataType.equalsIgnoreCase(BOOLEAN)) {
+                        property.setJavaType(BOOLEAN);
+                        property.setVal(TRUE);
+                    } else if (dataType.equalsIgnoreCase(DECIMAL)) {
+                        property.setJavaType(DOUBLE);
+                        property.setVal(RANDOM_DOUBLE);
                     } else {
-                        property.setJavaType("String");
-                        property.setVal("\"hello\"");
+                        property.setJavaType(STRING);
+                        property.setVal(STRING_HELLO);
                     }
                     if (property.getMethod() != null && property.getMethod().contains("W")) {
-                        property.setWriteable("true");
+                        property.setWriteable(TRUE);
                     } else {
-                        property.setWriteable("false");
+                        property.setWriteable(FALSE);
                     }
                 }
 
@@ -149,7 +177,8 @@ public class DeviceProfileParser {
 
         File from = new File(filePath);
         TypeReference<HashMap<String, List<DeviceCapability>>> typeRef
-            = new TypeReference<HashMap<String, List<DeviceCapability>>>() {};
+            = new TypeReference<HashMap<String, List<DeviceCapability>>>() {
+        };
         HashMap<String, List<DeviceCapability>> hm;
 
         try {
@@ -161,14 +190,16 @@ public class DeviceProfileParser {
 
             return hm.get(DEVICES_TITLE);
         } catch (Exception e) {
-
+            log.error("get device capability path failed:{}", e.getMessage());
         }
         return null;
     }
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
-
-        try (ZipFile zip = new ZipFile(zipFile, Charset.forName("UTF-8"))) {
+        if (Objects.isNull(zipFile)) {
+            log.error("the input is invalid");
+        }
+        try (ZipFile zip = new ZipFile(zipFile, StandardCharsets.UTF_8)) {
             String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
 
             List<String> files = new ArrayList<>();

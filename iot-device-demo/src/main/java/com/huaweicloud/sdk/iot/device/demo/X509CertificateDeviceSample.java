@@ -20,13 +20,10 @@ import java.util.Random;
  * 此例演示使用证书认证
  */
 public class X509CertificateDeviceSample {
-
-    private static final Logger log = LogManager.getLogger(X509CertificateDeviceSample.class);
-
     public static void main(String[] args) throws Exception {
-
-        //读取pem格式证书
-        KeyStore keyStore = CertificateUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
+        //windows下读取pem格式证书demo
+        KeyStore keyStore = CertificateUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem",
+            "D:\\SDK\\cert\\deviceCert.key", "");
 
         /**
          * 读取keystore格式证书

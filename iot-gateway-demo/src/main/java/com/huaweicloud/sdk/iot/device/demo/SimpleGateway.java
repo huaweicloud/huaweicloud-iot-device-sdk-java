@@ -1,6 +1,5 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
-
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
@@ -13,7 +12,9 @@ import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceInfo;
 import com.huaweicloud.sdk.iot.device.gateway.requests.SubDevicesInfo;
 import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
+
 import io.netty.channel.Channel;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,39 +22,40 @@ import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * 此例子用来演示如何使用云网关来实现TCP协议设备接入。网关和平台只建立一个MQTT连接，使用网关的身份
  * 和平台进行通讯。本例子TCP server传输简单的字符串，并且首条消息会发送设备标识来鉴权。用户可以自行扩展StringTcpServer类
  * 来实现更复杂的TCP server。
  */
 public class SimpleGateway extends AbstractGateway {
-
     private static final Logger log = LogManager.getLogger(SimpleGateway.class);
+
     private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
+
     private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
 
-    public SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId, String deviceSecret, File file) {
+    SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId,
+        String deviceSecret, File file) {
         super(subDevicesPersistence, serverUri, deviceId, deviceSecret, file);
         this.nodeIdToSesseionMap = new ConcurrentHashMap<>();
         this.channelIdToSessionMap = new ConcurrentHashMap<>();
     }
 
-    public Session getSessionByChannel(String channelId) {
+    Session getSessionByChannel(String channelId) {
         return channelIdToSessionMap.get(channelId);
     }
 
-    public void removeSession(String channelId) {
+    void removeSession(String channelId) {
         Session session = channelIdToSessionMap.get(channelId);
         if (session == null) {
             return;
         }
         channelIdToSessionMap.remove(channelId);
         nodeIdToSesseionMap.remove(session.getNodeId());
-        log.info("session removed " + session.toString());
+        log.info("the removed session is {}", session.toString());
     }
 
-    public Session createSession(String nodeId, Channel channel) {
+    Session createSession(String nodeId, Channel channel) {
 
         //北向已经添加了此设备
         DeviceInfo subdev = getSubDeviceByNodeId(nodeId);
@@ -65,11 +67,11 @@ public class SimpleGateway extends AbstractGateway {
 
             nodeIdToSesseionMap.put(nodeId, session);
             channelIdToSessionMap.put(channel.id().asLongText(), session);
-            log.info("create new session ok" + session.toString());
+            log.info("create new session ok, the session is {}", session.toString());
             return session;
         }
 
-        log.info("not allowed : " + nodeId);
+        log.info("the not allowed nodeId is {}", nodeId);
         return null;
     }
 
@@ -95,10 +97,9 @@ public class SimpleGateway extends AbstractGateway {
         }
 
         session.getChannel().writeAndFlush(message.getContent());
-        log.info("writeAndFlush " + message.getContent());
+        log.info("writeAndFlush {}", message.getContent());
 
     }
-
 
     @Override
     public void onSubdevCommand(String requestId, Command command) {
@@ -123,9 +124,8 @@ public class SimpleGateway extends AbstractGateway {
 
         //为了简化处理，我们在这里直接回命令响应。更合理做法是在子设备处理完后再回响应
         getClient().respondCommand(requestId, new CommandRsp(0));
-        log.info("writeAndFlush " + command);
+        log.info("writeAndFlush command is {}", command);
     }
-
 
     @Override
     public void onSubdevPropertiesSet(String requestId, PropsSet propsSet) {
@@ -151,7 +151,7 @@ public class SimpleGateway extends AbstractGateway {
         //为了简化处理，我们在这里直接回响应。更合理做法是在子设备处理完后再回响应
         getClient().respondPropsSet(requestId, IotResult.SUCCESS);
 
-        log.info("writeAndFlush " + propsSet);
+        log.info("writeAndFlush {}", propsSet);
 
     }
 
@@ -162,7 +162,6 @@ public class SimpleGateway extends AbstractGateway {
         log.error("not supporte onSubdevPropertiesGet");
         getClient().respondPropsSet(requestId, IotResult.FAIL);
     }
-
 
     @Override
     public int onDeleteSubDevices(SubDevicesInfo subDevicesInfo) {

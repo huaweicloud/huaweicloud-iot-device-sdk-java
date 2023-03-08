@@ -3,34 +3,33 @@ package com.huaweicloud.sdk.iot.device.demo;
 import io.netty.channel.Channel;
 
 public class Session {
+    private String nodeId;
 
-    String nodeId;
+    private String deviceId;
 
-    String deviceId;
+    private Channel channel;
 
-    Channel channel;
-
-    public String getNodeId() {
+    String getNodeId() {
         return nodeId;
     }
 
-    public void setNodeId(String nodeId) {
+    void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
 
-    public String getDeviceId() {
+    String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
 
-    public Channel getChannel() {
+    Channel getChannel() {
         return channel;
     }
 
-    public void setChannel(Channel channel) {
+    void setChannel(Channel channel) {
         this.channel = channel;
     }
 

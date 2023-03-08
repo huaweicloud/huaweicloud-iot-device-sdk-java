@@ -3,13 +3,13 @@ package com.huaweicloud.sdk.iot.device.demo;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Map;
-
 
 /**
  * 演示如何直接使用DeviceClient处理平台下发的命令
@@ -42,9 +42,9 @@ public class CommandSample {
         device.getClient().setCommandListener(new CommandListener() {
             @Override
             public void onCommand(String requestId, String serviceId, String commandName, Map<String, Object> paras) {
-                log.info("onCommand, serviceId = " + serviceId);
-                log.info("onCommand , name = " + commandName);
-                log.info("onCommand, paras =  " + paras.toString());
+                log.info("onCommand, serviceId = {}", serviceId);
+                log.info("onCommand , name = {}", commandName);
+                log.info("onCommand, paras =  {}", paras.toString());
 
                 //处理命令
 
@@ -55,10 +55,7 @@ public class CommandSample {
 
         if (device.init() != 0) {
             return;
-
         }
-
         log.info("waiting for command ...");
-
     }
 }

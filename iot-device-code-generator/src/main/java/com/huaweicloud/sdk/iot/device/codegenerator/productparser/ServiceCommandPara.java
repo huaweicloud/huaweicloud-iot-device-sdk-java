@@ -26,7 +26,7 @@ public class ServiceCommandPara implements Serializable {
 
     private List<String> enumList;
 
-    private transient ObjectNode extendparam;
+    private ObjectNode extendparam;
 
     /**
      * 描述
@@ -124,11 +124,11 @@ public class ServiceCommandPara implements Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("ServiceCommandPara [paraName=").append(paraName).append(", dataType=")
-            .append(dataType).append(", required=").append(required).append(", min=").append(min).append(", max=")
-            .append(max).append(", step=").append(step).append(", maxLength=").append(maxLength).append(", unit=")
-            .append(unit).append(", enumList=").append(enumList).append(", description=")
-            .append(description).append("]").toString();
+        return "ServiceCommandPara [paraName=" + paraName + ", dataType="
+            + dataType + ", required=" + required + ", min=" + min + ", max="
+            + max + ", step=" + step + ", maxLength=" + maxLength + ", unit="
+            + unit + ", enumList=" + enumList + ", description="
+            + description + "]";
 
     }
 

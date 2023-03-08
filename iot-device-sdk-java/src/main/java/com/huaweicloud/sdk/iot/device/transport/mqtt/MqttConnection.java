@@ -32,11 +32,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * mqtt连接
  */
 public class MqttConnection implements Connection {
+    private static final Logger log = LogManager.getLogger(MqttConnection.class);
 
     private static final int DEFAULT_QOS = 1;
 
@@ -44,9 +47,15 @@ public class MqttConnection implements Connection {
 
     private static final int DEFAULT_KEEPLIVE = 120;
 
-    private static final String CONNECT_TYPE = "0";
+    private static final String CONNECT_TYPE_OF_DEVICE = "0";
+
+    private static final String CONNECT_TYPE_OF_BRIDGE_DEVICE = "3";
 
     private static final String CHECK_TIMESTAMP = "0";
+
+    private static final int CONNECT_OF_BRIDGE_MODE = 3;
+
+    private static final int MAX_FLIGHT_COUNT = 1000;
 
     private ClientConf clientConf;
 
@@ -62,8 +71,6 @@ public class MqttConnection implements Connection {
 
     private int connectResultCode;
 
-    private static final Logger log = LogManager.getLogger(MqttConnection.class);
-
     public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener) {
         this.clientConf = clientConf;
         this.rawMessageListener = rawMessageListener;
@@ -78,11 +85,12 @@ public class MqttConnection implements Connection {
                 connectListener.connectionLost(cause);
             }
 
+            IotUtil.reConnect(MqttConnection.this);
         }
 
         @Override
         public void messageArrived(String topic, MqttMessage message) {
-            log.info("messageArrived topic =  " + topic + ", msg = " + message.toString());
+            log.info("messageArrived topic =  {}, msg = {}", topic, message.toString());
             RawMessage rawMessage = new RawMessage(topic, message.toString());
             try {
                 if (rawMessageListener != null) {
@@ -102,7 +110,7 @@ public class MqttConnection implements Connection {
 
         @Override
         public void connectComplete(boolean reconnect, String serverURI) {
-            log.info("Mqtt client connected. address :" + serverURI);
+            log.info("Mqtt client connected. address is {}", serverURI);
 
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
@@ -114,15 +122,10 @@ public class MqttConnection implements Connection {
     public int connect() {
 
         try {
-
+            this.connectFinished = false;
             String timeStamp = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC"))
-                    .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-            String clientId = null;
-            if (clientConf.getScopeId() == null) {
-                clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + CHECK_TIMESTAMP + "_" + timeStamp;
-            } else {
-                clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + clientConf.getScopeId();
-            }
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            String clientId = generateClientId(timeStamp);
 
             try {
                 mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId, new MemoryPersistence());
@@ -135,43 +138,12 @@ public class MqttConnection implements Connection {
             if (clientConf.getOfflineBufferSize() != null) {
                 bufferOptions.setBufferSize(clientConf.getOfflineBufferSize());
             }
-
-            mqttAsyncClient.setBufferOpts(bufferOptions);
-
-            MqttConnectOptions options = new MqttConnectOptions();
-            if (clientConf.getServerUri().contains("ssl:")) {
-
-                try {
-                    SSLContext sslContext = IotUtil.getSSLContext(clientConf);
-                    options.setSocketFactory(sslContext.getSocketFactory());
-                    options.setHttpsHostnameVerificationEnabled(false);
-                } catch (Exception e) {
-                    log.error(ExceptionUtil.getBriefStackTrace(e));
-                    return -1;
-                }
+            if (createMqttConnection(timeStamp, bufferOptions)) {
+                return -1;
             }
-
-            options.setCleanSession(false);
-            options.setUserName(clientConf.getDeviceId());
-
-            if (clientConf.getSecret() != null && !clientConf.getSecret().isEmpty()) {
-                String passWord = IotUtil.sha256_mac(clientConf.getSecret(), timeStamp);
-                options.setPassword(passWord.toCharArray());
-            }
-
-            options.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
-            options.setKeepAliveInterval(DEFAULT_KEEPLIVE);
-            options.setAutomaticReconnect(true);
-            mqttAsyncClient.setCallback(callback);
-
-            log.info("try to connect to " + clientConf.getServerUri());
-
-            mqttAsyncClient.connect(options, null, getCallback());
 
             synchronized (this) {
-
                 while (!connectFinished) {
-
                     try {
                         wait(DEFAULT_CONNECT_TIMEOUT * 1000);
                     } catch (InterruptedException e) {
@@ -181,15 +153,15 @@ public class MqttConnection implements Connection {
             }
 
         } catch (MqttException e) {
-            log.error(ExceptionUtil.getBriefStackTrace(e));
-
+            log.error("connect error, the deviceId is {}. exception is {}", clientConf.getDeviceId(),
+                ExceptionUtil.getBriefStackTrace(e));
         }
 
         if (mqttAsyncClient.isConnected()) {
             return 0;
         }
 
-        // 处理paho返回的错误码为0的场景
+        // 处理paho返回的错误码为0的异常
         if (connectResultCode == 0) {
             log.error("Client encountered an exception");
             return -1;
@@ -198,12 +170,64 @@ public class MqttConnection implements Connection {
         return connectResultCode;
     }
 
+    private boolean createMqttConnection(String timeStamp, DisconnectedBufferOptions bufferOptions)
+        throws MqttException {
+        mqttAsyncClient.setBufferOpts(bufferOptions);
+
+        MqttConnectOptions options = new MqttConnectOptions();
+        if (clientConf.getServerUri().contains("ssl:")) {
+            try {
+                SSLContext sslContext = IotUtil.getSSLContext(clientConf);
+                options.setSocketFactory(sslContext.getSocketFactory());
+                options.setHttpsHostnameVerificationEnabled(false);
+            } catch (Exception e) {
+                log.error(ExceptionUtil.getBriefStackTrace(e));
+                return true;
+            }
+        }
+
+        options.setHttpsHostnameVerificationEnabled(false);
+        options.setCleanSession(true);
+        options.setUserName(clientConf.getDeviceId());
+        options.setMaxInflight(MAX_FLIGHT_COUNT);
+
+        String secret = clientConf.getSecret();
+
+        if (secret != null && !secret.isEmpty()) {
+            String passWord = IotUtil.sha256Mac(secret, timeStamp);
+            Optional.ofNullable(passWord).ifPresent(s -> options.setPassword(s.toCharArray()));
+        }
+
+        options.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
+        options.setKeepAliveInterval(DEFAULT_KEEPLIVE);
+        options.setAutomaticReconnect(false);
+        mqttAsyncClient.setCallback(callback);
+
+        log.info("try to connect to {}", clientConf.getServerUri());
+
+        mqttAsyncClient.connect(options, null, getCallback());
+        return false;
+    }
+
+    private String generateClientId(String timeStamp) {
+        String clientId;
+        if (clientConf.getMode() == CONNECT_OF_BRIDGE_MODE) {
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_BRIDGE_DEVICE, CHECK_TIMESTAMP,
+                timeStamp);
+        } else if (clientConf.getScopeId() != null) {
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, clientConf.getScopeId());
+        } else {
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, CHECK_TIMESTAMP, timeStamp);
+        }
+        return clientId;
+    }
+
     private IMqttActionListener getCallback() {
         return new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken iMqttToken) {
 
-                log.info("connect success " + clientConf.getServerUri());
+                log.info("connect success, the uri is {}", clientConf.getServerUri());
 
                 if (connectActionListener != null) {
                     connectActionListener.onSuccess(iMqttToken);
@@ -217,7 +241,7 @@ public class MqttConnection implements Connection {
 
             @Override
             public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                log.info("connect failed " + throwable.toString());
+                log.info("connect failed, the reason is {}", throwable.toString());
                 MqttException me = (MqttException) throwable;
                 connectResultCode = me.getReasonCode();
 
@@ -243,7 +267,7 @@ public class MqttConnection implements Connection {
             DefaultPublishListenerImpl defaultPublishListener = new DefaultPublishListenerImpl(listener, message);
 
             mqttAsyncClient.publish(message.getTopic(), mqttMessage, message.getTopic(), defaultPublishListener);
-            log.info("publish message topic =  " + message.getTopic() + ", msg = " + message.toString());
+            log.info("publish message topic is {}, msg =  {}", message.getTopic(), message.toString());
         } catch (MqttException e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
             if (listener != null) {
@@ -291,7 +315,6 @@ public class MqttConnection implements Connection {
      * @param topic 主题
      */
     public void subscribeTopic(String topic, ActionListener listener, int qos) {
-
         DefaultSubscribeListenerImpl defaultSubscribeListener = new DefaultSubscribeListenerImpl(topic, listener);
 
         try {

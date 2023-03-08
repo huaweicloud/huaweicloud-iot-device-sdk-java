@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class GtwAddSubDeviceRsp {
-
     @JsonProperty("successful_devices")
-    List<AddedSubDeviceInfoRsp> successfulDevices;
+    private List<AddedSubDeviceInfoRsp> successfulDevices;
 
     @JsonProperty("failed_devices")
-    List<AddSubDeviceFailedReason> addSubDeviceFailedReasons;
+    private List<AddSubDeviceFailedReason> addSubDeviceFailedReasons;
 
     public List<AddedSubDeviceInfoRsp> getAddedSubDeviceInfoRsps() {
         return successfulDevices;

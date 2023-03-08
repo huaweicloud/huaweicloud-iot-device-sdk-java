@@ -1,6 +1,7 @@
 package com.huaweicloud.sdk.iot.device.utils;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.transport.Connection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +12,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -29,12 +32,21 @@ import java.util.zip.GZIPOutputStream;
  * IOT工具类
  */
 public class IotUtil {
+    private static final Logger log = LogManager.getLogger(IotUtil.class);
 
     private static final String TLS_VER = "TLSv1.2";
 
-    private static final Logger log = LogManager.getLogger(IotUtil.class);
+    private static final long MIN_BACKOFF = 1000L;
+
+    private static final long MAX_BACKOFF = 30 * 1000L; // 30 seconds
+
+    private static final long DEFAULT_BACKOFF = 1000L;
+
+    private static int retryTimes = 0;
 
     private static AtomicLong requestId = new AtomicLong(0);
+
+    private static SecureRandom random = new SecureRandom();
 
     /**
      * 从topic里解析出requestId
@@ -43,8 +55,25 @@ public class IotUtil {
      * @return requestId
      */
     public static String getRequestId(String topic) {
+        if (topic == null || !topic.contains("request_id=")) {
+            return null;
+        }
         String[] tmp = topic.split("request_id=");
         return tmp[1];
+    }
+
+    /**
+     * 从topic里解析出deviceId
+     *
+     * @param topic iotda的mqtt协议系统topic
+     * @return deviceId
+     */
+    public static String getDeviceId(String topic) {
+        if (topic == null || !topic.contains("/devices/")) {
+            return null;
+        }
+        String[] split = topic.split("/devices/");
+        return split[1].substring(0, split[1].indexOf("/"));
     }
 
     /**
@@ -108,13 +137,41 @@ public class IotUtil {
     }
 
     /**
+     * 退避重连
+     *
+     * @param connection
+     * @return
+     */
+    public static int reConnect(Connection connection) {
+        int ret = -1;
+        while (ret != 0) {
+            // 退避重连
+            int lowBound = (int) (DEFAULT_BACKOFF * 0.8);
+            int highBound = (int) (DEFAULT_BACKOFF * 1.0);
+            long randomBackOff = random.nextInt(highBound - lowBound);
+            int powParameter = retryTimes & 0x0F;
+            long backOffWithJitter = (long) (Math.pow(2.0, (double) powParameter)) * (randomBackOff + lowBound);
+            long waitTimeUntilNextRetry = Math.min(MIN_BACKOFF + backOffWithJitter, MAX_BACKOFF);
+            try {
+                Thread.sleep(waitTimeUntilNextRetry);
+            } catch (InterruptedException e) {
+                log.error("sleep failed, the reason is {}", e.getMessage());
+            }
+            retryTimes++;
+            ret = connection.connect();
+        }
+        retryTimes = 0;
+        return ret;
+    }
+
+    /**
      * HmacSHA256
      *
      * @param str       输入字符串
      * @param timeStamp 时间戳
      * @return hash后的字符串
      */
-    public static String sha256_mac(String str, String timeStamp) {
+    public static String sha256Mac(String str, String timeStamp) {
         String passWord = null;
         try {
             Mac sha256Hmac = Mac.getInstance("HmacSHA256");
@@ -134,7 +191,7 @@ public class IotUtil {
      * @param b bytes
      * @return 十六进制字符串
      */
-    public static String byteArrayToHexString(byte[] b) {
+    private static String byteArrayToHexString(byte[] b) {
         StringBuilder hs = new StringBuilder();
         String stmp;
         for (int n = 0; b != null && n < b.length; n++) {
@@ -148,18 +205,21 @@ public class IotUtil {
     }
 
     private static TrustManager[] getTrustManager(File iotCertFile) throws Exception {
+        if (iotCertFile == null) {
+            return new TrustManager[] {new DefaultX509TrustManager()};
+        }
 
         try (FileInputStream stream = new FileInputStream(iotCertFile)) {
             KeyStore ts = KeyStore.getInstance("JKS");
             ts.load(stream, null);
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ts);
-            TrustManager[] tm = tmf.getTrustManagers();
-            return tm;
+            return tmf.getTrustManagers();
         }
     }
 
-    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword, File iotCertFile) throws Exception {
+    private static SSLContext getSSLContextWithKeystore(KeyStore keyStore, String keyPassword, File iotCertFile)
+        throws Exception {
         SSLContext context = SSLContext.getInstance(TLS_VER);
 
         KeyManagerFactory managerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -179,7 +239,8 @@ public class IotUtil {
 
         if (clientConf.getKeyStore() != null) {
 
-            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword(), clientConf.getFile());
+            return getSSLContextWithKeystore(clientConf.getKeyStore(), clientConf.getKeyPassword(),
+                clientConf.getFile());
         } else {
             SSLContext sslContext = SSLContext.getInstance(TLS_VER);
             sslContext.init(null, getTrustManager(clientConf.getFile()), new SecureRandom());
@@ -193,13 +254,31 @@ public class IotUtil {
             return new byte[0];
         }
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
             gzipOutputStream.write(string.getBytes(encoding));
+            return byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
             log.error("compress failed " + e.getMessage());
         }
-
-        return byteArrayOutputStream.toByteArray();
+        return new byte[0];
     }
+
+    public static class DefaultX509TrustManager implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    }
+
 }

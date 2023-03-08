@@ -45,8 +45,8 @@ public class ServiceCommand implements Serializable {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("ServiceCommand [commandName=").append(commandName).append(", paras=")
-                .append(paras).append(", responses=").append(responses).append("]").toString();
+        return "ServiceCommand [commandName=" + commandName + ", paras="
+            + paras + ", responses=" + responses + "]";
 
     }
 

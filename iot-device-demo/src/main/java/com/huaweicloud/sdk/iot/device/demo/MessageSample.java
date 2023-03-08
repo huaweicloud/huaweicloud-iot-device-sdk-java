@@ -15,7 +15,6 @@ import java.net.URL;
  * 演示如何直接使用DeviceClient进行消息透传
  */
 public class MessageSample {
-
     private static final Logger log = LogManager.getLogger(MessageSample.class);
 
     public static void main(String[] args) throws InterruptedException {
@@ -26,7 +25,7 @@ public class MessageSample {
 
         //创建设备
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "secret", file);
+            "5e06bfee334dd4f33759f5b3_demo", "secret", file);
         if (device.init() != 0) {
             return;
 
@@ -34,7 +33,7 @@ public class MessageSample {
 
         //接收平台下行消息
         device.getClient().setDeviceMessageListener(
-            deviceMessage -> log.info("onDeviceMessage:" + deviceMessage.toString()));
+            deviceMessage -> log.info("the onDeviceMessage is {}", deviceMessage.toString()));
 
         while (true) {
 

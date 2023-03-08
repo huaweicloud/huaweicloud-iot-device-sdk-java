@@ -23,7 +23,6 @@ import java.util.concurrent.Future;
  * 具体参见OTASample
  */
 public class OTAService extends AbstractService {
-
     //升级上报的错误码，用户也可以扩展自己的错误码
     public static final int OTA_CODE_SUCCESS = 0;//成功
 
