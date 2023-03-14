@@ -59,7 +59,7 @@ public class CertificateUtil {
                 keyPair = converter.getKeyPair(keypair);
             } else if (object instanceof PrivateKeyInfo) {
                 keyPair = new KeyPair(null, converter.getPrivateKey((PrivateKeyInfo) object));
-			} else {
+            } else {
                 keyPair = converter.getKeyPair((PEMKeyPair) object);
             }
         }
