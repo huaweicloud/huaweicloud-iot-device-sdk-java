@@ -4,6 +4,7 @@ import java.security.KeyStore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -56,6 +57,8 @@ public class CertificateUtil {
                         .build(keyPassword.toCharArray());
                 PEMKeyPair keypair = ((PEMEncryptedKeyPair) object).decryptKeyPair(decryptionProvider);
                 keyPair = converter.getKeyPair(keypair);
+            } else if (object instanceof PrivateKeyInfo) {
+                keyPair = new KeyPair(null, converter.getPrivateKey((PrivateKeyInfo) object));
             } else {
                 keyPair = converter.getKeyPair((PEMKeyPair) object);
             }
