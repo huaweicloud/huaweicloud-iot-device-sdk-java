@@ -81,16 +81,16 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      */
     public BootstrapClient(String bootstrapUri, String deviceId, String deviceSecret, PlatformCaProvider platformCaProvider) {
 
-        ClientConf clientConf = new ClientConf();
-        clientConf.setServerUri(bootstrapUri);
-        clientConf.setFile(platformCaProvider.getBootstrapCaFile());
-        clientConf.setDeviceId(deviceId);
-        clientConf.setSecret(deviceSecret);
-        this.clientConf = clientConf;
+        ClientConf conf = new ClientConf();
+        conf.setServerUri(bootstrapUri);
+        conf.setFile(platformCaProvider.getBootstrapCaFile());
+        conf.setDeviceId(deviceId);
+        conf.setSecret(deviceSecret);
+        this.clientConf = conf;
         this.deviceId = deviceId;
         this.platformCaProvider = platformCaProvider;
-        this.connection = new MqttConnection(clientConf, this);
-        log.info("create BootstrapClient, the deviceId is {}", clientConf.getDeviceId());
+        this.connection = new MqttConnection(conf, this);
+        log.info("create BootstrapClient, the deviceId is {}", conf.getDeviceId());
 
     }
 
@@ -120,17 +120,17 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      */
     public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, PlatformCaProvider platformCaProvider) {
 
-        ClientConf clientConf = new ClientConf();
-        clientConf.setServerUri(bootstrapUri);
-        clientConf.setFile(platformCaProvider.getBootstrapCaFile());
-        clientConf.setDeviceId(deviceId);
-        clientConf.setKeyPassword(keyPassword);
-        clientConf.setKeyStore(keyStore);
-        this.clientConf = clientConf;
+        ClientConf conf = new ClientConf();
+        conf.setServerUri(bootstrapUri);
+        conf.setFile(platformCaProvider.getBootstrapCaFile());
+        conf.setDeviceId(deviceId);
+        conf.setKeyPassword(keyPassword);
+        conf.setKeyStore(keyStore);
+        this.clientConf = conf;
         this.deviceId = deviceId;
         this.platformCaProvider = platformCaProvider;
-        this.connection = new MqttConnection(clientConf, this);
-        log.info("create BootstrapClient, the deviceId is {}", clientConf.getDeviceId());
+        this.connection = new MqttConnection(conf, this);
+        log.info("create BootstrapClient, the deviceId is {}", conf.getDeviceId());
     }
 
     /**
@@ -162,18 +162,18 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      */
     public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword,
         String scopeId, PlatformCaProvider platformCaProvider) {
-        ClientConf clientConf = new ClientConf();
-        clientConf.setServerUri(bootstrapUri);
-        clientConf.setFile(platformCaProvider.getBootstrapCaFile());
-        clientConf.setDeviceId(deviceId);
-        clientConf.setKeyStore(keyStore);
-        clientConf.setKeyPassword(keyPassword);
-        clientConf.setScopeId(scopeId);
-        this.clientConf = clientConf;
+        ClientConf conf = new ClientConf();
+        conf.setServerUri(bootstrapUri);
+        conf.setFile(platformCaProvider.getBootstrapCaFile());
+        conf.setDeviceId(deviceId);
+        conf.setKeyStore(keyStore);
+        conf.setKeyPassword(keyPassword);
+        conf.setScopeId(scopeId);
+        this.clientConf = conf;
         this.deviceId = deviceId;
         this.platformCaProvider = platformCaProvider;
-        this.connection = new MqttConnection(clientConf, this);
-        log.info("create BootstrapClient, the deviceId is {}", clientConf.getDeviceId());
+        this.connection = new MqttConnection(conf, this);
+        log.info("create BootstrapClient, the deviceId is {}", conf.getDeviceId());
     }
 
     @Override

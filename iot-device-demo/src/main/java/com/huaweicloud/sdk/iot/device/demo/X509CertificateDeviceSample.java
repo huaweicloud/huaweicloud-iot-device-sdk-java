@@ -32,6 +32,16 @@ public class X509CertificateDeviceSample {
          * keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
          *
          */
+        /**
+         * 读取国密双证书
+         * KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+         * keyStore.load(null, null);
+         * GmCertificate gmSignCert = new GmCertificate("gm-sig-certificate", "D:\\devicecert\\gmcert_s\\CS.cert.pem", "gm-sig-private-key", "D:\\devicecert\\gmcert_s\\CS.key.pem", "");
+         * GmCertificate gmEncCert = new GmCertificate("gm-enc-certificate", "D:\\devicecert\\gmcert_e\\CE.cert.pem", "gm-enc-private-key", "D:\\devicecert\\gmcert_e\\CE.key.pem", "");
+         * if(!CertificateUtil.getGmKeyStore(keyStore, gmSignCert) || !CertificateUtil.getGmKeyStore(keyStore, gmEncCert)) {
+         * return;
+         * }
+         */
 
         //加载iot平台的ca证书，进行服务端校验
         URL resource = X509CertificateDeviceSample.class.getClassLoader().getResource("ca.jks");

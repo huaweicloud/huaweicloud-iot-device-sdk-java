@@ -1,8 +1,10 @@
-package com.huaweicloud.sdk.iot.device.filemanager;
+package com.huaweicloud.sdk.iot.device.filemanager.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UrlParam {
+import java.util.Map;
+
+public class UrlResponse {
     private String url;
 
     @JsonProperty("bucket_name")
@@ -10,6 +12,9 @@ public class UrlParam {
 
     @JsonProperty("object_name")
     private String objectName;
+
+    @JsonProperty("file_attributes")
+    private Map<String, Object> fileAttributes;
 
     private Integer expire;
 
@@ -43,5 +48,19 @@ public class UrlParam {
 
     public void setExpire(Integer expire) {
         this.expire = expire;
+    }
+
+    public Map<String, Object> getFileAttributes() {
+        return fileAttributes;
+    }
+
+    public void setFileAttributes(Map<String, Object> fileAttributes) {
+        this.fileAttributes = fileAttributes;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlParam{" + "url='" + url + '\'' + ", bucketName='" + bucketName + '\'' + ", objectName='" + objectName
+            + '\'' + ", expire=" + expire + ", fileAttributes='" + fileAttributes + '\'' + '}';
     }
 }

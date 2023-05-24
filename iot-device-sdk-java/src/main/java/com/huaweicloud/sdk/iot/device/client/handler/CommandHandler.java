@@ -20,8 +20,8 @@ public class CommandHandler implements MessageReceivedHandler {
 
     @Override
     public void messageHandler(RawMessage message) {
-
-        String requestId = IotUtil.getRequestId(((RawMessage) message).getTopic());
+        String topic = message.getTopic();
+        String requestId = IotUtil.getRequestId(topic);
 
         Command command = JsonUtil.convertJsonStringToObject(message.toString(), Command.class);
         if (command == null) {

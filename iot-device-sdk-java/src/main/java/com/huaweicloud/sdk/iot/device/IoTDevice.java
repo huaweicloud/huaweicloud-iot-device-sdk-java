@@ -126,12 +126,11 @@ public class IoTDevice extends AbstractDevice {
     }
 
     /**
-     * 获取设备客户端。获取到设备客户端后，可以直接调用客户端提供的消息、属性、命令等接口
+     * 获取直连设备客户端。获取到设备客户端后，可以直接调用客户端提供的消息、属性、命令等接口
      *
      * @return 设备客户端实例
      */
     public DeviceClient getClient() {
         return super.getClient();
     }
-
 }

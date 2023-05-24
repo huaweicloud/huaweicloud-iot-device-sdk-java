@@ -32,6 +32,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * mqtt连接
@@ -45,9 +47,13 @@ public class MqttConnection implements Connection {
 
     private static final int DEFAULT_KEEPLIVE = 120;
 
-    private static final String CONNECT_TYPE = "0";
+    private static final String CONNECT_TYPE_OF_DEVICE = "0";
 
-    private static final String CHECK_TIMESTAMP = "0";
+    private static final String CONNECT_TYPE_OF_BRIDGE_DEVICE = "3";
+
+    private static final int CONNECT_OF_BRIDGE_MODE = 3;
+
+    private static final int MAX_FLIGHT_COUNT = 1000;
 
     private ClientConf clientConf;
 
@@ -77,6 +83,7 @@ public class MqttConnection implements Connection {
                 connectListener.connectionLost(cause);
             }
 
+            IotUtil.reConnect(MqttConnection.this);
         }
 
         @Override
@@ -113,7 +120,7 @@ public class MqttConnection implements Connection {
     public int connect() {
 
         try {
-
+            this.connectFinished = false;
             String timeStamp = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC"))
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             String clientId = generateClientId(timeStamp);
@@ -177,12 +184,16 @@ public class MqttConnection implements Connection {
             }
         }
 
+        options.setHttpsHostnameVerificationEnabled(false);
         options.setCleanSession(true);
         options.setUserName(clientConf.getDeviceId());
+        options.setMaxInflight(MAX_FLIGHT_COUNT);
 
-        if (clientConf.getSecret() != null && !clientConf.getSecret().isEmpty()) {
-            String passWord = IotUtil.sha256Mac(clientConf.getSecret(), timeStamp);
-            options.setPassword(passWord.toCharArray());
+        String secret = clientConf.getSecret();
+
+        if (secret != null && !secret.isEmpty()) {
+            String passWord = IotUtil.shaHMac(secret, timeStamp, clientConf.getCheckStamp());
+            Optional.ofNullable(passWord).ifPresent(s -> options.setPassword(s.toCharArray()));
         }
 
         options.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
@@ -197,11 +208,14 @@ public class MqttConnection implements Connection {
     }
 
     private String generateClientId(String timeStamp) {
-        String clientId = null;
-        if (clientConf.getScopeId() == null) {
-            clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + CHECK_TIMESTAMP + "_" + timeStamp;
+        String clientId;
+        if (clientConf.getMode() == CONNECT_OF_BRIDGE_MODE) {
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_BRIDGE_DEVICE, Integer.toString(clientConf.getCheckStamp()),
+                timeStamp);
+        } else if (clientConf.getScopeId() != null) {
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, clientConf.getScopeId());
         } else {
-            clientId = clientConf.getDeviceId() + "_" + CONNECT_TYPE + "_" + clientConf.getScopeId();
+            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, Integer.toString(clientConf.getCheckStamp()), timeStamp);
         }
         return clientId;
     }

@@ -11,10 +11,11 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.constants.Constants;
 import com.huaweicloud.sdk.iot.device.devicelog.DeviceLogService;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnActionLogListener;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnLogListener;
-import com.huaweicloud.sdk.iot.device.filemanager.FileManager;
+import com.huaweicloud.sdk.iot.device.filemanager.FileManagerService;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -45,7 +46,7 @@ public class AbstractDevice {
 
     private OTAService otaService;
 
-    private FileManager fileManager;
+    private FileManagerService fileManagerService;
 
     private TimeSyncService timeSyncService;
 
@@ -102,7 +103,10 @@ public class AbstractDevice {
      * @param clientConf 客户端配置
      */
     public AbstractDevice(ClientConf clientConf) {
-        this.client = new DeviceClient(clientConf, this);
+        if (clientConf.getMode() == Constants.CONNECT_OF_NORMAL_DEVICE_MODE) {
+            this.client = new DeviceClient(clientConf, this);
+        }
+
         this.deviceId = clientConf.getDeviceId();
         initSysServices();
         log.info("create device: {}", clientConf.getDeviceId());
@@ -114,8 +118,8 @@ public class AbstractDevice {
     private void initSysServices() {
         this.otaService = new OTAService();
         this.addService("$ota", otaService);
-        this.fileManager = new FileManager();
-        this.addService("$file_manager", fileManager);
+        this.fileManagerService = new FileManagerService();
+        this.addService("$file_manager", fileManagerService);
         this.addService("$sdk", new SdkInfo());
 
         this.timeSyncService = new TimeSyncService();
@@ -382,6 +386,21 @@ public class AbstractDevice {
     }
 
     /**
+     * 事件回调，网桥场景下使用
+     *
+     * @param deviceId     设备Id
+     * @param deviceEvents 设备事件内容
+     */
+    public void onBridgeEvent(String deviceId, DeviceEvents deviceEvents) {
+        for (DeviceEvent event : deviceEvents.getServices()) {
+            IService deviceService = getService(event.getServiceId());
+            if (deviceService != null) {
+                deviceService.onBridgeEvent(deviceId, event);
+            }
+        }
+    }
+
+    /**
      * 消息回调，由SDK自动调用
      *
      * @param message 消息
@@ -410,5 +429,13 @@ public class AbstractDevice {
 
     public DeviceLogService getDeviceLogService() {
         return deviceLogService;
+    }
+
+    public FileManagerService getFileManagerService() {
+        return fileManagerService;
+    }
+
+    public void setFileManagerService(FileManagerService fileManagerService) {
+        this.fileManagerService = fileManagerService;
     }
 }

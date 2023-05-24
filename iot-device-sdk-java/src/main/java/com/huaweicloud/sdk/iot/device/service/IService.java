@@ -41,4 +41,13 @@ public interface IService {
      * @param deviceEvent 事件
      */
     void onEvent(DeviceEvent deviceEvent);
+
+    /**
+     * 网桥事件回调，兼容之前的方案，采用默认方法实现，用于类实现
+     *
+     * @param deviceId    设备Id
+     * @param deviceEvent 设备事件
+     */
+    default void onBridgeEvent(String deviceId, DeviceEvent deviceEvent) {
+    }
 }

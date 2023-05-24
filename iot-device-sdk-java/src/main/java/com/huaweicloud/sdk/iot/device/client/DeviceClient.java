@@ -37,8 +37,8 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,43 +61,11 @@ import java.util.concurrent.TimeUnit;
 public class DeviceClient implements RawMessageListener {
     private static final Logger log = LogManager.getLogger(DeviceClient.class);
 
-    private PropertyListener propertyListener;
-
-    private CommandListener commandListener;
-
-    private CommandV3Listener commandV3Listener;
-
-    private DeviceMessageListener deviceMessageListener;
-
-    private ClientConf clientConf;
-
-    private Connection connection;
-
-    private RequestManager requestManager;
-
-    private String deviceId;
-
-    private Map<String, RawMessageListener> rawMessageListenerMap;
-
-    private AbstractDevice device;
-
-    private ScheduledExecutorService executorService;
-
-    private static final long MIN_BACKOFF = 1000L;
-
-    private static final long MAX_BACKOFF = 30 * 1000L; // 30 seconds
-
-    private static final long DEFAULT_BACKOFF = 1000L;
-
-    private static int retryTimes = 0;
-
-    private static int CLIENT_THREAD_COUNT = 1;
-
-    private SecureRandom random = new SecureRandom();
+    private static final int CLIENT_THREAD_COUNT = 1;
 
     private static final String DEFAULT_GZIP_ENCODING = "UTF-8";
 
-    private static final String SDK_VERSION = "JAVA_v1.1.3";
+    private static final String SDK_VERSION = "JAVA_v1.2.0";
 
     private static final String MESSAGE_DOWN_TOPIC = "/messages/down";
 
@@ -113,7 +81,36 @@ public class DeviceClient implements RawMessageListener {
 
     private static final String COMMAND_DOWN_TOPIC_OF_V3 = "/huawei/v1/devices/";
 
+    private static final int MQTTEXCEPTION_OF_BAD_USERNAME_OR_PWD = 4;
+
+    private static final int MQTT_CONNECT_SUCCESS = 0;
+
+    private PropertyListener propertyListener;
+
+    private CommandListener commandListener;
+
+    private CommandV3Listener commandV3Listener;
+
+    private DeviceMessageListener deviceMessageListener;
+
+    private ClientConf clientConf;
+
+    protected Connection connection;
+
+    private RequestManager requestManager;
+
+    private String deviceId;
+
+    private Map<String, RawMessageListener> rawMessageListenerMap;
+
+    private AbstractDevice device;
+
+    private ScheduledExecutorService executorService;
+
     Map<String, MessageReceivedHandler> functionMap = new HashMap<>();
+
+    public DeviceClient() {
+    }
 
     public DeviceClient(ClientConf clientConf, AbstractDevice device) {
 
@@ -132,7 +129,6 @@ public class DeviceClient implements RawMessageListener {
         functionMap.put(SHADOW_RESPONSE_TOPIC, new ShadowResponseHandler(this));
         functionMap.put(EVENT_DOWN_TOPIC, new EventDownHandler(this));
         functionMap.put(COMMAND_DOWN_TOPIC_OF_V3, new CommandV3Handler(this));
-
     }
 
     public ClientConf getClientConf() {
@@ -172,30 +168,16 @@ public class DeviceClient implements RawMessageListener {
 
         int ret = connection.connect();
 
-        if (ret == 4) { //如果是userName或password填写错误，则不重连
+        // 如果是userName或password填写错误，则不重连
+        if (ret == MQTTEXCEPTION_OF_BAD_USERNAME_OR_PWD) {
             return ret;
         }
 
-        while (ret != 0) {
-            //退避重连
-            int lowBound = (int) (DEFAULT_BACKOFF * 0.8);
-            int highBound = (int) (DEFAULT_BACKOFF * 1.0);
-            long randomBackOff = random.nextInt(highBound - lowBound);
-            long backOffWithJitter = (int) (Math.pow(2.0, (double) retryTimes)) * (randomBackOff + lowBound);
-            long waitTImeUntilNextRetry = (int) (MIN_BACKOFF + backOffWithJitter) > MAX_BACKOFF
-                ? MAX_BACKOFF
-                : (MIN_BACKOFF + backOffWithJitter);
-            try {
-                Thread.sleep(waitTImeUntilNextRetry);
-            } catch (InterruptedException e) {
-                log.error("sleep failed, the reason is {}", e.getMessage());
-            }
-            retryTimes++;
-            close();
-            ret = connection.connect();
+        if (ret != MQTT_CONNECT_SUCCESS) {
+            ret = IotUtil.reConnect(connection);
         }
 
-        //建链成功后，SDK自动上报版本号，软固件版本号由设备上报
+        // 建链成功后，SDK自动上报版本号，软固件版本号由设备上报
         reportDeviceInfo(null, null, null);
         return ret;
     }
@@ -317,8 +299,8 @@ public class DeviceClient implements RawMessageListener {
      */
     public void reportBinaryV3(Byte[] bytes, ActionListener listener) {
 
-        String deviceId = clientConf.getDeviceId();
-        String topic = "/huawei/v1/devices/" + deviceId + "/data/binary";
+        String deviceIdTmp = clientConf.getDeviceId();
+        String topic = "/huawei/v1/devices/" + deviceIdTmp + "/data/binary";
 
         RawMessage rawMessage = new RawMessage(topic, Arrays.toString(bytes));
         connection.publishMessage(rawMessage, listener);
@@ -597,6 +579,25 @@ public class DeviceClient implements RawMessageListener {
         this.commandV3Listener = commandV3Listener;
     }
 
+    /**
+     * 获取各类topic处理的handler
+     *
+     * @return 各类topic处理的handler
+     */
+    public Map<String, MessageReceivedHandler> getFunctionMap() {
+        return functionMap;
+    }
+
+    /**
+     * 设置各类topic处理的handler
+     *
+     * @param functionMap 各类topic处理的handler
+     */
+    public void setFunctionMap(
+        Map<String, MessageReceivedHandler> functionMap) {
+        this.functionMap = functionMap;
+    }
+
     public void setDevice(AbstractDevice device) {
         this.device = device;
     }
@@ -611,9 +612,9 @@ public class DeviceClient implements RawMessageListener {
 
         DeviceEvents events = new DeviceEvents();
         events.setDeviceId(getDeviceId());
-        events.setServices(Arrays.asList(event));
-        String deviceId = clientConf.getDeviceId();
-        String topic = "$oc/devices/" + deviceId + "/sys/events/up";
+        events.setServices(Collections.singletonList(event));
+        String deviceIdTmp = clientConf.getDeviceId();
+        String topic = "$oc/devices/" + deviceIdTmp + "/sys/events/up";
 
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
         connection.publishMessage(rawMessage, listener);
@@ -636,7 +637,8 @@ public class DeviceClient implements RawMessageListener {
         return CLIENT_THREAD_COUNT;
     }
 
-    public void setClientThreadCount(int clientThreadCount) {
-        this.CLIENT_THREAD_COUNT = clientThreadCount;
+    // 在网桥场景下会使用到，主要用于bridgeClient重写
+    public void reportEvent(String deviceId, DeviceEvent event, ActionListener listener) {
     }
+
 }

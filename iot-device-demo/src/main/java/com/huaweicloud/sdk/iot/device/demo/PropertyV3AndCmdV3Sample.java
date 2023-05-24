@@ -60,8 +60,6 @@ public class PropertyV3AndCmdV3Sample {
         list.add(serviceData);
         devicePropertiesV3.setServiceDatas(list);
 
-        System.out.println(devicePropertiesV3.toString());
-
         //订阅V3 TOPIC
         device.getClient().subscribeTopic("/huawei/v1/devices/" + deviceId + "/command/json", new ActionListener() {
             @Override

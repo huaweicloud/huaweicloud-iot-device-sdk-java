@@ -43,7 +43,6 @@ public class PropertySample {
             // 处理写属性
             @Override
             public void onPropertiesSet(String requestId, List<ServiceProperty> services) {
-
                 // 遍历service
                 for (ServiceProperty serviceProperty : services) {
 
@@ -66,7 +65,6 @@ public class PropertySample {
              */
             @Override
             public void onPropertiesGet(String requestId, String serviceId) {
-
                 log.info("OnPropertiesGet, the serviceId is {}", serviceId);
                 Map<String, Object> json = new HashMap<>();
                 Random rand = new SecureRandom();

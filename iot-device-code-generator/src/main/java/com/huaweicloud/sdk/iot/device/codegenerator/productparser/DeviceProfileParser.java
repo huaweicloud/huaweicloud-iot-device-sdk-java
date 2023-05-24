@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -112,8 +113,8 @@ public class DeviceProfileParser {
         TypeReference<HashMap<String, List<DeviceService>>> typeRef
             = new TypeReference<HashMap<String, List<DeviceService>>>() {
         };
-        HashMap<String, List<DeviceService>> hm = null;
-        Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
+        HashMap<String, List<DeviceService>> hm;
+        Map<String, DeviceService> serviceCapabilityMap = new HashMap<>();
         try {
             hm = objectMapper.readValue(from, typeRef);
             if (hm == null) {
@@ -195,7 +196,9 @@ public class DeviceProfileParser {
     }
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
-
+        if (Objects.isNull(zipFile)) {
+            log.error("the input is invalid");
+        }
         try (ZipFile zip = new ZipFile(zipFile, StandardCharsets.UTF_8)) {
             String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
 

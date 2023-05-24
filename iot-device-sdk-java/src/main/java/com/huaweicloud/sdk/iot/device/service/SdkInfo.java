@@ -8,7 +8,7 @@ public class SdkInfo extends AbstractService {
     private String type = "Java";
 
     @Property(writeable = false)
-    private String version = "1.1.3";
+    private String version = "1.2.0";
 
     public String getType() {
         return type;

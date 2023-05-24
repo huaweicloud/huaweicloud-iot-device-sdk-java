@@ -1,6 +1,7 @@
 package com.huaweicloud.sdk.iot.device.client.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 
 /**
  * 设备消息
@@ -115,4 +116,8 @@ public class DeviceMessage {
         this.content = content;
     }
 
+    @Override
+    public String toString() {
+        return JsonUtil.convertObject2String(this);
+    }
 }

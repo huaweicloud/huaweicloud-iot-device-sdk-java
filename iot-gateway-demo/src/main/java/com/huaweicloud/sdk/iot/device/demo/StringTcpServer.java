@@ -77,7 +77,7 @@ public class StringTcpServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new channelInitializerImpl())
+                .childHandler(new ChannelInitializerImpl())
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -155,7 +155,7 @@ public class StringTcpServer {
         }
     }
 
-    private static class channelInitializerImpl extends ChannelInitializer<SocketChannel> {
+    private static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
 
         @Override
         protected void initChannel(SocketChannel ch) throws Exception {

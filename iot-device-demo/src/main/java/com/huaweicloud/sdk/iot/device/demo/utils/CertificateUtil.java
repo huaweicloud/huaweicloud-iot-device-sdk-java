@@ -48,8 +48,10 @@ public class CertificateUtil {
         }
 
         KeyPair keyPair = null;
-        try (FileInputStream keyInput = new FileInputStream(privateKeyFile)) {
-            PEMParser pemParser = new PEMParser(new InputStreamReader(keyInput, StandardCharsets.UTF_8));
+        try (FileInputStream keyInput = new FileInputStream(privateKeyFile);
+            InputStreamReader inputStreamReader = new InputStreamReader(keyInput, StandardCharsets.UTF_8);
+            PEMParser pemParser = new PEMParser(inputStreamReader);
+        ) {
             Object object = pemParser.readObject();
             BouncyCastleProvider provider = new BouncyCastleProvider();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(provider);
@@ -76,6 +78,56 @@ public class CertificateUtil {
             new Certificate[] {cert});
 
         return keyStore;
+    }
+
+    /**
+     * 读取国密PEM格式的证书
+     *
+     * @param ks 出参keyStore
+     * @param gmCert  国密证书相关信息
+     * @return 证书读取成功与否
+     */
+    public static boolean getGmKeyStore(KeyStore ks, GmCertificate gmCert)
+            throws Exception {
+        if (ks == null || gmCert == null || !gmCert.checkValid()) {
+            log.error("keystore or gmCert must not be null");
+            return false;
+        }
+
+        Certificate cert = null;
+        try (FileInputStream inputStream = new FileInputStream(gmCert.getCertFile())) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            cert = cf.generateCertificate(inputStream);
+        }
+
+        KeyPair keyPair = null;
+        try (FileInputStream keyInput = new FileInputStream(gmCert.getKeyFile());
+             InputStreamReader inputStreamReader = new InputStreamReader(keyInput, StandardCharsets.UTF_8);
+             PEMParser pemParser = new PEMParser(inputStreamReader);
+        ) {
+            Object object = pemParser.readObject();
+            BouncyCastleProvider provider = new BouncyCastleProvider();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(provider);
+            if (object instanceof PEMEncryptedKeyPair) {
+                PEMDecryptorProvider decryptionProvider = new JcePEMDecryptorProviderBuilder().setProvider(provider)
+                        .build(gmCert.getPassword().toCharArray());
+                PEMKeyPair keypair = ((PEMEncryptedKeyPair) object).decryptKeyPair(decryptionProvider);
+                keyPair = converter.getKeyPair(keypair);
+            } else if (object instanceof PrivateKeyInfo) {
+                keyPair = new KeyPair(null, converter.getPrivateKey((PrivateKeyInfo) object));
+            } else {
+                keyPair = converter.getKeyPair((PEMKeyPair) object);
+            }
+        }
+        if (keyPair == null) {
+            log.error("keyPair is null");
+            return false;
+        }
+
+        ks.setCertificateEntry(gmCert.getCertAlias(), cert);
+        ks.setKeyEntry(gmCert.getKeyAlias(), keyPair.getPrivate(), gmCert.getPassword().toCharArray(), new Certificate[] {cert});
+
+        return true;
     }
 
     /**

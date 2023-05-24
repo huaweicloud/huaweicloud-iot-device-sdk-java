@@ -1,3 +1,5 @@
+[English](./README_EN.md) | 简体中文
+
 # huaweicloud-iot-device-sdk-java
 
 huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的Java版本的SDK，提供设备和平台之间通讯能力，以及设备服务、网关服务、OTA等高级服务，并且针对各种场景提供了丰富的demo代码。IoT设备开发者使用SDK可以大大简化开发复杂度，快速的接入平台。
@@ -13,11 +15,11 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 * [面向物模型编程](#面向物模型编程)
 * [使用设备代码生成器](#使用设备代码生成器)
 * [使用证书认证](#使用证书认证)
-* [设备使用权威CA认证平台](#设备使用权威CA认证平台)
-* [如何贡献代码](#如何贡献代码)
 * [版本更新说明](#版本更新说明)
 * [接口文档](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
 * [更多文档](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
+* [License](#License)
+* [如何贡献代码](#如何贡献代码)
 
 ## 支持特性
 - 支持设备消息、属性上报、属性读写、命令下发
@@ -37,10 +39,15 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 
 ### 设备初始化
 
-创建设备并初始化
+创建设备并初始化，当前已支持国密通信
+启用国密前请参考[BGMProvider安装指南](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97)进行配置
 ```java
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
+        //默认使用国际加密通信，若要使用国密通信可setGmssl为true
+        //device.getClient().getClientConf().setGmssl(true);
+        //默认使用不校验时间戳，若要校验则设置对应的参数选择杂凑算法
+        //device.getClient().getClientConf().setCheckStamp(Constants.CHECK_STAMP_SM3_ON);
         if (device.init() != 0) {
             return;
         }
@@ -242,6 +249,7 @@ huaweicloud-iot-device-sdk-java提供设备接入华为云IoT物联网平台的J
 定义属性的读写接口：
 getter接口为读接口，在属性上报和平台主动查属性时被sdk调用
 setter接口为写接口，在平台修改属性时被sdk调用，如果属性是只读的，则setter接口保留空实现。
+
 ```java	
         public int getHumidity() {
 
@@ -292,6 +300,7 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 定义服务的命令：
 命令的入参和返回值类型固定不能修改。
+
 ```java	
 
     @DeviceCommand(name = "ringAlarm")
@@ -329,8 +338,6 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 上面基于物模型编程中，要求服务的定义必须和产品模型保持一致，基于这一点，我们提供了代码生成器，能根据产品模型自动生成设备代码。
 代码生成器的源码在iot-device-code-generator目录
 [具体参见](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README.md)
-           
-    
 
 
 ### 使用证书认证
@@ -345,6 +352,17 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 ```java
     KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
     keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "keystorepassword".toCharArray());
+```
+如果是国密场景下的设备接入，需要导入双证书：
+```java
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    keyStore.load(null, null);
+    GmCertificate gmSignCert = new GmCertificate("gm-sig-certificate", "D:\\devicecert\\gmcert_s\\CS.cert.pem",
+                                                 "gm-sig-private-key", "D:\\devicecert\\gmcert_s\\CS.key.pem", "");
+    GmCertificate gmEncCert = new GmCertificate("gm-enc-certificate", "D:\\devicecert\\gmcert_e\\CE.cert.pem",
+                                                "gm-enc-private-key", "D:\\devicecert\\gmcert_e\\CE.key.pem", "");
+    if(!CertificateUtil.getGmKeyStore(keyStore, gmSignCert) || !CertificateUtil.getGmKeyStore(keyStore, gmEncCert))
+        return;
 ```
 
 然后使用证书创建设备
@@ -362,17 +380,18 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 您在连接平台多个设备侧时，为了保持编程界面的一致性，我们建议您使用组合的根CA证书文件（huaweicloud-iot-root-ca-list.bks\huaweicloud-iot-root-ca-list.jks\huaweicloud-iot-root-ca-list.pem，即各Sample工程中的ca.jks）。
 
-## License
-SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
-
-## 如何贡献代码
-1、创建github账号
-2、fork huaweicloud-iot-device-sdk-java源代码
-3、同步huaweicloud-iot-device-sdk-java主仓库代码到fork的仓库
-4、在本地修改代码并push到fork的仓库
-5、在fork的仓库提交pull request到主仓库
-
 ## 版本更新说明
+
+| 版本号 | 变更类型 | 说明                                                         |
+| ------ | -------- | ------------------------------------------------------------ |
+| 1.2.0  | 新增功能 | 新增泛协议、国密算法、OBS升级包功能                          |
+|        | 功能增强 | 1、BootstrapClient构造方法传入平台根CA证书方式优化，原有构造方法标为已废弃；<br/>2、更新Samples中的ca.jks为包含平台各区域实例设备侧证书的所有权威根CA证书的证书文件；<br/>3、修复部分拼写错误;<br>4、paho升级;<br/>5、修复退避重连长时间后不再重试问题 |
+| 1.1.2  | 功能增强 | 修改发放功能问题、兼容多region不同证书场景等                 |
+| 1.0.1  | 新功能   | 增加隐式订阅接口、数据压缩上报接口等等                       |
+| 1.0.0  | 功能增强 | 1、修改兼容V3旧接口逻辑<br/>2、网关刷新子设备状态<br/>3、修改默认订阅topic的qos、修改重连新链路挤老链路、修改重连时间 |
+| 0.8.0  | 功能增强 | 更换新的接入域名（iot-mqtts.cn-north-4.myhuaweicloud.com）和根证书。<br/>如果设备使用老域名（iot-acc.cn-north-4.myhuaweicloud.com）接入，请使用 v0.6.0及以下版本的SDK |
+| 0.6.0  | 功能增强 | 调整OTA服务使用方式；完善md                                  |
+| 0.5.0  | 新增功能 | 提供对接华为云物联网平台能力，方便用户实现接入、设备管理、命令下发等业务场景 |
 
 1、增加压缩接口
 
@@ -402,15 +421,32 @@ SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licen
 
 14、设备信息上报
 
-15、优化设备发放流程
+15、开源组件升级
 
-16、添加各版本iotda证书兼容
+16、添加合一的根CA证书
 
-*2022/2/16*
+17、升级paho
 
-### 1.1.3
-1. BootstrapClient构造方法传入平台根CA证书方式优化，原有构造方法标为已废弃；
-2. 更新Samples中的ca.jks为包含平台各区域实例设备侧证书的所有权威根CA证书的证书文件；
-3. 修复部分拼写错误。
+18、新增泛协议
+
+19、修复退避重连长时间后不再重试问题
+
+20、支持OBS升级包
+
+21、支持国密算法
+
+*2023/5/15*
 
 release版本，请下载：https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases
+
+## License
+
+SDK的开源License类型为 [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。详情参见LICENSE.txt
+
+## 如何贡献代码
+
+1、创建github账号
+2、fork huaweicloud-iot-device-sdk-java源代码
+3、同步huaweicloud-iot-device-sdk-java主仓库代码到fork的仓库
+4、在本地修改代码并push到fork的仓库
+5、在fork的仓库提交pull request到主仓库

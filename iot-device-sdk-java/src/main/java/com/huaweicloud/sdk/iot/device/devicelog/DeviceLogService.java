@@ -64,7 +64,7 @@ public class DeviceLogService extends AbstractService {
             ObjectNode objectNode = JsonUtil.convertMap2Object(deviceEvent.getParas(), ObjectNode.class);
 
             String aSwitch = objectNode.get("switch").asText();
-            String endTime = objectNode.get("end_time").asText();
+            String time = objectNode.get("end_time").asText();
 
             if ("on".equals(aSwitch)) {
                 logSwitch = true;
@@ -72,7 +72,7 @@ public class DeviceLogService extends AbstractService {
                 logSwitch = false;
             }
 
-            setEndTime(endTime);
+            setEndTime(time);
         }
 
     }
@@ -113,10 +113,10 @@ public class DeviceLogService extends AbstractService {
      * @return true：能上报日志  false：不具备上报的条件
      */
     public boolean canReportLog() {
-        String endTime = this.getEndTime();
-        if (endTime != null) {
-            endTime = endTime.replace("T", "");
-            endTime = endTime.replace("Z", "");
+        String time = this.getEndTime();
+        if (time != null) {
+            time = time.replace("T", "");
+            time = time.replace("Z", "");
         }
 
         String timeStampFormat = "yyyyMMddHHmmss";
@@ -124,7 +124,7 @@ public class DeviceLogService extends AbstractService {
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         String currentTime = df.format(new Date(System.currentTimeMillis()));
 
-        if (this.isLogSwitch() && (endTime == null || currentTime.compareTo(endTime) < 0)) {
+        if (this.isLogSwitch() && (time == null || currentTime.compareTo(time) < 0)) {
             return true;
         }
 

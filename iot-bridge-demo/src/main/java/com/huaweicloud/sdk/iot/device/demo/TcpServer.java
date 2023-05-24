@@ -40,7 +40,7 @@ public class TcpServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new channelInitializerImpl())
+                .childHandler(new ChannelInitializerImpl())
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             log.info("tcp server start......");
@@ -56,7 +56,7 @@ public class TcpServer {
         }
     }
 
-    private static class channelInitializerImpl extends ChannelInitializer<SocketChannel> {
+    private static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
 
         @Override
         protected void initChannel(SocketChannel ch) throws Exception {

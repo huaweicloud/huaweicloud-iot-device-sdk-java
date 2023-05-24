@@ -215,6 +215,17 @@ public abstract class AbstractService implements IService {
     }
 
     /**
+     * 事件处理。收到平台下发的事件时此接口被自动调用。用户网桥场景下具体service来实现
+     *
+     * @param deviceEvent 服务事件
+     */
+    @Override
+    public void onBridgeEvent(String deviceId, DeviceEvent deviceEvent) {
+        log.info("onEvent no op");
+    }
+
+
+    /**
      * 通知服务属性变化
      *
      * @param properties 变化的属性，不指定默认读取全部可读属性

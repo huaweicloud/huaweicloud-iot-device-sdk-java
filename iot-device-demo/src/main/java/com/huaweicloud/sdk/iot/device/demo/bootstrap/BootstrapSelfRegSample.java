@@ -12,23 +12,23 @@ public class BootstrapSelfRegSample extends BaseBootstrapSample {
     /**
      * ScopeID，与租户相关，请从注册组页面获取
      */
-    private static String scopeId = "[Please input your scope id here, example:f67f8df43c4a]";
+    private static final String scopeId = "[Please input your scope id here, example:f67f8df43c4a]";
 
     /**
      * 设备ID（自注册场景下，设备ID无需提前在设备发放上注册）
      */
-    private static String deviceId = "[Please input your device id here, example:702b1038-a174-4a1d-969f-f67f8df43c4a]";
+    private static final String deviceId = "[Please input your device id here, example:702b1038-a174-4a1d-969f-f67f8df43c4a]";
 
     /**
      * 设备证书信息
      */
-    private static String DEVICE_CERT
+    private static final String DEVICE_CERT
         = "[Please input your device cert path here, example:D:\\SDK\\cert\\deviceCert.pem]";
 
-    private static String DEVICE_CERT_KEY
+    private static final String DEVICE_CERT_KEY
         = "[Please input your device cert key path here, example:D:\\SDK\\cert\\deviceCert.key]";
 
-    private static String DEVICE_CERT_KEY_PWD
+    private static final String DEVICE_CERT_KEY_PWD
         = "[Please input your device cert key pwd here, example:yourpwd. If not set, input empty string]";
 
     public static void main(String[] args) throws Exception {
