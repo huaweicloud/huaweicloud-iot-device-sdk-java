@@ -6,11 +6,14 @@ import java.util.Map;
  * 设备命令V3
  */
 public class CommandV3 {
-
     private String msgType;
+
     private String serviceId;
+
     private int mid;
+
     private String cmd;
+
     private Map<String, Object> paras;
 
     public String getMsgType() {

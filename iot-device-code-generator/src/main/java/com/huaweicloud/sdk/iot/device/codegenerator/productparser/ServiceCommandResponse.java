@@ -1,13 +1,10 @@
 package com.huaweicloud.sdk.iot.device.codegenerator.productparser;
 
-
 import java.io.Serializable;
 import java.util.List;
 
-
 public class ServiceCommandResponse implements Serializable {
     private static final long serialVersionUID = 4535630761027464385L;
-
 
     private String responseName;
 
@@ -32,10 +29,9 @@ public class ServiceCommandResponse implements Serializable {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("ServiceCommandResponse [responseName=").append(responseName)
-                .append(", paras=").append(paras).append("]").toString();
+        return "ServiceCommandResponse [responseName=" + responseName
+            + ", paras=" + paras + "]";
 
     }
-
 
 }

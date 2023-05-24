@@ -122,11 +122,10 @@ public class DeviceService implements Serializable {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("DeviceServiceCapability [serviceId=").append(serviceId)
-                .append(", serviceType=").append(serviceType).append(", option=").append(option)
-                .append(", description=").append(description).append(", lastModifyTime=").append(lastModifyTime)
-                .append(", commands=").append(commands).append(", properties=").append(properties).append(", events=")
-                .toString();
+        return "DeviceServiceCapability [serviceId=" + serviceId
+            + ", serviceType=" + serviceType + ", option=" + option
+            + ", description=" + description + ", lastModifyTime=" + lastModifyTime
+            + ", commands=" + commands + ", properties=" + properties + ", events=]";
 
     }
 

@@ -7,12 +7,11 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
  * 读属性操作
  */
 public class PropsGet {
-
     @JsonProperty("object_device_id")
-    String deviceId;
+    private String deviceId;
 
     @JsonProperty("service_id")
-    String serviceId;
+    private String serviceId;
 
     public String getDeviceId() {
         return deviceId;

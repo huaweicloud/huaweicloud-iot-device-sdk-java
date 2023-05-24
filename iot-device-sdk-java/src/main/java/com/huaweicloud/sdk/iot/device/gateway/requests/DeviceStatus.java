@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 设备状态
  */
 public class DeviceStatus {
-
     @JsonProperty("device_id")
-    String deviceId;
+    private String deviceId;
 
-    String status;
+    private String status;
 
     public String getDeviceId() {
         return deviceId;

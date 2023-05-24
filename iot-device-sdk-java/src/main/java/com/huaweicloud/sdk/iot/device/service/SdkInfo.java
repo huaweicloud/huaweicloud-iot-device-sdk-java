@@ -4,12 +4,11 @@ package com.huaweicloud.sdk.iot.device.service;
  * 此服务实现sdk信息
  */
 public class SdkInfo extends AbstractService {
-
     @Property(writeable = false)
     private String type = "Java";
 
     @Property(writeable = false)
-    private String version = "0.8.0";
+    private String version = "1.2.0";
 
     public String getType() {
         return type;

@@ -3,10 +3,9 @@ package com.huaweicloud.sdk.iot.device.gateway.requests;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- *  网关添加子设备信息
+ * 网关添加子设备信息
  */
 public class AddedSubDeviceInfo {
-
     @JsonProperty("parent_device_id")
     private String parentDeviceId;
 

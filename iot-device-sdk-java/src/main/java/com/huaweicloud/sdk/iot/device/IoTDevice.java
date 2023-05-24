@@ -42,7 +42,6 @@ import java.util.List;
  * device.getClient().reportProperties(....)
  */
 public class IoTDevice extends AbstractDevice {
-
     /**
      * 构造函数，使用密码创建设备
      *
@@ -63,10 +62,9 @@ public class IoTDevice extends AbstractDevice {
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
-     * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
+     * @param iotCertFile iot平台的ca证书，用于双向校验时设备侧校验平台
      */
     public IoTDevice(String serverUri, String deviceId, KeyStore keyStore, String keyPassword, File iotCertFile) {
-
         super(serverUri, deviceId, keyStore, keyPassword, iotCertFile);
     }
 
@@ -95,7 +93,6 @@ public class IoTDevice extends AbstractDevice {
      * @param deviceService 服务实例
      */
     public void addService(String serviceId, AbstractService deviceService) {
-
         super.addService(serviceId, deviceService);
     }
 
@@ -106,7 +103,6 @@ public class IoTDevice extends AbstractDevice {
      * @return AbstractService 服务实例
      */
     public AbstractService getService(String serviceId) {
-
         return super.getService(serviceId);
     }
 
@@ -130,12 +126,11 @@ public class IoTDevice extends AbstractDevice {
     }
 
     /**
-     * 获取设备客户端。获取到设备客户端后，可以直接调用客户端提供的消息、属性、命令等接口
+     * 获取直连设备客户端。获取到设备客户端后，可以直接调用客户端提供的消息、属性、命令等接口
      *
      * @return 设备客户端实例
      */
     public DeviceClient getClient() {
         return super.getClient();
     }
-
 }

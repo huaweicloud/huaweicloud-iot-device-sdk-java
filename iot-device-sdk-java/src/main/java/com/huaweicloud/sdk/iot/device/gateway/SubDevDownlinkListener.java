@@ -6,7 +6,6 @@ import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 
 public interface SubDevDownlinkListener {
-
     /**
      * 子设备命令下发通知
      *

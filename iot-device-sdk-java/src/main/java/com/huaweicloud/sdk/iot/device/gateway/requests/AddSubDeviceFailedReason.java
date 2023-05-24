@@ -3,7 +3,6 @@ package com.huaweicloud.sdk.iot.device.gateway.requests;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AddSubDeviceFailedReason {
-
     @JsonProperty("node_id")
     private String nodeId;
 

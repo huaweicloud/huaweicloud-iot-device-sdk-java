@@ -10,11 +10,11 @@ import java.util.List;
  * 写属性操作
  */
 public class PropsSet {
-
     @JsonProperty("object_device_id")
+    private
     String deviceId;
 
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public String getDeviceId() {
         return deviceId;

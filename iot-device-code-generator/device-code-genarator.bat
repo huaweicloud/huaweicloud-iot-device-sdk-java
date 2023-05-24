@@ -4,9 +4,9 @@ set  deviceId="5e06bfee334dd4f33759f5b3_demo"
 set  secret="******"
 cd ..
 call mvn clean install
-call java -jar iot-device-code-generator\target\iot-device-code-generator-1.1.1-with-deps.jar %productZip% 
+call java -jar iot-device-code-generator\target\iot-device-code-generator-1.2.0-with-deps.jar %productZip%
 cd generated-demo
 call mvn install
-call java -jar target\iot-device-demo-ganerated-1.1.1-with-deps.jar %deviceId% %secret%
+call java -jar target\iot-device-demo-ganerated-1.2.0-with-deps.jar %deviceId% %secret%
 pause
 

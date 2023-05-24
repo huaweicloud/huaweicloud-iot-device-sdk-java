@@ -6,7 +6,6 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
  * 命令响应V3
  */
 public class CommandRspV3 {
-
     /**
      * 消息类型 固定值为：deviceRsp
      */

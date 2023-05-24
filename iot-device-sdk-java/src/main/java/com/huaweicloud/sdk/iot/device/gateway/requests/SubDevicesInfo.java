@@ -6,9 +6,9 @@ import java.util.List;
  * 子设备信息
  */
 public class SubDevicesInfo {
+    private List<DeviceInfo> devices;
 
-    List<DeviceInfo> devices;
-    long version;
+    private long version;
 
     public List<DeviceInfo> getDevices() {
         return devices;

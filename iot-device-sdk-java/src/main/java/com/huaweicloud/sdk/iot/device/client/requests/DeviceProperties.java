@@ -8,11 +8,10 @@ import java.util.List;
  * 设备属性内容
  */
 public class DeviceProperties {
-
     /**
      * 服务属性列表
      */
-    List<ServiceProperty> services;
+    private List<ServiceProperty> services;
 
     public List<ServiceProperty> getServices() {
         return services;

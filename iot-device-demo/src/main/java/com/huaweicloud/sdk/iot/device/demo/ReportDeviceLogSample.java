@@ -9,7 +9,6 @@ import java.net.URL;
 public class ReportDeviceLogSample {
 
     public static void main(String[] args) {
-
         String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "702b1038-a174-4a1d-969f-f67f8df43c4a";
         String secret = "mysecret";

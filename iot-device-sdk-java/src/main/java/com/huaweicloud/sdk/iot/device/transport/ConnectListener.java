@@ -4,7 +4,6 @@ package com.huaweicloud.sdk.iot.device.transport;
  * 连接监听器
  */
 public interface ConnectListener {
-
     /**
      * 连接丢失通知
      *

@@ -20,13 +20,10 @@ import java.util.Random;
  * 此例演示使用证书认证
  */
 public class X509CertificateDeviceSample {
-
-    private static final Logger log = LogManager.getLogger(X509CertificateDeviceSample.class);
-
     public static void main(String[] args) throws Exception {
-
-        //读取pem格式证书
-        KeyStore keyStore = CertificateUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "");
+        //windows下读取pem格式证书demo
+        KeyStore keyStore = CertificateUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem",
+            "D:\\SDK\\cert\\deviceCert.key", "");
 
         /**
          * 读取keystore格式证书
@@ -34,6 +31,16 @@ public class X509CertificateDeviceSample {
          * KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
          * keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "huawei".toCharArray());
          *
+         */
+        /**
+         * 读取国密双证书
+         * KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+         * keyStore.load(null, null);
+         * GmCertificate gmSignCert = new GmCertificate("gm-sig-certificate", "D:\\devicecert\\gmcert_s\\CS.cert.pem", "gm-sig-private-key", "D:\\devicecert\\gmcert_s\\CS.key.pem", "");
+         * GmCertificate gmEncCert = new GmCertificate("gm-enc-certificate", "D:\\devicecert\\gmcert_e\\CE.cert.pem", "gm-enc-private-key", "D:\\devicecert\\gmcert_e\\CE.key.pem", "");
+         * if(!CertificateUtil.getGmKeyStore(keyStore, gmSignCert) || !CertificateUtil.getGmKeyStore(keyStore, gmEncCert)) {
+         * return;
+         * }
          */
 
         //加载iot平台的ca证书，进行服务端校验

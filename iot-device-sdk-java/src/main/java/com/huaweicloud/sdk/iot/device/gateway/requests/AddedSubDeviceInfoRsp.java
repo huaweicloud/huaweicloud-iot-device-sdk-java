@@ -3,7 +3,6 @@ package com.huaweicloud.sdk.iot.device.gateway.requests;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AddedSubDeviceInfoRsp {
-
     @JsonProperty("parent_device_id")
     private String parentDeviceId;
 

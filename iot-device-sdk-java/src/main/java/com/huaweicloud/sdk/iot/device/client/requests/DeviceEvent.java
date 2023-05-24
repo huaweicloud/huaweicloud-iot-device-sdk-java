@@ -8,32 +8,31 @@ import java.util.Map;
  * 服务的事件
  */
 public class DeviceEvent {
-
     /**
      * 事件所属服务id
      */
     @JsonProperty("service_id")
-    String serviceId;
+    private String serviceId;
 
     /**
      * 事件类型
      */
     @JsonProperty("event_type")
-    String eventType;
+    private String eventType;
 
     /**
      * 事件发生的事件
      */
     @JsonProperty("event_time")
-    String eventTime;
+    private String eventTime;
 
     /**
      * 事件具体的参数
      */
-    Map<String, Object> paras;
+    private Map<String, Object> paras;
 
     @JsonProperty("event_id")
-    String eventId;
+    private String eventId;
 
     public String getEventId() {
         return eventId;

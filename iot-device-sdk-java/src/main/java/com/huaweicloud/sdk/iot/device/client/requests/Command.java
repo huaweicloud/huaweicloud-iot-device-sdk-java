@@ -31,12 +31,10 @@ import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 
 import java.util.Map;
 
-
 /**
  * 设备命令
  */
 public class Command {
-
     @JsonProperty("service_id")
     private String serviceId;
 

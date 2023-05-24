@@ -23,7 +23,6 @@ import java.util.concurrent.Future;
  * 具体参见OTASample
  */
 public class OTAService extends AbstractService {
-
     //升级上报的错误码，用户也可以扩展自己的错误码
     public static final int OTA_CODE_SUCCESS = 0;//成功
 
@@ -128,6 +127,8 @@ public class OTAService extends AbstractService {
     @Override
     public void onEvent(DeviceEvent deviceEvent) {
 
+        String result = "";
+        Future<String> success = null;
         if (otaListener == null) {
             log.info("otaListener is null");
             return;
@@ -135,23 +136,31 @@ public class OTAService extends AbstractService {
 
         if (deviceEvent.getEventType().equalsIgnoreCase("version_query")) {
             otaListener.onQueryVersion();
+            return;
         } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade")
             || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade")) {
 
             OTAPackage pkg = JsonUtil.convertMap2Object(deviceEvent.getParas(), OTAPackage.class);
 
-            Future<String> success = executorService.submit(() -> otaListener.onNewPackage(pkg), "success");
-            String result = "";
-            try {
+            success = executorService.submit(() -> otaListener.onNewPackage(pkg), "success");
+
+        } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade_v2")
+            || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade_v2")) {
+
+            OTAPackageV2 pkgV2 = JsonUtil.convertMap2Object(deviceEvent.getParas(), OTAPackageV2.class);
+
+            success = executorService.submit(() -> otaListener.onNewPackageV2(pkgV2), "success");
+        }
+        try {
+            if (success != null) {
                 result = success.get();
-            } catch (Exception e) {
-                log.error("get submit result failed " + e.getMessage());
             }
+        } catch (Exception e) {
+            log.error("get submit result failed " + e.getMessage());
+        }
 
-            if (result.equals("success")) {
-                log.debug("submit task succeeded");
-            }
-
+        if (result.equals("success")) {
+            log.debug("submit task succeeded");
         }
     }
 

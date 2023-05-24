@@ -9,7 +9,6 @@ import java.util.List;
  */
 public interface PropertyListener {
 
-
     /**
      * 处理写属性操作
      *
@@ -25,6 +24,4 @@ public interface PropertyListener {
      * @param serviceId 服务id，可选
      */
     void onPropertiesGet(String requestId, String serviceId);
-
-
 }

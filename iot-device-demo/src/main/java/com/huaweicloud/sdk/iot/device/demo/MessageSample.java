@@ -2,6 +2,7 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
+import com.huaweicloud.sdk.iot.device.constants.Constants;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 
@@ -15,18 +16,22 @@ import java.net.URL;
  * 演示如何直接使用DeviceClient进行消息透传
  */
 public class MessageSample {
-
     private static final Logger log = LogManager.getLogger(MessageSample.class);
 
     public static void main(String[] args) throws InterruptedException {
 
-        //加载iot平台的ca证书，进行服务端校验
+        // 加载iot平台的ca证书，进行服务端校验
         URL resource = MessageSample.class.getClassLoader().getResource("ca.jks");
         File file = new File(resource.getPath());
 
-        //创建设备
+        // 创建设备
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "secret", file);
+            "5e06bfee334dd4f33759f5b3_demo", "secret", file);
+        // 默认使用国际加密通信，若要使用国密通信可setGmssl为true
+        device.getClient().getClientConf().setGmssl(false);
+        // 默认使用不校验时间戳，若要校验则需设置对应的参数选择杂凑算法
+        device.getClient().getClientConf().setCheckStamp(Constants.CHECK_STAMP_SHA256_OFF);
+
         if (device.init() != 0) {
             return;
 
@@ -34,7 +39,7 @@ public class MessageSample {
 
         //接收平台下行消息
         device.getClient().setDeviceMessageListener(
-            deviceMessage -> log.info("onDeviceMessage:" + deviceMessage.toString()));
+            deviceMessage -> log.info("the onDeviceMessage is {}", deviceMessage.toString()));
 
         while (true) {
 

@@ -12,21 +12,22 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-
 /**
  * 一个tcp客户端，仅用于测试
  */
 public class TcpDevice {
+    private static final Logger log = LogManager.getLogger(TcpDevice.class);
 
     private final String host;
+
     private final int port;
-    private static final Logger log = LogManager.getLogger(TcpDevice.class);
 
     private TcpDevice(String host, int port) {
         this.host = host;
@@ -41,9 +42,9 @@ public class TcpDevice {
         EventLoopGroup group = new NioEventLoopGroup();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
             Bootstrap bootstrap = new Bootstrap()
-                    .group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new SimpleClientInitializer());
+                .group(group)
+                .channel(NioSocketChannel.class)
+                .handler(new SimpleClientInitializer());
             Channel channel = bootstrap.connect(host, port).sync().channel();
 
             while (true) {
@@ -59,12 +60,12 @@ public class TcpDevice {
     public class SimpleClientHandler extends SimpleChannelInboundHandler<String> {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, String s) {
-            log.info("channelRead0:" + s);
+            log.info("channelRead0: {}", s);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            log.info("exceptionCaught " + cause.toString());
+            log.info("caught exception {}", cause.toString());
             ctx.close();
         }
     }

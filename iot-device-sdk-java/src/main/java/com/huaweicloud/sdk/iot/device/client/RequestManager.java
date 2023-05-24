@@ -13,17 +13,18 @@ import java.util.concurrent.ConcurrentMap;
  * 请求管理器
  */
 public class RequestManager {
-   
-    private DeviceClient iotClient;
-    private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
     private static final Logger log = LogManager.getLogger(RequestManager.class);
+
+    private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
+
+    private DeviceClient iotClient;
 
     /**
      * 构造函数
      *
      * @param client 客户端
      */
-    public RequestManager(DeviceClient client) {
+    RequestManager(DeviceClient client) {
         this.iotClient = client;
     }
 

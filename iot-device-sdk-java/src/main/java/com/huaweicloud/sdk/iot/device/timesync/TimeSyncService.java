@@ -25,7 +25,6 @@ import java.util.Map;
  * timeSyncService.RequestTimeSync()
  */
 public class TimeSyncService extends AbstractService {
-
     private TimeSyncListener listener;
 
     public TimeSyncListener getListener() {
@@ -45,7 +44,6 @@ public class TimeSyncService extends AbstractService {
      * 发起时间同步请求，使用TimeSyncListener接收响应
      */
     public void requestTimeSync() {
-
         Map<String, Object> node = new HashMap<>();
         node.put("device_send_time", System.currentTimeMillis());
 
@@ -58,12 +56,10 @@ public class TimeSyncService extends AbstractService {
         DefaultActionListenerImpl defaultActionListener = new DefaultActionListenerImpl("reportEvent");
 
         getIotDevice().getClient().reportEvent(deviceEvent, defaultActionListener);
-
     }
 
     @Override
     public void onEvent(DeviceEvent deviceEvent) {
-
         if (listener == null) {
             return;
         }

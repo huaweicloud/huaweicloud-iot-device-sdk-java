@@ -6,7 +6,6 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
  * 连接动作监听器
  */
 public interface ConnectActionListener {
-
     /**
      * 连接成功
      *

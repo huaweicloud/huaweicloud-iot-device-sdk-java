@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 将子设备信息保存到json文件。用户可以自己实现SubDevicesPersistence接口来进行替换
  */
 public class SubDevicesFilePersistence implements SubDevicesPersistence {
+    private static final Logger log = LogManager.getLogger(SubDevicesFilePersistence.class);
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
@@ -27,11 +28,9 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
     private final Lock writeLock = readWriteLock.writeLock();
 
-    private static final Logger log = LogManager.getLogger(SubDevicesFilePersistence.class);
-
     private SubDevInfo subDevInfoCache;
 
-    public SubDevicesFilePersistence() {
+    SubDevicesFilePersistence() {
 
         String confFile = SubDevicesFilePersistence.class.getClassLoader().getResource("subdevices.json").getPath();
         File file = new File(confFile);
@@ -42,7 +41,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
             log.error(ExceptionUtil.getBriefStackTrace(e));
         }
         this.subDevInfoCache = JsonUtil.convertJsonStringToObject(content, SubDevInfo.class);
-        log.info("subDevInfo:" + subDevInfoCache.toString());
+        log.info("subDevInfo is {}", subDevInfoCache.toString());
     }
 
     @Override
@@ -65,7 +64,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
         writeLock.lock();
         try {
             if (subDevicesInfo.getVersion() > 0 && subDevicesInfo.getVersion() <= subDevInfoCache.getVersion()) {
-                log.info("version too low: " + subDevicesInfo.getVersion());
+                log.info("version too low, the version is {}", subDevicesInfo.getVersion());
                 return -1;
             }
 
@@ -80,10 +79,10 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
             subDevicesInfo.getDevices().forEach((dev) -> {
                 subDevInfoCache.getSubdevices().put(dev.getNodeId(), dev);
-                log.info("add subdev: " + dev.getNodeId());
+                log.info("add subdev, the nodeId is {}", dev.getNodeId());
             });
             subDevInfoCache.setVersion(subDevicesInfo.getVersion());
-            log.info("version update to " + subDevInfoCache.getVersion());
+            log.info("version update to {}", subDevInfoCache.getVersion());
 
         } finally {
             writeLock.unlock();
@@ -95,7 +94,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
     public int deleteSubDevices(SubDevicesInfo subDevicesInfo) {
 
         if (subDevicesInfo.getVersion() > 0 && subDevicesInfo.getVersion() <= subDevInfoCache.getVersion()) {
-            log.info("version too low: " + subDevicesInfo.getVersion());
+            log.info("version too low, the version is {}", subDevicesInfo.getVersion());
             return -1;
         }
 
@@ -110,11 +109,11 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
         subDevicesInfo.getDevices().forEach((dev) -> {
             subDevInfoCache.getSubdevices().remove(dev.getNodeId());
-            log.info("rmv subdev :" + dev.getNodeId());
+            log.info("remove sub device, the nodeId is {}", dev.getNodeId());
         });
 
         subDevInfoCache.setVersion(subDevicesInfo.getVersion());
-        log.info("local version update to " + subDevicesInfo.getVersion());
+        log.info("local version update to {}", subDevicesInfo.getVersion());
 
         return 0;
     }
