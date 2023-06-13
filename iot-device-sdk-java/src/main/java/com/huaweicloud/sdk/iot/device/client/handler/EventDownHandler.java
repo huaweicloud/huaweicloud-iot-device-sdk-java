@@ -29,7 +29,7 @@ public class EventDownHandler implements MessageReceivedHandler {
             return;
         }
 
-        // 网桥事件处理
+        // 缃戞ˉ浜嬩欢澶勭悊
         if (topic.contains(BRIDGE_TOPIC_KEYWORD)) {
             String deviceId = IotUtil.getDeviceId(topic);
             deviceClient.getDevice().onBridgeEvent(deviceId, deviceEvents);

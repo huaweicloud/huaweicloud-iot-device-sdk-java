@@ -16,6 +16,8 @@
         <module>iot-bridge-demo</module>
         <module>iot-gateway-demo</module>
         <module>iot-device-code-generator</module>
+        <module>iot-bridge-sdk</module>
+        <module>iot-bridge-sample-tcp-protocol</module>
     </modules>
 
     <properties>
