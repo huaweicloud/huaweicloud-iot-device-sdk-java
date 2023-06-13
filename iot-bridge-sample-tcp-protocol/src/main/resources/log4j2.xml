@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Log4j 2.x 配置文件。每10秒自动检查和应用配置文件的更新； -->
+<Configuration status="warn" monitorInterval="10" strict="true" schema="Log4J-V2.2.xsd">
+    <Appenders>
+        <!-- 输出到控制台 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8"
+                           pattern="%d{yyyy-MM-dd HH:mm:ss,SSSXXXZ}{UTC}|%4p|%t|%F:%L|%equals{AID=%X{AID}}{AID=}{}|%equals{DID=%X{DID}}{DID=}{}|%equals{X-B3-TraceId=%X{X-B3-TraceId}}{X-B3-TraceId=}{}|%m%n"/>
+            <DynamicThresholdFilter key="mod" defaultThreshold="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <!-- 输出到文件，每月1个文件夹，超过50MB分割，最多200个文件，归档文件压缩，超过15d的日志删除 -->
+        <RollingFile name="RollingFile" fileName="logs/protocol-plugin-running.log"
+                     filePattern="logs/running_log/$${date:yyyy-MM}/protocol-plugin-running-%d{yyyy-MM-dd}-%i.log.gz"
+                     filePermissions="rw-------">
+            <PatternLayout charset="UTF-8"
+                           pattern="%d{yyyy-MM-dd HH:mm:ss,SSSXXXZ}{UTC}|%4p|%t|%F:%L|%equals{AID=%X{AID}}{AID=}{}|%equals{DID=%X{DID}}{DID=}{}|%equals{X-B3-TraceId=%X{X-B3-TraceId}}{X-B3-TraceId=}{}|%m%n"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax">
+                <PosixViewAttribute basePath="logs/running_log" maxDepth="2" filePermissions="r--------">
+                    <IfFileName glob="*/protocol-plugin-running-*.log.gz"/>
+                </PosixViewAttribute>
+                <Delete basePath="logs/running_log" maxDepth="2">
+                    <IfFileName glob="*/protocol-plugin-running-*.log.gz">
+                        <IfAny>
+                            <IfLastModified age="15d"/>
+                            <IfAccumulatedFileCount exceeds="200"/>
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+            <DynamicThresholdFilter key="mod" defaultThreshold="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <AsyncRoot level="INFO" includeLocation="true" additivity="false">
+            <AppenderRef ref="Console"/>
+        </AsyncRoot>
+        <AsyncLogger name="com.huaweicloud.sdk.iot.bridge.sample" includeLocation="true" additivity="false"
+                     level="INFO">
+            <AppenderRef ref="RollingFile"/>
+        </AsyncLogger>
+    </Loggers>
+</Configuration>
