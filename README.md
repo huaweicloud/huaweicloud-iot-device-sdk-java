@@ -380,6 +380,186 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 您在连接平台多个设备侧时，为了保持编程界面的一致性，我们建议您使用组合的根CA证书文件（huaweicloud-iot-root-ca-list.bks\huaweicloud-iot-root-ca-list.jks\huaweicloud-iot-root-ca-list.pem，即各Sample工程中的ca.jks）。
 
+
+## 泛协议开发
+
+目前平台支持基于MQTT/HTTP/LwM2M等标准协议接入，为解决用户自定义协议设备快速接入IoT平台的诉求。华为云IoT提供泛协议适配机制，您可使用泛协议对接SDK，快速构建协议插件，进行设备或平台与IoT的双向数据通信。
+
+
+### SDK介绍
+基于SDK实现泛协议设备接入的业务流程：
+
+  ![](./doc/figure_cn/generic_sdk_1.png)
+#### 监听平台下行数据的接口说明
+| 接口 | 说明 |
+| :---- | :---- |
+| BridgeCommandListener | 平台命令下发监听接口。泛协议插件可以通过该接口将平台的下行命令转发给第三方协议设备。 |
+| BridgeDeviceMessageListener | 平台消息下发监听接口。泛协议插件可以通过该接口将平台的下行消息转发给第三方协议设备。 |
+| BridgeDeviceDisConnListener | 平台通知网桥断开设备连接监听接口。泛协议插件可以通过该接口主动断开第三方协议设备的连接。 |
+| LoginListener | 网桥等待设备登录结果的监听接口。泛协议插件可以通过该接口监听设备是否登录成功。 |
+| LogoutListener | 网桥等待设备登出结果的监听接口。泛协议插件可以通过该接口监听设备是否登出成功。 |
+
+#### 相关类说明
+| 类 | 说明 |
+| :---- | :---- |
+| BridgeClientConf | 泛协议SDK客户端配置类（包括泛协议SDK连接平台的地址、网桥ID、秘钥等参数） |
+| BridgeBootstrap | 泛协议SDK启动初始化类。 |
+| BridgeClient | 泛协议SDK网桥客户端实现类，实现同平台的通信（设备登录、设备消息上报、设备属性上报、设备登出等） |
+  
+### 使用 Bridge Demo
+Brdige Demo提供了一个使用TCP设备接入网桥、于云平台进行交互的例子。下面将介绍Demo中各个部分的功能，帮您熟悉网桥开发要点。Demo项目结构图如下：
+
+![](./doc/figure_cn/bridge_demo_pkg_structure.png)
+
+
+相关类如下：
+
+| 类名称 | 描述 |
+| :---- | :---- |
+| Main|主启动类。|
+| BridgeService |网桥初始化：初始化同IoT平台的连接，设置平台下行数据监听|
+| TcpServer |TCP协议服务端启动类。开启TCP协议监听端口，接收设备上报到服务端的消息。|
+| MessageDecoder |上行数据的消息解码，将TCP原始码流转换为具体JSON对象。|
+| MessageEncoder |下行数据的消息编码，将对象数据转换为TCP原始码流。|
+| UpLinkHandler |设备上行数据处理类。把TCP协议数据转成平台格式数据，并调用SDK接口进行上报|
+|DownLinkHandler|IoT平台下发数据处理类。将平台下发数据转换为TCP协议数据，并下发给设备。|
+|DeviceSessionManger |设备会话管理。管理设备同服务端的连接。 |
+
+#### 1. 初始化网桥SDK
+创建BridgeBootstrap对象实例，调用InitBridge方法，在该方法中会读取环境变量的配置信息，并同IoT平台建立网桥连接。
+
+**环境变量说明**
+| 环境变量名称 | 参数说明 | 样例 |
+| :---- | :---- | :---- |
+| NET_BRIDGE_ID | 网桥ID | bridge001 |
+| NET_NET_BRIDGE_SECRET | 网桥秘钥 | ******** |
+| NET_NET_BRIDGE_SERVER_IP | IoTDA平台地址 | *****.iot-mqtts.cn-north-4.myhuaweicloud.com |
+| NET_NET_BRIDGE_SERVER_PORT | IoTDA平台泛协议接入端口号 | 8883 |
+
+初始化成功后，需要设置平台下行数据的监听器，监听平台的下行数据。
+
+代码样例：
+```java
+public void init() {
+
+    //网桥启动初始化
+    BridgeBootstrap bridgeBootstrap = new BridgeBootstrap();
+
+    // 从环境变量获取配置进行初始化
+    bridgeBootstrap.initBridge();
+
+    bridgeClient = bridgeBootstrap.getBridgeDevice().getClient();
+
+    // 设置平台下行数据监听器
+    DownLinkHandler downLinkHandler = new DownLinkHandler();
+    bridgeClient.setBridgeCommandListener(downLinkHandler)   // 设置平台命令下发监听器
+        .setBridgeDeviceMessageListener(downLinkHandler)    // 设置平台消息下发监听器
+        .setBridgeDeviceDisConnListener(downLinkHandler);   // 设置平台通知网桥主动断开设备连接的监听器
+}
+  ```
+#### 2. 设备登录上线
+设备登录上线的实现样例如下：
+```java
+private void login(Channel channel, DeviceLoginMessage message) {
+    int resultCode = BridgeService.getBridgeClient().loginSync(deviceId, secret, 5000);
+    // 登录成功保存会话信息
+    if (resultCode == 0) {
+        deviceSession.setDeviceId(deviceId);
+        deviceSession.setChannel(channel);
+        DeviceSessionManger.getInstance().createSession(deviceId, deviceSession);
+        NettyUtils.setDeviceId(channel, deviceId);
+    }
+}
+```
+设备上线时，需要从原始设备消息中解析出鉴权信息（设备ID和秘钥），再调用SDK提供的login接口向平台发起登录请求，平台收到设备的login请求后，会对设备的鉴权信息进行认证，认证通过后会通过返回码告知网桥SDK设备的登录结果。您需要根据登录结果对设备进行记录会话信息、给设备返回响应等处理。
+
+#### 3. 设备数据上报
+设备登录成功后，收到设备的上行数据时，可调用SDK的reportProperties将解码后的数据上报到IoT平台。
+
+代码样例参考：
+```java
+private void reportProperties(Channel channel, BaseMessage message) {
+    String deviceId = message.getMsgHeader().getDeviceId();
+    DeviceSession deviceSession = DeviceSessionManger.getInstance().getSession(deviceId);
+    if (deviceSession == null || !deviceSession.isLoginSuccess()) {
+        log.warn("device={} is not login", deviceId);
+        sendResponse(channel, message, 1);
+        return;
+    }
+    // 调用网桥reportProperties接口，上报设备属性数据
+    BridgeService.getBridgeClient()
+        .reportProperties(deviceId, Collections.singletonList(serviceProperty), new ActionListener() {
+            @Override
+            public void onSuccess(Object context) {
+                sendResponse(channel, message, 0);
+            }
+            @Override
+            public void onFailure(Object context, Throwable var2) {
+                log.warn("device={} reportProperties failed: {}", deviceId, var2.getMessage());
+                sendResponse(channel, message, 1);
+            }
+        });
+}
+```
+#### 4. 平台指令下发
+
+网桥在初始化时向SDK注册了BridgeCommandListener的监听。当有下行指令时，网桥SDK就会回调BridgeCommandListener的OnCommand方法。您可在OnCommand中对平台的下行指令进行处理。
+
+代码样例参考：
+```java
+public void onCommand(String deviceId, String requestId, BridgeCommand bridgeCommand) {
+    log.info("onCommand deviceId={}, requestId={}, bridgeCommand={}", deviceId, requestId, bridgeCommand);
+    DeviceSession session = DeviceSessionManger.getInstance().getSession(deviceId);
+    if (session == null) {
+        log.warn("device={} session is null", deviceId);
+        return;
+    }
+
+    // 设置位置上报的周期
+    if (Constants.MSG_TYPE_FREQUENCY_LOCATION_SET.equals(bridgeCommand.getCommand().getCommandName())) {
+        processLocationSetCommand(session, requestId, bridgeCommand);
+    }
+}
+```
+
+#### 5. 设备离线
+网桥检查到设备到服务端的长连接断开时，需要调用SDK的logout接口通知平台设备离线。
+
+代码样例参考：
+```java
+public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    String deviceId = NettyUtils.getDeviceId(ctx.channel());
+    DeviceSessionManger.getInstance().getSession(deviceId);
+    if (deviceId == null) {
+        return;
+    }
+    // 调用网桥的logout接口，通知平台设备离线
+    DefaultActionListenerImpl defaultLogoutActionListener = new DefaultActionListenerImpl("logout");
+    BridgeService.getBridgeClient().logout(deviceId, UUID.randomUUID().toString(), defaultLogoutActionListener);
+    DeviceSessionManger.getInstance().deleteSession(deviceId);
+
+    ctx.close();
+}
+```
+
+### 测试验证
+  
+### 1. 获取网桥接入信息
+代码调试时，需要获取对应的网桥接入信息，并配置到对应的环境变量中。网桥接入信息，环境变量配置参考：
+    
+![](doc/figure_cn/bridge_get_auth_info.png)
+
+### 2. 功能验证
+均可参考[https://support.huaweicloud.com/usermanual-iothub/iot_02_3.html](https://support.huaweicloud.com/usermanual-iothub/iot_02_3.html) 实现
+
+启动TCP：打开开文件`iot-bridge-demo\src\main\java\com\huaweicloud\sdk\iot\device\demo\TcpDevice.java`，将42行修改为：
+```java
+new TcpDevice("localhost", 8900).run();
+```
+启动工程模拟设备同网桥建立TCP连接，并发送登录请求。
+
+
+
 ## 版本更新说明
 
 | 版本号 | 变更类型 | 说明                                                         |
