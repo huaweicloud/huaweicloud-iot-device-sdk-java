@@ -20,7 +20,7 @@ public class ServiceProperty implements Serializable {
 
     private String propertyName;
 
-    //@Pattern(regexp = "(int|long|decimal|string|DateTime|jsonObject|enum|boolean|string list)")
+    // @Pattern(regexp = "(int|long|decimal|string|DateTime|jsonObject|enum|boolean|string list)")
     private String dataType;
 
     @JsonIgnore

@@ -23,15 +23,18 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.xml.bind.DatatypeConverter;
 
+import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * OTA sample，用来演示如何实现设备升级。
@@ -47,21 +50,25 @@ public class OTASample implements OTAListener {
 
     private OkHttpClient okHttpClient;
 
-    private String version; //当前版本号
+    private String version; // 当前版本号
 
-    private String packageSavePath; //升级包保存路径
+    private String packageSavePath; // 升级包保存路径
+
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
+
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
     private OTASample(IoTDevice device, String packageSavePath) throws Exception {
         this.device = device;
         this.otaService = device.getOtaService();
         otaService.setOtaListener(this);
         this.packageSavePath = packageSavePath;
-        this.version = "v1.0"; //修改为实际值
+        this.version = "v1.0"; // 修改为实际值
 
         this.okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
             .readTimeout(600, TimeUnit.SECONDS)
-            .sslSocketFactory(createSSLSocketFactory()).hostnameVerifier((s, sslSession) -> {
+            .sslSocketFactory(createSSLSocketFactory(), new DefaultX509TrustManager()).hostnameVerifier((s, sslSession) -> {
                 log.info("verify {}", s);
                 return true;
             })
@@ -80,7 +87,7 @@ public class OTASample implements OTAListener {
             SSLContext sc = SSLContext.getInstance("TLSv1.2");
 
             DefaultX509TrustManager defaultX509TrustManager = new DefaultX509TrustManager();
-            sc.init(null, new TrustManager[] {defaultX509TrustManager}, new SecureRandom());
+            sc.init(null, new TrustManager[] {defaultX509TrustManager}, SecureRandom.getInstanceStrong());
             ssfFactory = sc.getSocketFactory();
         } catch (Exception e) {
             log.error("create SSL Socket Factory error" + e.getMessage());
@@ -138,11 +145,11 @@ public class OTASample implements OTAListener {
                         fileOutputStream.flush();
                         current += len;
 
-                        //计算进度
+                        // 计算进度
                         int progress = (int) (100 * current / total);
                         log.info("the progress is {}", progress);
 
-                        //计算md5
+                        // 计算md5
                         digest.update(bytes, 0, len);
 
                     }
@@ -176,7 +183,7 @@ public class OTASample implements OTAListener {
             return -1;
         }
 
-        //TODO 增加其他校验
+        // TODO 增加其他校验
         return 0;
     }
 
@@ -185,7 +192,7 @@ public class OTASample implements OTAListener {
      */
     private int installPackage() {
 
-        //TODO
+        // TODO
         log.info("installPackage ok");
 
         /**
@@ -205,7 +212,7 @@ public class OTASample implements OTAListener {
      */
     public int preCheck(OTAPackage otaPackage) {
 
-        //todo 对版本号、剩余空间、剩余电量、信号质量等进行检查，如果不允许升级，上报OTAService中定义的错误码或者自定义错误码，返回-1
+        // todo 对版本号、剩余空间、剩余电量、信号质量等进行检查，如果不允许升级，上报OTAService中定义的错误码或者自定义错误码，返回-1
 
         /**
          * 上报升级状态
@@ -236,17 +243,17 @@ public class OTASample implements OTAListener {
 
                 log.info("downloadPackage success");
 
-                //校验下载的升级包
+                // 校验下载的升级包
                 if (checkPackage(otaPackage, (String) context) != 0) {
                     return;
                 }
 
-                //安装升级包
+                // 安装升级包
                 if (installPackage() != 0) {
                     return;
                 }
 
-                //上报升级成功，注意版本号要携带更新后的版本号，否则平台会认为升级失败
+                // 上报升级成功，注意版本号要携带更新后的版本号，否则平台会认为升级失败
                 version = otaPackage.getVersion();
                 otaService.reportOtaStatus(OTAService.OTA_CODE_SUCCESS, 100, version, "upgrade success");
                 log.info("ota upgrade ok");
@@ -267,18 +274,20 @@ public class OTASample implements OTAListener {
 
     public static void main(String[] args) throws Exception {
 
-        //加载iot平台的ca证书，进行服务端校验
-        URL resource = OTASample.class.getClassLoader().getResource("ca.jks");
-        File file = new File(resource.getPath());
+        // 加载iot平台的ca证书，进行服务端校验
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
 
-        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            "deviceid", "secret", file);
+        IoTDevice ioTDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+                "deviceid", "secret", tmpCAFile);
 
-        OTASample otaSample = new OTASample(device, "image.bin");
+        OTASample otaSample = new OTASample(ioTDevice, "image.bin");
         otaSample.init();
 
         while (true) {
-            device.getClient().reportDeviceMessage(new DeviceMessage("hello"), null);
+            ioTDevice.getClient().reportDeviceMessage(new DeviceMessage("hello"), null);
             Thread.sleep(20000);
         }
 

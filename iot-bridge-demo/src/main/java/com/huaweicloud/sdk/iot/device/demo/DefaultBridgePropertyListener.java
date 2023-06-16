@@ -28,7 +28,7 @@ public class DefaultBridgePropertyListener implements PropertyListener {
     @Override
     public void onPropertiesSet(String requestId, List<ServiceProperty> services) {
 
-        //这里可以根据需要进行消息格式转换
+        // 这里可以根据需要进行消息格式转换
         channel.writeAndFlush(services);
         ioTDevice.getClient().respondPropsSet(requestId, IotResult.SUCCESS);
     }

@@ -13,12 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -66,7 +66,7 @@ public class DeviceProfileParser {
             // 读取设备能力及服务能力
             List<DeviceCapability> deviceCapabilities = null;
             Map<String, DeviceService> serviceCapabilityMap = new HashMap<String, DeviceService>();
-            List<String> files = unZipFiles(zipfile, "tmp\\");
+            List<String> files = unZipFiles(zipfile, "tmp");
 
             for (String outpath : files) {
                 if (outpath == null) {
@@ -111,7 +111,7 @@ public class DeviceProfileParser {
         File from = new File(filePath);
 
         TypeReference<HashMap<String, List<DeviceService>>> typeRef
-            = new TypeReference<HashMap<String, List<DeviceService>>>() {
+                = new TypeReference<HashMap<String, List<DeviceService>>>() {
         };
         HashMap<String, List<DeviceService>> hm;
         Map<String, DeviceService> serviceCapabilityMap = new HashMap<>();
@@ -177,7 +177,7 @@ public class DeviceProfileParser {
 
         File from = new File(filePath);
         TypeReference<HashMap<String, List<DeviceCapability>>> typeRef
-            = new TypeReference<HashMap<String, List<DeviceCapability>>>() {
+                = new TypeReference<HashMap<String, List<DeviceCapability>>>() {
         };
         HashMap<String, List<DeviceCapability>> hm;
 
@@ -196,17 +196,27 @@ public class DeviceProfileParser {
     }
 
     public static List<String> unZipFiles(String zipFile, String descDir) throws IOException {
-        if (Objects.isNull(zipFile)) {
-            log.error("the input is invalid");
+        List<String> files = new ArrayList<>();
+        if (zipFile == null) {
+            log.error("the filename is null");
+            return files;
         }
+
+        String zipFileName = Paths.get(zipFile).getFileName().toString();
+        int pos = zipFileName.lastIndexOf('.');
+        String name;
+
+        if (pos > 0) { // If '.' is not the first  character.
+            name = zipFileName.substring(0, pos);
+        } else {
+            log.error("the filename is invalid");
+            return files;
+        }
+
         try (ZipFile zip = new ZipFile(zipFile, StandardCharsets.UTF_8)) {
-            String name = zip.getName().substring(zip.getName().lastIndexOf('\\') + 1, zip.getName().lastIndexOf('.'));
-
-            List<String> files = new ArrayList<>();
-
-            File pathFile = new File(descDir + name);
-            if (!pathFile.exists()) {
-                boolean mkdirs = pathFile.mkdirs();
+            File extractionPath = Paths.get(descDir, name).toFile();
+            if (!extractionPath.exists()) {
+                boolean mkdirs = extractionPath.mkdirs();
                 if (!mkdirs) {
                     log.error("make dir failed");
                 }
@@ -216,24 +226,24 @@ public class DeviceProfileParser {
                 ZipEntry entry = entries.nextElement();
                 String zipEntryName = entry.getName();
 
-                String outPath = (descDir + name + "/" + zipEntryName).replaceAll("\\*", "/");
+                File file = Paths.get(descDir, name, zipEntryName).toFile();
 
                 // 判断路径是否存在,不存在则创建文件路径
-                File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
-                if (!file.exists()) {
-                    boolean mkdirs = file.mkdirs();
+                File nearestDir = entry.isDirectory() ? file : file.getParentFile();
+                if (!nearestDir.exists()) {
+                    boolean mkdirs = nearestDir.mkdirs();
                     if (!mkdirs) {
                         log.error("make dir failed");
                     }
                 }
-                // 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
-                if (new File(outPath).isDirectory()) {
+
+                // 判断文件全路径是否为文件夹,如果是,上面已经创建,不需要解压
+                if (entry.isDirectory()) {
                     continue;
                 }
 
                 try (InputStream in = zip.getInputStream(entry);
-
-                    FileOutputStream out = FileUtils.openOutputStream(FileUtils.getFile(outPath))) {
+                     FileOutputStream out = FileUtils.openOutputStream(file)) {
 
                     byte[] buf1 = new byte[1024];
                     int len;
@@ -241,7 +251,7 @@ public class DeviceProfileParser {
                         out.write(buf1, 0, len);
                     }
 
-                    files.add(outPath);
+                    files.add(file.toString());
                 }
             }
             return files;

@@ -439,35 +439,57 @@ Brdige Demo提供了一个使用TCP设备接入网桥、于云平台进行交互
 
 代码样例：
 ```java
-public void init() {
+    public void init() {
 
-    //网桥启动初始化
-    BridgeBootstrap bridgeBootstrap = new BridgeBootstrap();
+        // 网桥启动初始化
+        BridgeBootstrap bridgeBootstrap = new BridgeBootstrap();
 
-    // 从环境变量获取配置进行初始化
-    bridgeBootstrap.initBridge();
+        // 从环境变量获取配置进行初始化
+        bridgeBootstrap.initBridge();
 
-    bridgeClient = bridgeBootstrap.getBridgeDevice().getClient();
+        bridgeClient = bridgeBootstrap.getBridgeDevice().getClient();
 
-    // 设置平台下行数据监听器
-    DownLinkHandler downLinkHandler = new DownLinkHandler();
-    bridgeClient.setBridgeCommandListener(downLinkHandler)   // 设置平台命令下发监听器
-        .setBridgeDeviceMessageListener(downLinkHandler)    // 设置平台消息下发监听器
-        .setBridgeDeviceDisConnListener(downLinkHandler);   // 设置平台通知网桥主动断开设备连接的监听器
-}
+        // 设置平台下行数据监听器
+        DownLinkHandler downLinkHandler = new DownLinkHandler();
+        bridgeClient.setBridgeCommandListener(downLinkHandler)   // 设置平台命令下发监听器
+            .setBridgeDeviceMessageListener(downLinkHandler)    // 设置平台消息下发监听器
+            .setBridgeDeviceDisConnListener(downLinkHandler);   // 设置平台通知网桥主动断开设备连接的监听器
+    }
   ```
 #### 2. 设备登录上线
 设备登录上线的实现样例如下：
 ```java
-private void login(Channel channel, DeviceLoginMessage message) {
+private void login(Channel channel, BaseMessage message) {
+    if (!(message instanceof DeviceLoginMessage)) {
+    return;
+    }
+
+    String deviceId = message.getMsgHeader().getDeviceId();
+    String secret = ((DeviceLoginMessage) message).getSecret();
+    DeviceSession deviceSession = new DeviceSession();
+
     int resultCode = BridgeService.getBridgeClient().loginSync(deviceId, secret, 5000);
+
     // 登录成功保存会话信息
     if (resultCode == 0) {
-        deviceSession.setDeviceId(deviceId);
-        deviceSession.setChannel(channel);
-        DeviceSessionManger.getInstance().createSession(deviceId, deviceSession);
-        NettyUtils.setDeviceId(channel, deviceId);
+    deviceSession.setDeviceId(deviceId);
+    deviceSession.setChannel(channel);
+    DeviceSessionManger.getInstance().createSession(deviceId, deviceSession);
+    NettyUtils.setDeviceId(channel, deviceId);
     }
+
+    // 构造登录响应的消息头
+    MsgHeader msgHeader = new MsgHeader();
+    msgHeader.setDeviceId(deviceId);
+    msgHeader.setFlowNo(message.getMsgHeader().getFlowNo());
+    msgHeader.setDirect(Constants.DIRECT_CLOUD_RSP);
+    msgHeader.setMsgType(Constants.MSG_TYPE_DEVICE_LOGIN);
+
+    // 调用网桥login接口，向平台发起登录请求
+    DefaultActionListenerImpl defaultLoginActionListener = new DefaultActionListenerImpl("login");
+    BridgeService.getBridgeClient()
+    .loginAsync(deviceId, secret, message.getMsgHeader().getFlowNo(),
+    defaultLoginActionListener);
 }
 ```
 设备上线时，需要从原始设备消息中解析出鉴权信息（设备ID和秘钥），再调用SDK提供的login接口向平台发起登录请求，平台收到设备的login请求后，会对设备的鉴权信息进行认证，认证通过后会通过返回码告知网桥SDK设备的登录结果。您需要根据登录结果对设备进行记录会话信息、给设备返回响应等处理。
@@ -480,11 +502,17 @@ private void login(Channel channel, DeviceLoginMessage message) {
 private void reportProperties(Channel channel, BaseMessage message) {
     String deviceId = message.getMsgHeader().getDeviceId();
     DeviceSession deviceSession = DeviceSessionManger.getInstance().getSession(deviceId);
-    if (deviceSession == null || !deviceSession.isLoginSuccess()) {
+    if (deviceSession == null) {
         log.warn("device={} is not login", deviceId);
         sendResponse(channel, message, 1);
         return;
     }
+
+    ServiceProperty serviceProperty = new ServiceProperty();
+    serviceProperty.setServiceId("Location");
+    serviceProperty.setProperties(
+        JsonUtil.convertJsonStringToObject(JsonUtil.convertObject2String(message), Map.class));
+
     // 调用网桥reportProperties接口，上报设备属性数据
     BridgeService.getBridgeClient()
         .reportProperties(deviceId, Collections.singletonList(serviceProperty), new ActionListener() {
@@ -492,9 +520,10 @@ private void reportProperties(Channel channel, BaseMessage message) {
             public void onSuccess(Object context) {
                 sendResponse(channel, message, 0);
             }
+
             @Override
             public void onFailure(Object context, Throwable var2) {
-                log.warn("device={} reportProperties failed: {}", deviceId, var2.getMessage());
+                log.warn("device={} reportProperties failed: {}", deviceId, ExceptionUtil.getBriefStackTrace(var2));
                 sendResponse(channel, message, 1);
             }
         });
@@ -506,38 +535,45 @@ private void reportProperties(Channel channel, BaseMessage message) {
 
 代码样例参考：
 ```java
-public void onCommand(String deviceId, String requestId, BridgeCommand bridgeCommand) {
-    log.info("onCommand deviceId={}, requestId={}, bridgeCommand={}", deviceId, requestId, bridgeCommand);
-    DeviceSession session = DeviceSessionManger.getInstance().getSession(deviceId);
-    if (session == null) {
-        log.warn("device={} session is null", deviceId);
-        return;
-    }
+    @Override
+    public void onCommand(String deviceId, String requestId, BridgeCommand bridgeCommand) {
+        log.info("onCommand deviceId={}, requestId={}, bridgeCommand={}", deviceId, requestId, bridgeCommand);
+        DeviceSession session = DeviceSessionManger.getInstance().getSession(deviceId);
+        if (session == null) {
+            log.warn("device={} session is null", deviceId);
+            return;
+        }
 
-    // 设置位置上报的周期
-    if (Constants.MSG_TYPE_FREQUENCY_LOCATION_SET.equals(bridgeCommand.getCommand().getCommandName())) {
-        processLocationSetCommand(session, requestId, bridgeCommand);
+        // 设置位置上报的周期
+        if (Constants.MSG_TYPE_FREQUENCY_LOCATION_SET.equals(bridgeCommand.getCommand().getCommandName())) {
+            processLocationSetCommand(session, requestId, bridgeCommand);
+        }
     }
-}
 ```
 #### 5. 设备离线
 网桥检查到设备到服务端的长连接断开时，需要调用SDK的logout接口通知平台设备离线。
 
 代码样例参考：
 ```java
-public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    String deviceId = NettyUtils.getDeviceId(ctx.channel());
-    DeviceSessionManger.getInstance().getSession(deviceId);
-    if (deviceId == null) {
-        return;
-    }
-    // 调用网桥的logout接口，通知平台设备离线
-    DefaultActionListenerImpl defaultLogoutActionListener = new DefaultActionListenerImpl("logout");
-    BridgeService.getBridgeClient().logout(deviceId, UUID.randomUUID().toString(), defaultLogoutActionListener);
-    DeviceSessionManger.getInstance().deleteSession(deviceId);
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        String deviceId = NettyUtils.getDeviceId(ctx.channel());
+        if (deviceId == null) {
+            return;
+        }
+        DeviceSession deviceSession = DeviceSessionManger.getInstance().getSession(deviceId);
+        if (deviceSession == null) {
+            return;
+        }
 
-    ctx.close();
-}
+        // 调用网桥的logout接口，通知平台设备离线
+        DefaultActionListenerImpl defaultLogoutActionListener = new DefaultActionListenerImpl("logout");
+        BridgeService.getBridgeClient()
+            .logoutAsync(deviceId, UUID.randomUUID().toString(), defaultLogoutActionListener);
+        DeviceSessionManger.getInstance().deleteSession(deviceId);
+
+        ctx.close();
+    }
 ```
 ### 测试验证
 ### 1. 获取网桥接入信息

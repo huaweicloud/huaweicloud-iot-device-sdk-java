@@ -136,7 +136,7 @@ public class AbstractDevice {
      */
     public int init() {
 
-        //如果日志上报开关是关闭状态或者已过日志收集结束时间，则取消上报设备连接状态相关日志
+        // 如果日志上报开关是关闭状态或者已过日志收集结束时间，则取消上报设备连接状态相关日志
         if (deviceLogService.canReportLog()) {
             DefaultConnLogListener defaultConnLogListener = new DefaultConnLogListener(deviceLogService);
             client.setConnectListener(defaultConnLogListener);
@@ -313,7 +313,7 @@ public class AbstractDevice {
 
             if (deviceService != null) {
 
-                //如果部分失败直接返回
+                // 如果部分失败直接返回
                 IotResult result = deviceService.onWrite(serviceProp.getProperties());
                 if (result.getResultCode() != IotResult.SUCCESS.getResultCode()) {
                     client.respondPropsSet(requestId, result);
@@ -335,7 +335,7 @@ public class AbstractDevice {
 
         List<ServiceProperty> serviceProperties = new ArrayList<>();
 
-        //查询所有
+        // 查询所有
         if (propsGet.getServiceId() == null) {
 
             for (String ss : services.keySet()) {
@@ -372,7 +372,7 @@ public class AbstractDevice {
      */
     public void onEvent(DeviceEvents deviceEvents) {
 
-        //子设备的
+        // 子设备的
         if (deviceEvents.getDeviceId() != null && !deviceEvents.getDeviceId().equals(getDeviceId())) {
             return;
         }

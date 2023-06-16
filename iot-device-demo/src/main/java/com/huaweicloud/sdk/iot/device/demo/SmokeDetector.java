@@ -10,9 +10,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Map;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * 此例用来演示面向物模型编程的方法。用户只需要根据物模型定义自己的设备服务类，就可以直接对设备服务进行读写操作，SDK会自动
@@ -22,26 +26,32 @@ import java.util.Map;
 
 public class SmokeDetector {
 
-    public static void main(String[] args) {
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
+
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
+
+    public static void main(String[] args) throws IOException {
         String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "secret";
 
-        //从命令行获取设备参数
+        // 从命令行获取设备参数
         if (args.length >= 3) {
             serverUri = args[0];
             deviceId = args[1];
             secret = args[2];
         }
 
-        //加载iot平台的ca证书，进行服务端校验
-        URL resource = SmokeDetector.class.getClassLoader().getResource("ca.jks");
-        File file = new File(resource.getPath());
+        // 加载iot平台的ca证书，进行服务端校验
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
 
-        //创建设备
-        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, file);
+        // 创建设备
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, tmpCAFile);
 
-        //创建设备服务
+        // 创建设备服务
         SmokeDetectorService smokeDetectorService = new SmokeDetectorService();
         device.addService("smokeDetector", smokeDetectorService);
 
@@ -49,7 +59,7 @@ public class SmokeDetector {
             return;
         }
 
-        //启动自动周期上报
+        // 启动自动周期上报
         smokeDetectorService.enableAutoReport(10000);
 
     }
@@ -60,7 +70,7 @@ public class SmokeDetector {
      */
     public static class SmokeDetectorService extends AbstractService {
 
-        //按照设备模型定义属性，注意属性的name和类型需要和模型一致，writeable表示属性知否可写，name指定属性名
+        // 按照设备模型定义属性，注意属性的name和类型需要和模型一致，writeable表示属性知否可写，name指定属性名
         @Property(name = "alarm", writeable = true)
         int smokeAlarm = 1;
 
@@ -75,7 +85,7 @@ public class SmokeDetector {
 
         private final Logger log = LogManager.getLogger(this.getClass());
 
-        //定义命令，注意接口入参和返回值类型是固定的不能修改，否则会出现运行时错误
+        // 定义命令，注意接口入参和返回值类型是固定的不能修改，否则会出现运行时错误
         @DeviceCommand(name = "ringAlarm")
         public CommandRsp alarm(Map<String, Object> paras) {
             int duration = (int) paras.get("duration");
@@ -83,39 +93,39 @@ public class SmokeDetector {
             return new CommandRsp(0);
         }
 
-        //setter和getter接口的命名应该符合java bean规范，sdk会自动调用这些接口
+        // setter和getter接口的命名应该符合java bean规范，sdk会自动调用这些接口
         public int getHumidity() {
 
-            //模拟从传感器读取数据
+            // 模拟从传感器读取数据
             humidity = new SecureRandom().nextInt(100);
             return humidity;
         }
 
         public void setHumidity(int humidity) {
-            //humidity是只读的，不需要实现
+            // humidity是只读的，不需要实现
         }
 
         public float getTemperature() {
 
-            //模拟从传感器读取数据
+            // 模拟从传感器读取数据
             temperature = new SecureRandom().nextInt(100);
             return temperature;
         }
 
         public void setTemperature(float temperature) {
-            //只读字段不需要实现set接口
+            // 只读字段不需要实现set接口
         }
 
         public float getConcentration() {
 
-            //模拟从传感器读取数据
+            // 模拟从传感器读取数据
             concentration = new SecureRandom().nextFloat() * 100.0f;
 
             return concentration;
         }
 
         public void setConcentration(float concentration) {
-            //只读字段不需要实现set接口
+            // 只读字段不需要实现set接口
         }
 
         public int getSmokeAlarm() {
@@ -123,12 +133,10 @@ public class SmokeDetector {
         }
 
         public void setSmokeAlarm(int smokeAlarm) {
-
             this.smokeAlarm = smokeAlarm;
             if (smokeAlarm == 0) {
                 log.info("alarm is cleared by app");
             }
         }
-
     }
 }

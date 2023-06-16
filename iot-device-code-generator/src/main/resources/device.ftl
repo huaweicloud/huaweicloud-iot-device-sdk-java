@@ -1,7 +1,12 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
 /**
@@ -11,27 +16,34 @@ import com.huaweicloud.sdk.iot.device.IoTDevice;
 public class DeviceMain
 {
 
-    public static void main(String args[]) throws InterruptedException {
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
 
-       String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
-       String deviceId;
-       String secret;
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
-       if (args.length < 2) {
+    public static void main(String args[]) throws InterruptedException, IOException {
+        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
+        String deviceId;
+        String secret;
+
+        if (args.length < 2) {
            System.out.println("input: deviceId secret [serverUri]");
            return;
-       }
+        }
 
-       // 从命令行获取设备参数
-       deviceId = args[0];
-       secret = args[1];
+        // 从命令行获取设备参数
+        deviceId = args[0];
+        secret = args[1];
 
-       if (args.length > 2) {
+        if (args.length > 2) {
            serverUri = args[2];
-       }
+        }
+
+        InputStream resource = IoTDevice.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH);
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
 
         // 创建设备
-        IoTDevice device = new IoTDevice(serverUri, deviceId, secret);
+        IoTDevice device = new IoTDevice(serverUri, deviceId, secret, tmpCAFile);
 
         <#list device.serviceTypeCapabilities as service>
         ${service.serviceType}Service ${service.serviceType}ServiceInstance = new ${service.serviceType}Service();
@@ -43,8 +55,5 @@ public class DeviceMain
         if (device.init() != 0) {
             return;
         }
-
     }
-
-
 }

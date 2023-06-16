@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SimpleGateway extends AbstractGateway {
     private static final Logger log = LogManager.getLogger(SimpleGateway.class);
 
-    private Map<String, Session> nodeIdToSesseionMap; //保存设备标识码和session的映射
+    private Map<String, Session> nodeIdToSesseionMap; // 保存设备标识码和session的映射
 
-    private Map<String, Session> channelIdToSessionMap; //保存channelId和session的映射
+    private Map<String, Session> channelIdToSessionMap; // 保存channelId和session的映射
 
     SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId,
         String deviceSecret, File file) {
@@ -57,7 +57,7 @@ public class SimpleGateway extends AbstractGateway {
 
     Session createSession(String nodeId, Channel channel) {
 
-        //北向已经添加了此设备
+        // 北向已经添加了此设备
         DeviceInfo subdev = getSubDeviceByNodeId(nodeId);
         if (subdev != null) {
             Session session = new Session();
@@ -119,10 +119,10 @@ public class SimpleGateway extends AbstractGateway {
             return;
         }
 
-        //这里我们直接把command对象转成string发给子设备，实际场景中可能需要进行一定的编解码转换
+        // 这里我们直接把command对象转成string发给子设备，实际场景中可能需要进行一定的编解码转换
         session.getChannel().writeAndFlush(JsonUtil.convertObject2String(command));
 
-        //为了简化处理，我们在这里直接回命令响应。更合理做法是在子设备处理完后再回响应
+        // 为了简化处理，我们在这里直接回命令响应。更合理做法是在子设备处理完后再回响应
         getClient().respondCommand(requestId, new CommandRsp(0));
         log.info("writeAndFlush command is {}", command);
     }
@@ -145,10 +145,10 @@ public class SimpleGateway extends AbstractGateway {
             return;
         }
 
-        //这里我们直接把对象转成string发给子设备，实际场景中可能需要进行一定的编解码转换
+        // 这里我们直接把对象转成string发给子设备，实际场景中可能需要进行一定的编解码转换
         session.getChannel().writeAndFlush(JsonUtil.convertObject2String(propsSet));
 
-        //为了简化处理，我们在这里直接回响应。更合理做法是在子设备处理完后再回响应
+        // 为了简化处理，我们在这里直接回响应。更合理做法是在子设备处理完后再回响应
         getClient().respondPropsSet(requestId, IotResult.SUCCESS);
 
         log.info("writeAndFlush {}", propsSet);
@@ -158,7 +158,7 @@ public class SimpleGateway extends AbstractGateway {
     @Override
     public void onSubdevPropertiesGet(String requestId, PropsGet propsGet) {
 
-        //不建议平台直接读子设备的属性，这里直接返回失败
+        // 不建议平台直接读子设备的属性，这里直接返回失败
         log.error("not supporte onSubdevPropertiesGet");
         getClient().respondPropsSet(requestId, IotResult.FAIL);
     }
