@@ -287,9 +287,11 @@ public class IotUtil {
 
             KeyManagerFactory managerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             managerFactory.init(clientConf.getKeyStore(), clientConf.getKeyPassword().toCharArray());
-            sslContext.init(managerFactory.getKeyManagers(), getTrustManager(clientConf.getFile()), null);
+            sslContext.init(managerFactory.getKeyManagers(),
+                getTrustManager(clientConf.getFile()), SecureRandom.getInstanceStrong());
         } else {
-            sslContext.init(null, getTrustManager(clientConf.getFile()), new SecureRandom());
+            sslContext.init(null, getTrustManager(clientConf.getFile()),
+                SecureRandom.getInstanceStrong());
         }
         return sslContext;
     }

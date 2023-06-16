@@ -2,10 +2,16 @@ package com.huaweicloud.sdk.iot.device.demo.bootstrap;
 
 import com.huaweicloud.sdk.iot.device.bootstrap.BootstrapClient;
 import com.huaweicloud.sdk.iot.device.bootstrap.PlatformCaProvider;
+import com.huaweicloud.sdk.iot.device.demo.ReportDeviceInfoSample;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Objects;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class BaseBootstrapSample {
     /**
@@ -17,6 +23,8 @@ public class BaseBootstrapSample {
      * 设备发放的设备侧CA证书，注意与IoTDA的设备侧区分开（此处指定包含iot所有平台的根CA的证书文件，如有特殊需求，请按需裁剪）
      */
     private static final String BOOTSTRAP_CA_RES_PATH = "ca.jks";
+
+    private static final String BOOTSTRAP_CA_TMP_FILE_PATH = "huaweicloud-iotda-tmp-" + BOOTSTRAP_CA_RES_PATH;
 
     /**
      * IoT平台CA证书
@@ -32,12 +40,13 @@ public class BaseBootstrapSample {
         @Override
         public File getIotCaFile() {
             // 加载iot平台（设备发放）的ca证书，进行服务端校验
-            URL resource = BootstrapClient.class.getClassLoader().getResource(BOOTSTRAP_CA_RES_PATH);
-            if (Objects.isNull(resource)) {
-                throw new IllegalArgumentException("bootstrap ca path is null, path=" + BOOTSTRAP_CA_RES_PATH);
+            File tmpCAFile = new File(BOOTSTRAP_CA_TMP_FILE_PATH);
+            try (InputStream resource = ReportDeviceInfoSample.class.getClassLoader().getResourceAsStream(BOOTSTRAP_CA_RES_PATH)) {
+                Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("can't extract bootstrap ca, " + BOOTSTRAP_CA_RES_PATH);
             }
-
-            return new File(resource.getPath());
+            return tmpCAFile;
         }
 
         @Override

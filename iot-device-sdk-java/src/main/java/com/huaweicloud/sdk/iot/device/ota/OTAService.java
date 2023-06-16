@@ -23,36 +23,37 @@ import java.util.concurrent.Future;
  * 具体参见OTASample
  */
 public class OTAService extends AbstractService {
-    //升级上报的错误码，用户也可以扩展自己的错误码
-    public static final int OTA_CODE_SUCCESS = 0;//成功
 
-    public static final int OTA_CODE_BUSY = 1;  //设备使用中
+    // 升级上报的错误码，用户也可以扩展自己的错误码
+    public static final int OTA_CODE_SUCCESS = 0; // 成功
 
-    public static final int OTA_CODE_SIGNAL_BAD = 2;  //信号质量差
+    public static final int OTA_CODE_BUSY = 1; // 设备使用中
 
-    public static final int OTA_CODE_NO_NEED = 3;  //已经是最新版本
+    public static final int OTA_CODE_SIGNAL_BAD = 2; // 信号质量差
 
-    public static final int OTA_CODE_LOW_POWER = 4;  //电量不足
+    public static final int OTA_CODE_NO_NEED = 3; // 已经是最新版本
 
-    public static final int OTA_CODE_LOW_SPACE = 5;  //剩余空间不足
+    public static final int OTA_CODE_LOW_POWER = 4; // 电量不足
 
-    public static final int OTA_CODE_DOWNLOAD_TIMEOUT = 6;  //下载超时
+    public static final int OTA_CODE_LOW_SPACE = 5; // 剩余空间不足
 
-    public static final int OTA_CODE_CHECK_FAIL = 7;  //升级包校验失败
+    public static final int OTA_CODE_DOWNLOAD_TIMEOUT = 6; // 下载超时
 
-    public static final int OTA_CODE_UNKNOWN_TYPE = 8;  //升级包类型不支持
+    public static final int OTA_CODE_CHECK_FAIL = 7; // 升级包校验失败
 
-    public static final int OTA_CODE_LOW_MEMORY = 9;  //内存不足
+    public static final int OTA_CODE_UNKNOWN_TYPE = 8; // 升级包类型不支持
 
-    public static final int OTA_CODE_INSTALL_FAIL = 10;  //安装升级包失败
+    public static final int OTA_CODE_LOW_MEMORY = 9; // 内存不足
 
-    public static final int OTA_CODE_INNER_ERROR = 255;  // 内部异常
+    public static final int OTA_CODE_INSTALL_FAIL = 10; // 安装升级包失败
+
+    public static final int OTA_CODE_INNER_ERROR = 255; // 内部异常
 
     private static final Logger log = LogManager.getLogger(OTAService.class);
 
     private OTAListener otaListener;
 
-    private ExecutorService executorService;//OTA单独起一个线程处理
+    private ExecutorService executorService; // OTA单独起一个线程处理
 
     /**
      * 设置OTA监听器

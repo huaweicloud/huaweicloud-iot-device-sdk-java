@@ -33,7 +33,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * mqtt连接
@@ -240,8 +239,10 @@ public class MqttConnection implements Connection {
             @Override
             public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
                 log.info("connect failed, the reason is {}", throwable.toString());
-                MqttException me = (MqttException) throwable;
-                connectResultCode = me.getReasonCode();
+                if(throwable instanceof MqttException) {
+                    MqttException me = (MqttException) throwable;
+                    connectResultCode = me.getReasonCode();
+                }
 
                 if (connectActionListener != null) {
                     connectActionListener.onFailure(iMqttToken, throwable);

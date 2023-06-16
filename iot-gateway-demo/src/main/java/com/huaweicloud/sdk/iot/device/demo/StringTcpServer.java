@@ -41,14 +41,14 @@ public class StringTcpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        int port;
+        int serverPort;
         if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
+            serverPort = Integer.parseInt(args[0]);
         } else {
-            port = 8080;
+            serverPort = 8080;
         }
 
-        //加载iot平台的ca证书，进行服务端校验
+        // 加载iot平台的ca证书，进行服务端校验
         URL resource = StringTcpServer.class.getClassLoader().getResource("ca.jks");
         File file = new File(resource.getPath());
 
@@ -65,7 +65,7 @@ public class StringTcpServer {
          * gtwOperateSubDevices();
          */
 
-        new StringTcpServer(port).run();
+        new StringTcpServer(serverPort).run();
 
     }
 
@@ -106,13 +106,13 @@ public class StringTcpServer {
             Channel incoming = ctx.channel();
             log.info("channelRead0 is {}, the msg is {}", incoming.remoteAddress(), s);
 
-            //如果是首条消息,创建session
+            // 如果是首条消息,创建session
             Session session = simpleGateway.getSessionByChannel(incoming.id().asLongText());
             if (session == null) {
                 String nodeId = s;
                 session = simpleGateway.createSession(nodeId, incoming);
 
-                //创建会话失败，拒绝连接
+                // 创建会话失败，拒绝连接
                 if (session == null) {
                     log.info("close channel");
                     ctx.close();
@@ -123,19 +123,19 @@ public class StringTcpServer {
 
             } else {
 
-                //网关收到子设备上行数据时，可以以消息或者属性上报转发到平台。
-                //实际使用时根据需要选择一种即可，这里为了演示，两种类型都转发一遍
+                // 网关收到子设备上行数据时，可以以消息或者属性上报转发到平台。
+                // 实际使用时根据需要选择一种即可，这里为了演示，两种类型都转发一遍
 
-                //上报消息用reportSubDeviceMessage
+                // 上报消息用reportSubDeviceMessage
                 DeviceMessage deviceMessage = new DeviceMessage(s);
                 deviceMessage.setDeviceId(session.getDeviceId());
                 simpleGateway.reportSubDeviceMessage(deviceMessage, null);
 
-                //报属性则调用reportSubDeviceProperties，属性的serviceId和字段名要和子设备的产品模型保持一致
+                // 报属性则调用reportSubDeviceProperties，属性的serviceId和字段名要和子设备的产品模型保持一致
                 ServiceProperty serviceProperty = new ServiceProperty();
                 serviceProperty.setServiceId("parameter");
                 Map<String, Object> props = new HashMap<>();
-                //属性值暂且写死，实际中应该根据子设备上报的进行组装
+                // 属性值暂且写死，实际中应该根据子设备上报的进行组装
                 props.put("alarm", 1);
                 props.put("temprature", 2);
                 serviceProperty.setProperties(props);

@@ -75,7 +75,7 @@ public class TcpServer {
             Channel incoming = ctx.channel();
             log.info("channelRead0: {}, msg : {}", incoming.remoteAddress(), s);
 
-            //如果是首条消息,创建session
+            // 如果是首条消息,创建session
             Session session = Bridge.getInstance().getSessionByChannel(incoming.id().asLongText());
             if (session == null) {
                 Bridge.getInstance().createSession(s, incoming);

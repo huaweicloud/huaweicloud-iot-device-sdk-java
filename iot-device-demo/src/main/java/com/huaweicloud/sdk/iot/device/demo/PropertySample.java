@@ -10,7 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,21 +20,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 /**
  * 演示如何直接使用DeviceClient进行设备属性的上报和读写
  */
 public class PropertySample {
+
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
+
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
+
     private static final Logger log = LogManager.getLogger(PropertySample.class);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
         // 加载iot平台的ca证书，进行服务端校验
-        URL resource = PropertySample.class.getClassLoader().getResource("ca.jks");
-        File file = new File(resource.getPath());
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
 
         // 创建设备并初始化
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
+            "5e06bfee334dd4f33759f5b3_demo", "mysecret", tmpCAFile);
         if (device.init() != 0) {
             return;
         }
@@ -87,7 +98,7 @@ public class PropertySample {
             Map<String, Object> json = new HashMap<>();
             Random rand = new SecureRandom();
 
-            //按照物模型设置属性
+            // 按照物模型设置属性
             json.put("alarm", 1);
             json.put("temperature", rand.nextFloat() * 100.0f);
             json.put("humidity", rand.nextFloat() * 100.0f);
@@ -95,7 +106,7 @@ public class PropertySample {
 
             ServiceProperty serviceProperty = new ServiceProperty();
             serviceProperty.setProperties(json);
-            serviceProperty.setServiceId("smokeDetector");//serviceId要和物模型一致
+            serviceProperty.setServiceId("smokeDetector"); // serviceId要和物模型一致
 
             device.getClient().reportProperties(Arrays.asList(serviceProperty), new ActionListener() {
                 @Override

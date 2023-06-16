@@ -12,31 +12,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 /**
  * 演示如何使用旧接口（调用V3接口）数据上报/命令下发，一般用不到
  */
 public class PropertyV3AndCmdV3Sample {
+
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
+
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
+
     private static final Logger log = LogManager.getLogger(PropertyV3AndCmdV3Sample.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "mysecret";
 
-        //加载iot平台的ca证书，进行服务端校验
-        URL resource = PropertyV3AndCmdV3Sample.class.getClassLoader().getResource("ca.jks");
-        File file = new File(resource.getPath());
+        // 加载iot平台的ca证书，进行服务端校验
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
 
-        //创建设备并初始化
+        // 创建设备并初始化
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            deviceId, secret, file);
+            deviceId, secret, tmpCAFile);
         if (device.init() != 0) {
             return;
         }
@@ -60,7 +71,7 @@ public class PropertyV3AndCmdV3Sample {
         list.add(serviceData);
         devicePropertiesV3.setServiceDatas(list);
 
-        //订阅V3 TOPIC
+        // 订阅V3 TOPIC
         device.getClient().subscribeTopic("/huawei/v1/devices/" + deviceId + "/command/json", new ActionListener() {
             @Override
             public void onSuccess(Object context) {
@@ -73,7 +84,7 @@ public class PropertyV3AndCmdV3Sample {
             }
         }, 0);
 
-        //通过V3接口上报属性
+        // 通过V3接口上报属性
         device.getClient().reportPropertiesV3(devicePropertiesV3, new ActionListener() {
             @Override
             public void onSuccess(Object context) {
@@ -86,7 +97,7 @@ public class PropertyV3AndCmdV3Sample {
             }
         });
 
-        //设置监听器监听V3接口下发的命令
+        // 设置监听器监听V3接口下发的命令
         device.getClient().setCommandV3Listener(new CommandV3Listener() {
             @Override
             public void onCommandV3(CommandV3 commandV3) {
@@ -96,9 +107,9 @@ public class PropertyV3AndCmdV3Sample {
                 log.info("onCommand, mid = {}", commandV3.getMid());
                 log.info("onCommand, paras = {}", commandV3.getParas().toString());
 
-                //处理命令
+                // 处理命令
 
-                //上报命令响应
+                // 上报命令响应
                 CommandRspV3 commandRspV3 = new CommandRspV3("deviceRsp", commandV3.getMid(), 0);
                 Map<String, Object> json = new HashMap<>();
                 json.put("result", 0);

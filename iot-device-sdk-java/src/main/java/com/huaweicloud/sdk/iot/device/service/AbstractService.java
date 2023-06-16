@@ -66,7 +66,7 @@ public abstract class AbstractService implements IService {
                 writeableFields.put(name, field);
             }
 
-            //这里key是字段名,pair里保存属性名
+            // 这里key是字段名,pair里保存属性名
             readableFields.put(field.getName(), new FieldPair(name, field));
         }
 
@@ -196,7 +196,7 @@ public abstract class AbstractService implements IService {
             }
         }
 
-        //上报变化的属性
+        // 上报变化的属性
         if (changedProps.size() > 0) {
             firePropertiesChanged(changedProps.toArray(new String[changedProps.size()]));
         }

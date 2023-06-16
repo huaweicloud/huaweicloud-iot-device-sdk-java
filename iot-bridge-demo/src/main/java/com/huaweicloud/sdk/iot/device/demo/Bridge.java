@@ -54,11 +54,11 @@ public class Bridge {
     public static void main(String[] args) throws Exception {
 
         // 默认使用北京4的接入地址，其他region的用户请修改
-        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
+        String demoServerUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
 
         int port = 8080;
 
-        Bridge.createBridge(serverUri, null);
+        Bridge.createBridge(demoServerUri, null);
 
         new TcpServer(port).run();
 
@@ -88,7 +88,7 @@ public class Bridge {
             return;
         }
 
-        //加载iot平台的ca证书，进行服务端校验
+        // 加载iot平台的ca证书，进行服务端校验
         URL resource = Bridge.class.getClassLoader().getResource("ca.jks");
         File file = new File(resource.getPath());
 

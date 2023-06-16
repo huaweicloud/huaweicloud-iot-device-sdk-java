@@ -1,7 +1,6 @@
 package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
-import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.ota.OTAListener;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackage;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackageV2;
@@ -22,15 +21,18 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.bind.DatatypeConverter;
 
+import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * OTAV2 sample，用来演示如何实现从obs传包以设备升级。
@@ -38,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * 并上报升级结果。在平台上可以看到升级结果
  */
 public class OTAV2Sample implements OTAListener {
+
     private static final Logger log = LogManager.getLogger(OTASample.class);
 
     private IoTDevice device;
@@ -49,6 +52,10 @@ public class OTAV2Sample implements OTAListener {
     private String version; // 当前版本号
 
     private String packageSavePath; // 升级包保存路径
+
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
+
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
     private OTAV2Sample(IoTDevice device, String packageSavePath) throws Exception {
         this.device = device;
@@ -79,7 +86,7 @@ public class OTAV2Sample implements OTAListener {
         try {
             SSLContext sc = SSLContext.getInstance("TLSv1.2");
 
-            sc.init(null, null, new SecureRandom());
+            sc.init(null, null, SecureRandom.getInstanceStrong());
             ssfFactory = sc.getSocketFactory();
         } catch (Exception e) {
             log.error("create SSL Socket Factory error" + e.getMessage());
@@ -244,11 +251,13 @@ public class OTAV2Sample implements OTAListener {
     public static void main(String[] args) throws Exception {
 
         // 加载iot平台的ca证书，进行服务端校验
-        URL resource = OTAV2Sample.class.getClassLoader().getResource("ca.jks");
-        File file = new File(resource.getPath());
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
 
         IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "deviceid", "secret", file);
+                "deviceid", "secret", tmpCAFile);
 
         OTAV2Sample otaV2Sample = new OTAV2Sample(iotDevice, "image.bin");
         otaV2Sample.init();
