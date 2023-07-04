@@ -14,7 +14,7 @@ public class BridgeDevice extends IoTDevice {
 
     private static BridgeDevice instance;
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     private BridgeDevice(ClientConf clientConf) {
         super(clientConf);

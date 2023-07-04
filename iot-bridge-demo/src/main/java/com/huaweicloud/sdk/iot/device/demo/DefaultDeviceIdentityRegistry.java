@@ -17,7 +17,7 @@ public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
     private static final Logger log = LogManager.getLogger(DefaultDeviceIdentityRegistry.class);
 
-    private Map<String, Map<String, String>> deviceIdentityMap;
+    private final Map<String, Map<String, String>> deviceIdentityMap;
 
     DefaultDeviceIdentityRegistry() {
 

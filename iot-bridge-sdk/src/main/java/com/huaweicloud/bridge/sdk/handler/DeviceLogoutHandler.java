@@ -18,7 +18,7 @@ public class DeviceLogoutHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(
         DeviceLogoutHandler.class);
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public DeviceLogoutHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;

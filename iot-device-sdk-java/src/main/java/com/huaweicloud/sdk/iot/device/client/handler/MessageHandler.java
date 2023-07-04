@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 public class MessageHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(MessageHandler.class);
 
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public MessageHandler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

@@ -29,11 +29,11 @@ public abstract class AbstractService implements IService {
 
     private AbstractDevice iotDevice;
 
-    private Map<String, Method> commands = new HashMap<>();
+    private final Map<String, Method> commands = new HashMap<>();
 
-    private Map<String, Field> writeableFields = new HashMap<>();
+    private final Map<String, Field> writeableFields = new HashMap<>();
 
-    private Map<String, FieldPair> readableFields = new HashMap<>();
+    private final Map<String, FieldPair> readableFields = new HashMap<>();
 
     private Timer timer;
 

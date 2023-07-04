@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentMap;
 public class RequestManager {
     private static final Logger log = LogManager.getLogger(RequestManager.class);
 
-    private ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, IotRequest> pendingRequests = new ConcurrentHashMap<>();
 
-    private DeviceClient iotClient;
+    private final DeviceClient iotClient;
 
     /**
      * 构造函数

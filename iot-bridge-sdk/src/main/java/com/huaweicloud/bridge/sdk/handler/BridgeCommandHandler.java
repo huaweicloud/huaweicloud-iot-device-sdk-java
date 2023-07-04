@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 public class BridgeCommandHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(BridgeCommandHandler.class);
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public BridgeCommandHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;

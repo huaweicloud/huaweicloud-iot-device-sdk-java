@@ -7,7 +7,7 @@ import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 
 public class PropertyGetHandler implements MessageReceivedHandler {
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public PropertyGetHandler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class RequestIdCache {
     private static final Logger log = LogManager.getLogger(RequestIdCache.class);
 
-    private Cache<String, CompletableFuture<Integer>> futureCache;
+    private final Cache<String, CompletableFuture<Integer>> futureCache;
 
     private static final int INITIAL_CAPACITY = 200;
 

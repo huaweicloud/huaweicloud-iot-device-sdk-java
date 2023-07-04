@@ -54,7 +54,7 @@ public class MqttConnection implements Connection {
 
     private static final int MAX_FLIGHT_COUNT = 1000;
 
-    private ClientConf clientConf;
+    private final ClientConf clientConf;
 
     private boolean connectFinished = false;
 
@@ -73,7 +73,7 @@ public class MqttConnection implements Connection {
         this.rawMessageListener = rawMessageListener;
     }
 
-    private MqttCallback callback = new MqttCallbackExtended() {
+    private final MqttCallback callback = new MqttCallbackExtended() {
 
         @Override
         public void connectionLost(Throwable cause) {

@@ -24,13 +24,13 @@ public class Bridge {
 
     private static Bridge instance;
 
-    private DeviceIdentityRegistry deviceIdentityRegistry;
+    private final DeviceIdentityRegistry deviceIdentityRegistry;
 
-    private String serverUri;
+    private final String serverUri;
 
-    private Map<String, Session> deviceIdToSessionMap;
+    private final Map<String, Session> deviceIdToSessionMap;
 
-    private Map<String, Session> channelIdToSessionMap;
+    private final Map<String, Session> channelIdToSessionMap;
 
     private Bridge(String serverUri, DeviceIdentityRegistry deviceIdentityRegistry) {
         this.serverUri = serverUri;

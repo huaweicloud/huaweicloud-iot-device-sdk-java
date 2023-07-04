@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultConnActionLogListener implements ConnectActionListener {
-    private DeviceLogService deviceLogService;
+    private final DeviceLogService deviceLogService;
 
     public DefaultConnActionLogListener(DeviceLogService deviceLogService) {
         this.deviceLogService = deviceLogService;
