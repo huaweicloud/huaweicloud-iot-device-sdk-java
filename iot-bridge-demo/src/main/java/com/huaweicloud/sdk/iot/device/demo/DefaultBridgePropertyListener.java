@@ -16,9 +16,9 @@ public class DefaultBridgePropertyListener implements PropertyListener {
 
     private static final Logger log = LogManager.getLogger(DefaultBridgePropertyListener.class);
 
-    private Channel channel;
+    private final Channel channel;
 
-    private IoTDevice ioTDevice;
+    private final IoTDevice ioTDevice;
 
     DefaultBridgePropertyListener(Channel channel, IoTDevice ioTDevice) {
         this.channel = channel;

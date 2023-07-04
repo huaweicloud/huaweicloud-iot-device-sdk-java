@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 public class PropertySetHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(PropertySetHandler.class);
 
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public PropertySetHandler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

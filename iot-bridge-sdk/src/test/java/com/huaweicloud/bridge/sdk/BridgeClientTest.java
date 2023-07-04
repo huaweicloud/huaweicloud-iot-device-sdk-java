@@ -37,11 +37,11 @@ import java.util.concurrent.TimeoutException;
 @PrepareForTest({BridgeClient.class, CompletableFuture.class})
 @PowerMockIgnore({"javax.management.*", "javax.crypto.*", "javax.script.*"})
 public class BridgeClientTest {
-    private static String deviceId = "deviceId";
+    private static final String deviceId = "deviceId";
 
-    private static String password = "password";
+    private static final String password = "password";
 
-    private static String requestId = "requestId";
+    private static final String requestId = "requestId";
 
     @Mock
     private Connection connMock;

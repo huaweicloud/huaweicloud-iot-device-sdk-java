@@ -34,7 +34,7 @@ public class StringTcpServer {
 
     private static SimpleGateway simpleGateway;
 
-    private int port;
+    private final int port;
 
     private StringTcpServer(int port) {
         this.port = port;

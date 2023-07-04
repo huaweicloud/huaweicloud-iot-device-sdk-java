@@ -14,7 +14,7 @@ public class EventDownHandler implements MessageReceivedHandler {
 
     private static final String BRIDGE_TOPIC_KEYWORD = "$oc/bridges/";
 
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public EventDownHandler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

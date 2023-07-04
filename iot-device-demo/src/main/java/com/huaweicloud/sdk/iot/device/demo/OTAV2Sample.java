@@ -43,15 +43,15 @@ public class OTAV2Sample implements OTAListener {
 
     private static final Logger log = LogManager.getLogger(OTASample.class);
 
-    private IoTDevice device;
+    private final IoTDevice device;
 
-    private OTAService otaService;
+    private final OTAService otaService;
 
-    private OkHttpClient okHttpClient;
+    private final OkHttpClient okHttpClient;
 
     private String version; // 当前版本号
 
-    private String packageSavePath; // 升级包保存路径
+    private final String packageSavePath; // 升级包保存路径
 
     private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
 

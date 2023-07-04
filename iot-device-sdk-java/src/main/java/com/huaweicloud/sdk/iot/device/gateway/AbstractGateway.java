@@ -41,7 +41,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     private SubDevDiscoveryListener subDevDiscoveryListener;
 
-    private SubDevicesPersistence subDevicesPersistence;
+    private final SubDevicesPersistence subDevicesPersistence;
 
     private GtwOperateSubDeviceListener gtwOperateSubDeviceListener;
 

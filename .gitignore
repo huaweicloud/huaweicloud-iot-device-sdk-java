@@ -1,3 +1,9 @@
+# file system
+.DS_Store
+
+# ide
+.idea/**
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup

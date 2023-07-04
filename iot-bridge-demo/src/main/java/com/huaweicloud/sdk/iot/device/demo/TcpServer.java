@@ -26,7 +26,7 @@ public class TcpServer {
 
     private static final Logger log = LogManager.getLogger(TcpServer.class);
 
-    private int port;
+    private final int port;
 
     TcpServer(int port) {
         this.port = port;

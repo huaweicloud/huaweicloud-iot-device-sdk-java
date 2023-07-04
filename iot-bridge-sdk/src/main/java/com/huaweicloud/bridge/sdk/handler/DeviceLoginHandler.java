@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class DeviceLoginHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(DeviceLoginHandler.class);
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public DeviceLoginHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;
