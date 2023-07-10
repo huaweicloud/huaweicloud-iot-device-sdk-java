@@ -57,7 +57,7 @@
                     <groupId>org.checkerframework</groupId>
                 </exclusion>
             </exclusions>
-            <version>31.1-jre</version>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
