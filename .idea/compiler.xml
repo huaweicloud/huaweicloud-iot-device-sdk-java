@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="iot-bridge-sample-tcp-protocol" />
+        <module name="iot-bridge-demo" />
+        <module name="iot-bridge-sdk" />
+        <module name="iot-device-demo" />
+        <module name="iot-gateway-demo" />
+        <module name="iot-device-code-generator" />
+        <module name="iot-device-sdk-java" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="iot-device-demo" options="-XDignore.symbol.file" />
+    </option>
+  </component>
+</project>

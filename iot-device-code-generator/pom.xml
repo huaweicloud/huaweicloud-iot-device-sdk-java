@@ -7,7 +7,9 @@
         <artifactId>iot-device-sdk-java-pom</artifactId>
         <version>1.2.0</version>
     </parent>
+
     <artifactId>iot-device-code-generator</artifactId>
+
     <description>A device code generator</description>
 
     <properties>
@@ -16,7 +18,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
@@ -64,7 +65,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4</version>
@@ -90,8 +90,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

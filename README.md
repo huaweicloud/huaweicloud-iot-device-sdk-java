@@ -513,7 +513,6 @@ private void reportProperties(Channel channel, BaseMessage message) {
     serviceProperty.setProperties(
         JsonUtil.convertJsonStringToObject(JsonUtil.convertObject2String(message), Map.class));
 
-
     // 调用网桥reportProperties接口，上报设备属性数据
     BridgeService.getBridgeClient()
         .reportProperties(deviceId, Collections.singletonList(serviceProperty), new ActionListener() {
@@ -525,7 +524,6 @@ private void reportProperties(Channel channel, BaseMessage message) {
             @Override
             public void onFailure(Object context, Throwable var2) {
                 log.warn("device={} reportProperties failed: {}", deviceId, ExceptionUtil.getBriefStackTrace(var2));
-
                 sendResponse(channel, message, 1);
             }
         });
