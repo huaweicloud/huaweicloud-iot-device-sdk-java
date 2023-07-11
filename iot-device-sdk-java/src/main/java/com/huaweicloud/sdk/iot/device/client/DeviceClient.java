@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2020-2023 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without specific prior written
+ *    permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.huaweicloud.sdk.iot.device.client;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,6 +43,7 @@ import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandV3Listener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
+import com.huaweicloud.sdk.iot.device.client.listener.RawDeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRspV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
@@ -92,6 +123,8 @@ public class DeviceClient implements RawMessageListener {
     private CommandV3Listener commandV3Listener;
 
     private DeviceMessageListener deviceMessageListener;
+
+    private RawDeviceMessageListener rawDeviceMessageListener;
 
     private ClientConf clientConf;
 
@@ -548,6 +581,10 @@ public class DeviceClient implements RawMessageListener {
         return deviceMessageListener;
     }
 
+    public RawDeviceMessageListener getRawDeviceMessageListener() {
+        return rawDeviceMessageListener;
+    }
+
     public RequestManager getRequestManager() {
         return requestManager;
     }
@@ -563,11 +600,22 @@ public class DeviceClient implements RawMessageListener {
     /**
      * 设置消息监听器，用于接收平台下发的消息
      * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
-     *
      * @param deviceMessageListener 消息监听器
+     * @deprecated 该方法不能处理云端下发的任意格式的消息，请使用setRawDeviceMessageListener代替
      */
+    @Deprecated
     public void setDeviceMessageListener(DeviceMessageListener deviceMessageListener) {
         this.deviceMessageListener = deviceMessageListener;
+    }
+
+    /**
+     * 设置消息监听器，用于接收平台下发的消息
+     * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     *
+     * @param rawDeviceMessageListener 消息监听器
+     */
+    public void setRawDeviceMessageListener(RawDeviceMessageListener rawDeviceMessageListener) {
+        this.rawDeviceMessageListener = rawDeviceMessageListener;
     }
 
     /**

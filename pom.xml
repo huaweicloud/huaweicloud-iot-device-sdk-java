@@ -2,6 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.huaweicloud</groupId>
     <artifactId>iot-device-sdk-java-pom</artifactId>
     <version>1.2.0</version>
@@ -75,7 +76,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -89,7 +89,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -106,7 +105,6 @@
                     </execution>
                 </executions>
             </plugin>
-
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->
 <!--                <artifactId>maven-gpg-plugin</artifactId>-->
@@ -120,8 +118,6 @@
 <!--                    </execution>-->
 <!--                </executions>-->
 <!--            </plugin>-->
-
-
         </plugins>
     </build>
 
@@ -137,6 +133,4 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
-
-
 </project>

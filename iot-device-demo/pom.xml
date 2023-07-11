@@ -8,6 +8,7 @@
         <artifactId>iot-device-sdk-java-pom</artifactId>
         <version>1.2.0</version>
     </parent>
+
     <artifactId>iot-device-demo</artifactId>
 
     <description>java device demo project</description>
@@ -22,29 +23,24 @@
             <artifactId>iot-device-sdk-java</artifactId>
             <version>1.2.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
-
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.10.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15to18</artifactId>
@@ -70,7 +66,6 @@
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -84,7 +79,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4</version>
@@ -110,9 +104,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
-
 </project>

@@ -1,59 +1,61 @@
-English | [简体中文](./README.md) 
+[English](./README_EN.md) | Simplified Chinese
 
 # huaweicloud-iot-device-sdk-java
 
-huaweicloud-iot-device-sdk-java provides the Java SDK for devices to connect to HUAWEI CLOUD IoT platform. It provides communication capabilities between devices and the platform and advanced services such as device services, gateway services, and over-the-air (OTA). In addition, huaweicloud-iot-device-sdk-java provides rich demo code for various scenarios. IoT device developers can use SDKs to greatly simplify development and quickly access the platform.
+huaweicloud-iot-device-sdk-java provides abundant demo code for devices to communicate with the platform and implement device, gateway, and over-the-air (OTA) services. The SDK greatly simplifies device development and enables quick access to the platform.
 
 
-* [Supported Features](#supported-features)
-* [How to use](#how-to-use)
-* [Device Initialization](#device-initialization)
-* [Report Message](#report-message)
-* [Report device properties](#report-device-properties)
-* [Processing commands delivered by the platform](#processing-commands-delivered-by-the-platform)
-* [Object-oriented model programming](#object-oriented-model-programming)
-* [Use Device Code Generator](#use-device-code-generator)
-* [Certificate authentication](#certificate-authentication)
-* [Version Update Description](#version-update-description)
-* [Interface Document](#https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
-* [More Documents](https://support.huaweicloud.com/devg-iothub/iot_02_0089.html)
-* [License](#license)
-* [How to contribute code](#how-to-contribute-code)
+* [Supported Features](#Supported Features)
+* [How to Use](#How to Use)
+* [Initializing a Device](#Initializing a Device)
+* [Reporting a Message](#Reporting a Message)
+* [Reporting Device Properties](#Reporting Device Properties)
+* [Processing Read and Write on Properties Delivered by the Platform](#Processing Read and Write on Properties Delivered by the Platform)
+* [Processing Commands Delivered by the Platform](#Processing Commands Delivered by the Platform)
+* [Profile-oriented Programming](#Profile-oriented Programming)
+* [Using the Device Code Generator](#Using the Device Code Generator)
+* [Using a Certificate for Authentication](#Using a Certificate for Authentication)
+* [Version Updates](#Version Updates)
+* [API Reference](https://cn-north-4-iot-sp.huaweicloud.com/assets/helpcenter/doc/index.html)
+* [More Documents](https://support.huaweicloud.com/intl/en-us/devg-iothub/iot_02_0089.html)
+* [License](#License)
+* [How to Contribute Code](#How to Contribute Code)
 
 ## Supported Features
-- Supports device messages, property reporting, property reading and writing, and command delivery.
-- Gateway service, subdevice management, and subdevice message forwarding.
-- Supports device OTA services.
-- Object-oriented programming.
-- Provides a device code generator to automatically generate device codes based on product models.
-- Supports password authentication and certificate authentication.
-- User-defined topics are supported.
+- Device message reporting, property reporting, property reading and writing, and command delivery
+- Gateway services, child device management, and child device message forwarding
+- Device OTA services
+- Profile-oriented programming
+- Automatic device code generation based on product models using the device code generator
+- Device authentication using secrets and certificates
+- Topic customization
 
-## How to use
+## How to Use
 
-Dependent version:
-* JDK ：1.8 +
+Dependent versions:
+* JDK 1.8 or later
 
-### Device Initialization
 
-Create and initialize a device. Currently, the device supports the communication with Chinese cryptographic algorithms.
-Before enabling the Chinese encryption algorithm, see the [BGMProvider Installation Guide](https://gitee.com/openeuler/bgmprovider/wikis/English%20Documentation/BGMProvider%20Installation%20Guide)
 
+### Initializing a Device
+
+Create and initialize a device. Currently, communication secured with Chinese cryptography algorithms is supported.
+Before enabling the Chinese cryptography algorithms, see the [BGMProvider Installation Guide](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97).
 ```java
         IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-                "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
-        // By default, international encrypted communication is used. To use Chinese encrypted communication, setGmssl to true.
+                "your device id", "your device secret", file);
+        //International encrypted communication is used by default. To use Chinese encrypted communication, set Gmssl to true.
         //device.getClient().getClientConf().setGmssl(true);
-        // By default, the timestamp is not verified. To verify the timestamp, set the corresponding parameter to Hash algorithm.
+        //The timestamp is not verified by default. To verify the timestamp, set the corresponding parameter to select the hash algorithm.
         //device.getClient().getClientConf().setCheckStamp(Constants.CHECK_STAMP_SM3_ON);
         if (device.init() != 0) {
             return;
         }
 ```
 
-### Report message
+### Reporting a Message
 
-Report device information：
+Report a device message.
 ```java
 
        device.getClient().reportDeviceMessage(new DeviceMessage("hello"), new ActionListener() {
@@ -70,7 +72,7 @@ Report device information：
 
 ```
 
-Report the user-defined topic message. (Note that the user-defined topic needs to be configured on the platform first.)
+Report a message using a custom topic, which must be configured on the platform first.
 ```java
 		String topic = "$oc/devices/"+  device.getDeviceId() + "/user/wpy";
 		device.getClient().publishRawMessage(new RawMessage(topic, "hello raw message "),
@@ -86,15 +88,15 @@ Report the user-defined topic message. (Note that the user-defined topic needs t
 					}
 				});
 ```
-For details about the complete code, see MessageSample.java.				
+For the complete code, see **MessageSample.java**.
 
-### Report device properties
+### Reporting Device Properties
 
 ```java
      Map<String ,Object> json = new HashMap<>();
      Random rand = new Random();
 
-     // Set properties based on object models.
+     // Set properties based on the product model.
      json.put("alarm", alarm);
      json.put("temperature", rand.nextFloat()*100.0f);
      json.put("humidity", rand.nextFloat()*100.0f);
@@ -102,7 +104,7 @@ For details about the complete code, see MessageSample.java.
 
      ServiceProperty serviceProperty = new ServiceProperty();
      serviceProperty.setProperties(json);
-     serviceProperty.setServiceId("smokeDetector");// The value of serviceId must be the same as that in the object model.
+     serviceProperty.setServiceId("smokeDetector");// The service ID must be consistent with that defined in the product model.
 
      device.getClient().reportProperties(Arrays.asList(serviceProperty), new ActionListener() {
          @Override
@@ -116,15 +118,15 @@ For details about the complete code, see MessageSample.java.
          }   });
 
 ```
-For the complete code, see propertiesample.java.
+For the complete code, see **PropertySample.java**.
 
-### Report subdevice properties
+### Reporting Child Device Properties
 ```java
      Map<String ,Object> json = new HashMap<>();
      Random rand = new Random();
      String subdeviceId = "xxxxx";
 
-     // Set properties based on object models.
+     // Set properties based on the product model.
      json.put("alarm", alarm);
      json.put("temperature", rand.nextFloat()*100.0f);
      json.put("humidity", rand.nextFloat()*100.0f);
@@ -132,7 +134,7 @@ For the complete code, see propertiesample.java.
 
      ServiceProperty serviceProperty = new ServiceProperty();
      serviceProperty.setProperties(json);
-     serviceProperty.setServiceId("smokeDetector");// The value of serviceId must be the same as that in the object model.
+     serviceProperty.setServiceId("smokeDetector");// The service ID must be consistent with that defined in the product model.
 
      device.getClient().reportProperties(subdeviceId, Arrays.asList(serviceProperty), new ActionListener() {
          @Override
@@ -147,12 +149,12 @@ For the complete code, see propertiesample.java.
 
 ```
 
-### Processing the read and write of properties delivered by the platform
+### Processing Read and Write on Properties Delivered by the Platform
 
 ```java
     device.getClient().setPropertyListener(new PropertyListener() {
 
-    // Process write properties
+    // Process property writing.
     @Override
     public void onPropertiesSet(String requestId, List<ServiceProperty> services) {
 
@@ -166,17 +168,17 @@ For the complete code, see propertiesample.java.
                 log.info("property name is {}", name);
                 log.info("set property value is {}", serviceProperty.getProperties().get(name));
                 if (name.equals("alarm")){
-                    // Modifying Local Values
+                    // Change the local value.
                     alarm = (Integer) serviceProperty.getProperties().get(name);
                 }
             }
 
         }
-        // Modifying Local property Values
+        // Change the local property value.
         device.getClient().respondPropsSet(requestId, IotResult.SUCCESS);
     }
 
-    // Process Read properties
+    // Process property reading.
     @Override
     public void onPropertiesGet(String requestId, String serviceId) {
 
@@ -197,9 +199,9 @@ For the complete code, see propertiesample.java.
 });
 
 ```
-For the complete code, see propertiesample.java.
+For the complete code, see **PropertySample.java**.
 
-### Processing commands delivered by the platform
+### Processing Commands Delivered by the Platform
 
 ```java
     client.setCommandListener(new CommandListener() {
@@ -209,28 +211,27 @@ For the complete code, see propertiesample.java.
         log.info("onCommand , name is {}", commandName);
         log.info("onCommand, paras is {}", paras.toString());
 
-        // Processing Commands
+        // Process a command.
 
-        // Send command response
+        // Send a command response.
         device.getClient().respondCommand(requestId, new CommandRsp(0));
     }   });
 
 ```
-For the complete code, see CommandSample.java.
+For the complete code, see **CommandSample.java**.
 
-### Object-oriented model programming
-Object model-oriented programming refers to the object model abstraction capability provided by the SDK. The device code only needs to define device services based on the object model. The SDK can automatically communicate with the platform to synchronize properties and invoke commands.
-Compared with directly invoking the client interface to communicate with the platform, object-oriented programming simplifies the code complexity on the device side. In this way, the device code only needs to focus on services instead of the communication process with the platform.
+### Profile-oriented Programming
+You can use the profile capabilities provided by the SDK to define device services. The SDK can automatically communicate with the platform to synchronize properties and call commands.
+Profile-oriented programming simplifies device code and enables you to focus only on services rather than the communications with the platform. This method is much easier than calling client APIs.
 
 
-Define a smoke sensor service class, which is inherited from AbstractService.
-
+Define a smoke sensor service class, which is inherited from **AbstractService**.
 ```java
     public static class SmokeDetectorService extends AbstractService {
 	}
 
 ```
-Define service properties. The properties are consistent with those in the product model. writeable: indicates whether an property is writable.
+Define service properties, which must be consistent with those defined in the product model. **writeable** indicates whether the property is writable.
 ```java
     @Property(name = "alarm", writeable = true)
     int smokeAlarm = 0;
@@ -245,42 +246,42 @@ Define service properties. The properties are consistent with those in the produ
     float temperature;
 ```
 
-Define the read/write interface of the property.
-The getter interface is a read interface and is invoked by the SDK when properties are reported or the platform proactively queries properties.
-The setter interface is a write interface and is invoked by the SDK when the platform modifies an property. If the property is read-only, the setter interface is left empty.
+Define the methods for reading and writing properties.
+The getter method is used for reading. It is called by the SDK when devices report properties and the platform queries properties.
+The setter method is used for writing. It is called by the SDK when the platform modifies properties. If the properties are read-only, leave the setter method not implemented.
 
 ```java	
         public int getHumidity() {
 
-            // Simulate reading data from the sensor.
+            // Simulate the action of reading data from the sensor.
             humidity = new Random().nextInt(100);
             return humidity;
         }
 
         public void setHumidity(int humidity) {
-            // humidity is read-only and does not need to be implemented.
+            // You do not need to implement this method for read-only fields.
         }
 
         public float getTemperature() {
 
-            // Simulate reading data from the sensor.
+            // Simulate the action of reading data from the sensor.
             temperature = new Random().nextInt(100);
             return temperature;
         }
 
         public void setTemperature(float temperature) {
-            // The set interface does not need to be implemented for read-only fields.
+            // You do not need to implement this method for read-only fields.
         }
 
         public float getConcentration() {
 
-            // Simulate reading data from the sensor.
+            // Simulate the action of reading data from the sensor.
             concentration = new Random().nextFloat()*100.0f;
             return concentration;
         }
 
         public void setConcentration(float concentration) {
-            // The set interface does not need to be implemented for read-only fields.
+            // You do not need to implement this method for read-only fields.
         }
 
         public int getSmokeAlarm() {
@@ -297,8 +298,8 @@ The setter interface is a write interface and is invoked by the SDK when the pla
 
 ```
 
-Define Command for of service:
-The input parameter and return value types of the command are fixed and cannot be changed.
+Define the service command.
+The type of command input parameters and return values cannot be changed.
 
 ```java	
 
@@ -310,11 +311,10 @@ The input parameter and return value types of the command are fixed and cannot b
     }
 ```
 
-The service is defined above.
-Then create a device, register the smoke sensor service, and initialize the device.
-
+After the service is defined,
+create a device, register the smoke sensor service, and initialize the device.
 ```java
-    // Creating a Device
+    // Create a device.
    IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
            "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
 
@@ -328,33 +328,32 @@ Then create a device, register the smoke sensor service, and initialize the devi
 
 ```
 
-Enabling the Automatic Periodic Reporting of Service properties
+Enable periodic property reporting.
 ```java
     smokeDetectorService.enableAutoReport(10000);
 
 ```
 
-### Use Device Code Generator
-In the preceding object model-based programming, the service definition must be consistent with the product model. Based on this, we provide a code generator to automatically generate device code based on the product model.
-The source code of the code generator is stored in the iot-device-code-generator directory.
-[For details](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README_EN.md)
+### Using the Device Code Generator
+As the service you define is consistent with that in the product model in profile-oriented programming, you can use the code generator to generate device code automatically based on the product model.
+The source code of the code generator is stored in the **iot-device-code-generator** directory.
+[See details](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README.md).
 
 
-### Certificate authentication
-For the complete code, see X509CertificateDeviceSample.java.
+### Using a Certificate for Authentication
+For the complete code, see **X509CertificateDeviceSample.java**.
 
-Preferentially read the certificate. If the certificate is in PEM format, run the following command:
-
+Obtain a certificate. For a PEM certificate:
 ```java
     KeyStore keyStore = DemoUtil.getKeyStore("D:\\SDK\\cert\\deviceCert.pem", "D:\\SDK\\cert\\deviceCert.key", "keypassword");
    
 ```
-If the certificate is in keystore format:
+For a Keystore certificate:
 ```java
     KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
     keyStore.load(new FileInputStream("D:\\SDK\\cert\\my.keystore"), "keystorepassword".toCharArray());
 ```
-If devices are connected using Chinese cryptographic algorithms, you need to import two certificates.
+For device access in Chinese cryptographic algorithm scenario, import two certificates:
 ```java
     KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
     keyStore.load(null, null);
@@ -366,68 +365,88 @@ If devices are connected using Chinese cryptographic algorithms, you need to imp
         return;
 ```
 
-Then use the certificate to create the device
+Use the certificate to create a device.
 ```java
     IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
                 "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword", file);
 ```
 
-### The device uses the authoritative CA authentication platform.
-Currently, the platform uses certificates issued by two authoritative CAs: [DigiCert Global Root CA.](https://global-root-ca.chain-demos.digicert.com/info/index.html) and [GlobalSign Root CA - R3](https://valid.r3.roots.globalsign.com/).
+### Using a Certificate for Authentication
+Currently, the IoT platform uses certificates issued by two authoritative CAs: [DigiCert Global Root CA.](https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem) and [GlobalSign Root CA - R3](https://valid.r3.roots.globalsign.com/).
 
-For details, see section[Certificate Resources](https://support.huaweicloud.com/intl/en-us/devg-iothub/iot_02_1004.html)in the official document.
+For details, see section [Certificates](https://support.huaweicloud.com/intl/en-us/devg-iothub/iot_02_1004.html#section3).
 
-The [iot-device-demo/src/main/resources/rootca](iot-device-demo/src/main/resources/rootca) directory of this code repository provides combinations of various formats and individual CA certificate files.
+The [iot-device-demo/src/main/resources/rootca](iot-device-demo/src/main/resources/rootca) directory of this code repository provides combinations of various formats and separate CA certificate files.
 
-When you connect to multiple devices on the platform, you are advised to use the combined root CA certificate file to ensure programming interface consistency. (huaweicloud-iot-root-ca-list.bks\huaweicloud-iot-root-ca-list.jks\huaweicloud-iot-root-ca-list.pem, that is, ca.jks in each sample project).
+When you connect multiple devices to the IoT platform, you are advised to use the combined root CA certificate file (huaweicloud-iot-root-ca-list.bks\huaweicloud-iot-root-ca-list.jks\huaweicloud-iot-root-ca-list.pem, that is, ca.jks in each sample project) to ensure the consistency of programming interfaces.
 
-## Version Update Description
+## Version Updates
 
-| Version | Change Type           | Description                                                  |
-| ------- | --------------------- | ------------------------------------------------------------ |
-| 1.2.0   | New functions         | Added the functions of generic protocols, Chinese national cryptographic algorithm, and OBS upgrade packages. |
-|         | Function enhancements | 1. The method of passing the platform root CA certificate to the BootstrapClient constructor is optimized. The original constructor is marked as deprecated. <br/>2. Update ca.jks in the Samples file to the certificate file that contains all authoritative root CA certificates of the device side of the IoT platform instances in each region. <br/>3. Fixed some spelling errors. <br/>4. Upgrade the Paho. <br/>5. Fixed an issue where no retry is performed after a long time of backoff reconnection. |
-| 1.1.2   | Function enhancements | The provisioning function is modified to be compatible with scenario of different certificate in multiple regions. |
-| 1.0.1   | New functions         | The functions of some added interfaces are as follows: <br/>The implicit subscription interface and data compression reporting interface are added. |
-| 1.0.0   | Function enhancements | 1. Modify the logic to be compatible with the old V3 interface.<br/>2. Update the subdevice status on the gateway.<br/>3. Modify the QoS of the default subscription topic, modify the reconnection of new links, squeeze old links, and modify the reconnection time. |
-| 0.8.0   | Function enhancements | Replace the access domain name (iot-mqtts.cn-north-4.myhuaweicloud.com) and root certificate with a new one. <br/>If the device uses the old domain name (iot-acc.cn-north-4.myhuaweicloud.com) for access, use SDK v0.6.0 or an earlier version. |
-| 0.6.0   | Function enhancements | Adjust the OTA service usage mode and optimize the MD.       |
-| 0.5.0   | New functions         | Provide ability of interconnecting with HUAWEI CLOUD IoT platform, to implement service scenarios such as access, device management, and command delivery. |
+| Version Number| Change Type| Description                                                        |
+| ------ | -------- | ------------------------------------------------------------ |
+| 1.2.0  | New features| The generic protocol, Chinese cryptographic algorithms, and OBS upgrade packages were added.                         |
+|        | Function enhancement| 1. Optimized the method of transferring the platform root CA certificate to the BootstrapClient construction method . The original construction method was marked as discarded.<br>2. Updated **ca.jks** in Samples to all authoritative root CA certificates that contain device certificates of instances in each region.<br>3. Fixed some spelling mistakes.<br>4. Upgraded paho.<br>5. Fixed the issue where the system did not retry after a backoff reconnection.|
+| 1.1.2  | Function enhancement| Modified the provisioning function and compatible with scenarios where different certificates are used in multiple regions.                |
+| 1.0.1  | New feature  | The implicit subscription interface and data compression reporting interface were added.                      |
+| 1.0.0  | Function enhancement| 1. Modified the logic for compatibility with old V3 interfaces.<br>2. The subdevice status was refreshed by gateway.<br>3. Modified the QoS of the default subscription topic, modified the conflict between a new link and an old link, and modified the reconnection time.|
+| 0.8.0  | Function enhancement| Added the access domain name (iot-mqtts.cn-north-4.myhuaweicloud.com) and root certificate.<br>If the device uses the old domain name (iot-acc.cn-north-4.myhuaweicloud.com) for access, use the SDK of v0.6.0 or an earlier version.|
+| 0.6.0  | Function enhancement| Adjusted the OTA service use and improved the MD.                                 |
+| 0.5.0  | New feature| Connected to the Huawei Cloud IoT platform to facilitate service scenarios such as access, device management, and command delivery.|
 
-1. The compression interface is added.
-2. Implicit subscription.
-3. Reliability embedment and backoff reconnection.
-4. If the username or password is incorrect, no reconnection is required.
-5. Time synchronization.
-6. Code refactoring.
-7. Report device logs.
-8. The gateway actively manages subdevices (adding or deleting subdevices).
-9. Supports the IoTDA device provisioning process.
-10. The SDK log component is modified.
-11. The message provisioning function is added.
+1. Added compression APIs.
+
+2. Supported implicit subscription.
+
+3. Supported reliability embedding and backoff reconnection.
+
+4. Supported reconnection denial due to incorrect username or password.
+
+5. Supported time synchronization.
+
+6. Supported code refactoring.
+
+7. Supported device log reporting.
+
+8. Supported the function that gateways proactively manage (add or delete) child devices.
+
+9. Supported IoTDA device provisioning.
+
+10. Modified the SDK log components.
+
+11. Added the message provisioning function.
+
 12. Modified the provisioning function.
-13. Compatible with scenario of different certificates in multiple region.
-14. Reporting device information.
-15. Open-source component upgrade.
-16. Add the integrated root CA certificate.
-17. Upgrade paho.
-18. add generic protocols 
-19. Fixed an issue where no retry is performed after a long time of backoff reconnection.
-20. OBS upgrade packages are supported.
-21. Support for Chinese national cryptographic algorithm.
+
+13. Supported the compatibility with different certificates in multiple regions.
+
+14. Supported device information reporting.
+
+15. Upgraded open-source components.
+
+16. Added the combined root CA certificates.
+
+17. Upgraded paho.
+
+18. Added generic protocols.
+
+19. Fixed an issue where the system did not retry after a backoff reconnection.
+
+20. Supported OBS upgrade package.
+
+21. Supported Chinese cryptographic algorithms.
 
 *2023/5/15*
 
-Download release version at https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases
+Download the release version from [https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/releases).
 
 ## License
 
-The open-source license type of the SDK is  [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)。For details, see the LICENSE.txt file.
+The open-source SDK license type is [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause). For details, see **LICENSE.txt**.
 
-## How to contribute code
+## How to Contribute Code
 
 1. Create a GitHub account.
-2. Fork huaweicloud-iot-device-sdk-java Source Code
-3. Synchronize the huaweicloud-iot-device-sdk-java main repository code to the fork repository.
-4. Modify the code locally and push it to the fork repository.
-5. Submit a pull request from the fork repository to the main repository.
+2. Fork the huaweicloud-iot-device-sdk-java source code.
+3. Synchronize the code from the huaweicloud-iot-device-sdk-java main repository to the fork repository.
+4. Modify the code locally and push the code to the fork repository.
+5. Submit a pull request to the main repository.
