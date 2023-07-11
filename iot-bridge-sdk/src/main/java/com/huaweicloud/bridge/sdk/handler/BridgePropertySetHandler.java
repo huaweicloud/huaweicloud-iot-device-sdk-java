@@ -47,7 +47,7 @@ import java.util.List;
 public class BridgePropertySetHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(BridgePropertySetHandler.class);
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public BridgePropertySetHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;

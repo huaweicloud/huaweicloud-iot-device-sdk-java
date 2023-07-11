@@ -39,12 +39,12 @@ public class BootstrapSample extends BaseBootstrapSample {
     /**
      * 设备ID（设备ID需在设备发放上注册）
      */
-    private static String deviceId = "[Please input your device id here, example:702b1038-a174-4a1d-969f-f67f8df43c4a]";
+    private static final String deviceId = "[Please input your device id here, example:702b1038-a174-4a1d-969f-f67f8df43c4a]";
 
     /**
      * 设备密钥
      */
-    private static String secret = "[Please input your device secret here, example:mysecret]";
+    private static final String secret = "[Please input your device secret here, example:mysecret]";
 
     public static void main(String[] args) {
         // 创建引导客户端，发起引导

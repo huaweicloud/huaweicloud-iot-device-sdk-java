@@ -58,7 +58,7 @@ public class SubDevicesFilePersistence implements SubDevicesPersistence {
 
     private final Lock writeLock = readWriteLock.writeLock();
 
-    private SubDevInfo subDevInfoCache;
+    private final SubDevInfo subDevInfoCache;
 
     SubDevicesFilePersistence() {
 

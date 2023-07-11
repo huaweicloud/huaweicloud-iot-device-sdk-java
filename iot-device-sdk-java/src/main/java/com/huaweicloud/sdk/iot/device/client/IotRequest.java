@@ -59,7 +59,7 @@ public class IotRequest {
      */
     private RequestListener listener;
 
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public IotRequest(RawMessage rawMessage, String requestId, int timeoutOfMilliSeconds) {
 

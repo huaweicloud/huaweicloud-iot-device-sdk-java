@@ -92,9 +92,9 @@ public class IotUtil {
 
     private static int retryTimes = 0;
 
-    private static AtomicLong requestId = new AtomicLong(0);
+    private static final AtomicLong requestId = new AtomicLong(0);
 
-    private static SecureRandom random = new SecureRandom();
+    private static final SecureRandom random = new SecureRandom();
 
     /**
      * 从topic里解析出requestId

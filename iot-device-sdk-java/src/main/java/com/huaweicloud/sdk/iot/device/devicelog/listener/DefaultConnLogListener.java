@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultConnLogListener implements ConnectListener {
-    private DeviceLogService deviceLogService;
+    private final DeviceLogService deviceLogService;
 
     public DefaultConnLogListener(DeviceLogService deviceLogService) {
         this.deviceLogService = deviceLogService;

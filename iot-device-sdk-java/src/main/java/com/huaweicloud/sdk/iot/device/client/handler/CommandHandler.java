@@ -42,7 +42,7 @@ import org.apache.logging.log4j.Logger;
 public class CommandHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(CommandHandler.class);
 
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public CommandHandler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

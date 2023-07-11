@@ -41,7 +41,7 @@ import org.apache.logging.log4j.Logger;
 public class CommandV3Handler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(CommandV3Handler.class);
 
-    private DeviceClient deviceClient;
+    private final DeviceClient deviceClient;
 
     public CommandV3Handler(DeviceClient deviceClient) {
         this.deviceClient = deviceClient;

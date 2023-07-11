@@ -87,11 +87,11 @@ public class TcpServer {
 
     private static final char DELIMITER_CHAR = ']';
 
-    private EventLoopGroup bossGroup;
+    private final EventLoopGroup bossGroup;
 
-    private EventLoopGroup workerGroup;
+    private final EventLoopGroup workerGroup;
 
-    private Class<? extends ServerSocketChannel> channelClass;
+    private final Class<? extends ServerSocketChannel> channelClass;
 
     public TcpServer() {
         if (Epoll.isAvailable()) {

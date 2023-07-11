@@ -41,9 +41,9 @@ import org.junit.Test;
 import java.security.SecureRandom;
 
 public class BridgeDeviceTest {
-    private ClientConf clientConf = new ClientConf();
+    private final ClientConf clientConf = new ClientConf();
 
-    private SecureRandom secureRandom = new SecureRandom();
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Before
     public void setUp() {

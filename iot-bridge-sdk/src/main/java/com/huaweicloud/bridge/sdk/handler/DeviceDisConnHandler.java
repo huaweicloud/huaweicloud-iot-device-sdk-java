@@ -43,7 +43,7 @@ public class DeviceDisConnHandler implements MessageReceivedHandler {
     private static final Logger log = LogManager.getLogger(
         DeviceDisConnHandler.class);
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public DeviceDisConnHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;

@@ -46,7 +46,7 @@ public class SecretResetHandler implements MessageReceivedHandler {
 
     private static final String NEW_SECRET = "new_secret";
 
-    private BridgeClient bridgeClient;
+    private final BridgeClient bridgeClient;
 
     public SecretResetHandler(BridgeClient bridgeClient) {
         this.bridgeClient = bridgeClient;

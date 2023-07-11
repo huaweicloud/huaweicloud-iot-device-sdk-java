@@ -71,7 +71,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
     private SubDevDiscoveryListener subDevDiscoveryListener;
 
-    private SubDevicesPersistence subDevicesPersistence;
+    private final SubDevicesPersistence subDevicesPersistence;
 
     private GtwOperateSubDeviceListener gtwOperateSubDeviceListener;
 
@@ -180,7 +180,7 @@ public abstract class AbstractGateway extends IoTDevice {
     public void reportSubDevList(List<DeviceInfo> deviceInfos, ActionListener listener) {
 
         DeviceEvent deviceEvent = new DeviceEvent();
-        deviceEvent.setServiceId("sub_device_discovery");
+        deviceEvent.setServiceId("$sub_device_discovery");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
         deviceEvent.setEventType("scan_result");
 
@@ -484,7 +484,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
         DeviceEvent deviceEvent = new DeviceEvent();
         deviceEvent.setEventType("sub_device_sync_request");
-        deviceEvent.setServiceId("sub_device_manager");
+        deviceEvent.setServiceId("$sub_device_manager");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
         Map<String, Object> para = new HashMap<>();

@@ -38,7 +38,7 @@ import org.apache.logging.log4j.Logger;
 public class DefaultActionListenerImpl implements ActionListener {
     private static final Logger log = LogManager.getLogger(DefaultActionListenerImpl.class);
 
-    private String actionType;
+    private final String actionType;
 
     public DefaultActionListenerImpl(String actionType) {
         this.actionType = actionType;

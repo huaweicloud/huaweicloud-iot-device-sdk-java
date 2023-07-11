@@ -49,7 +49,7 @@ import java.util.Map;
  */
 public class JsonUtil {
     private static final Logger log = LogManager.getLogger(JsonUtil.class);
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

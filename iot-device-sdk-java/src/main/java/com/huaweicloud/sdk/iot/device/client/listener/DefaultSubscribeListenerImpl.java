@@ -40,9 +40,9 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 public class DefaultSubscribeListenerImpl implements IMqttActionListener {
     private static final Logger log = LogManager.getLogger(DefaultActionListenerImpl.class);
 
-    private String topic;
+    private final String topic;
 
-    private ActionListener listener;
+    private final ActionListener listener;
 
     public DefaultSubscribeListenerImpl(String topic, ActionListener listener) {
         this.topic = topic;

@@ -70,9 +70,9 @@ public class AbstractDevice {
 
     private DeviceClient client;
 
-    private String deviceId;
+    private final String deviceId;
 
-    private Map<String, AbstractService> services = new ConcurrentHashMap<>();
+    private final Map<String, AbstractService> services = new ConcurrentHashMap<>();
 
     private OTAService otaService;
 

@@ -60,9 +60,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SimpleGateway extends AbstractGateway {
     private static final Logger log = LogManager.getLogger(SimpleGateway.class);
 
-    private Map<String, Session> nodeIdToSesseionMap; // 保存设备标识码和session的映射
+    private final Map<String, Session> nodeIdToSesseionMap; // 保存设备标识码和session的映射
 
-    private Map<String, Session> channelIdToSessionMap; // 保存channelId和session的映射
+    private final Map<String, Session> channelIdToSessionMap; // 保存channelId和session的映射
 
     SimpleGateway(SubDevicesPersistence subDevicesPersistence, String serverUri, String deviceId,
         String deviceSecret, File file) {

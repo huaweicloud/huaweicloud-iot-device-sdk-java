@@ -37,7 +37,7 @@ public class DeviceSessionManger {
 
     private static final DeviceSessionManger INSTANCE = new DeviceSessionManger();
 
-    private ConcurrentMap<String, DeviceSession> sessions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, DeviceSession> sessions = new ConcurrentHashMap<>();
 
     public static DeviceSessionManger getInstance() {
         return INSTANCE;
