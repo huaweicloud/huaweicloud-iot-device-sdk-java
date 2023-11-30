@@ -17,10 +17,9 @@ jar包名注意修改为正确的版本号
 至此，设备代码已经生成  
 
 ### 编译运行自动生成的设备代码
-1、进到huaweicloud-iot-device-sdk-java\generated-demo目录下执行mvn install  
-在target下生成jar包  
-2、执行java -jar target\iot-device-demo-ganerated-0.2.0-with-deps.jar 5e06bfee334dd4f33759f5b3_demo *****     
-两个参数分别为设备id和密码
+1、进到huaweicloud-iot-device-sdk-java\generated-demo目录下执行`mvn install`, 在target下生成jar包
+
+2、执行`java -jar target\iot-device-demo-ganerated-0.2.0-with-deps.jar 接入域名 设备id 设备secret`。
 
 如果觉得上面操作比较烦，可以打开iot-device-code-generator目录下的device-code-genarator.bat脚本，修改上面的参数，然后双击运行即可  
     
