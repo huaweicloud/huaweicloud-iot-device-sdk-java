@@ -51,22 +51,15 @@ public class DeviceMain
     private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
     public static void main(String args[]) throws InterruptedException, IOException {
-        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
-        String deviceId;
-        String secret;
-
-        if (args.length < 2) {
-           System.out.println("input: deviceId secret [serverUri]");
-           return;
+        if (args.length < 3) {
+            System.out.println("input parameters: serverUri deviceId secret");
+            return;
         }
 
         // 从命令行获取设备参数
-        deviceId = args[0];
-        secret = args[1];
-
-        if (args.length > 2) {
-           serverUri = args[2];
-        }
+        String serverUri = "ssl://" + args[0] + ":8883";
+        String deviceId = args[1];
+        String secret = args[2];
 
         InputStream resource = IoTDevice.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH);
         File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
