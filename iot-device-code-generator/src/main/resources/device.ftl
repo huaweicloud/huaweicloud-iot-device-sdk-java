@@ -57,7 +57,7 @@ public class DeviceMain
         }
 
         // 从命令行获取设备参数
-        String serverUri = "ssl://" + args[0] + ":8883";
+        String serverUri = args[0];
         String deviceId = args[1];
         String secret = args[2];
 
