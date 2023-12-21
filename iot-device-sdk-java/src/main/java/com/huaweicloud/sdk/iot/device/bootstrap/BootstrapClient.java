@@ -271,6 +271,7 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
         try {
             ClientConf conf = this.clientConf.clone();
             conf.setServerUri(serverUri);
+            conf.setScopeId(null);
             conf.setFile(this.platformCaProvider.getIotCaFile());
             return new IoTDevice(conf);
         } catch (CloneNotSupportedException exp) {
