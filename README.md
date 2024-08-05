@@ -57,6 +57,7 @@ SDK面向运算、存储能力较强的嵌入式终端设备，开发者通过�
 创建设备并初始化，当前已支持国密通信
 启用国密前请参考[BGMProvider安装指南](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97)进行配置
 
+
 - 设备密钥认证：
 ```java
 // 用户请替换为自己的接入地址。
