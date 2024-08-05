@@ -33,6 +33,7 @@ package com.huaweicloud.sdk.iot.device.demo;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
+import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
@@ -49,6 +50,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,7 +84,6 @@ public class SimpleGateway extends AbstractGateway {
         }
         channelIdToSessionMap.remove(channelId);
         nodeIdToSesseionMap.remove(session.getNodeId());
-        log.info("the removed session is {}", session.toString());
     }
 
     Session createSession(String nodeId, Channel channel) {
@@ -97,7 +98,7 @@ public class SimpleGateway extends AbstractGateway {
 
             nodeIdToSesseionMap.put(nodeId, session);
             channelIdToSessionMap.put(channel.id().asLongText(), session);
-            log.info("create new session ok, the session is {}", session.toString());
+            log.info("create new session ok");
             return session;
         }
 
@@ -129,6 +130,46 @@ public class SimpleGateway extends AbstractGateway {
         session.getChannel().writeAndFlush(message.getContent());
         log.info("writeAndFlush {}", message.getContent());
 
+    }
+
+    @Override
+    public void onSubdevEvent(String deviceId, DeviceEvent deviceEvent) {
+        log.info("deviceId is {}, deviceEvent is {}", deviceId, deviceEvent);
+        if (deviceId == null) {
+            return;
+        }
+        String nodeId = IotUtil.getNodeIdFromDeviceId(deviceId);
+        if (nodeId == null) {
+            return;
+        }
+
+        Session session = nodeIdToSesseionMap.get(nodeId);
+        if (session == null) {
+            log.error("session is null ,nodeId:" + nodeId);
+            return;
+        }
+
+        // 这里我们直接把deviceEvent对象转成string发给子设备，实际场景中可能需要进行一定的编解码转换
+        session.getChannel().writeAndFlush(JsonUtil.convertObject2String(deviceEvent));
+
+        // 为了简化处理，我们在这里模拟OTA固件升级直接回事件响应,更合理做法是在子设备处理完后再回响应
+        DeviceEvent event = new DeviceEvent();
+        if (deviceEvent.getServiceId().equals("$ota")) {
+            event.setServiceId("$ota");
+            Map<String, Object> paras = new HashMap<>();
+            event.setParas(paras);
+            if (deviceEvent.getEventType().equals("version_query")) {
+                event.setEventType("version_report");
+                paras.put("fw_version", "v1.0");
+            }
+            if (deviceEvent.getEventType().equals("firmware_upgrade") || deviceEvent.getEventType()
+                .equals("firmware_upgrade_v2")) {
+                event.setEventType("upgrade_progress_report");
+                paras.put("result_code", 0);
+                paras.put("version", deviceEvent.getParas().get("version"));
+            }
+        }
+        getClient().reportEvent(deviceId, event, null);
     }
 
     @Override
@@ -209,5 +250,4 @@ public class SimpleGateway extends AbstractGateway {
         return super.onDeleteSubDevices(subDevicesInfo);
 
     }
-
 }

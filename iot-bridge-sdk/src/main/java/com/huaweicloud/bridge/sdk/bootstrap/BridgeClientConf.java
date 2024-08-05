@@ -64,7 +64,7 @@ public class BridgeClientConf {
 
 
     /**
-     * 连接IoT平台的地址 样例：xxxxxx.iot-mqtts.cn-north-4.myhuaweicloud.com
+     * 连接IoT平台的地址 样例：c20c0d18c2.st1.iotda-device.cn-north-4.myhuaweicloud.com
      *
      */
     private String serverIp;

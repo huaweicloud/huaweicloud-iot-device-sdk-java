@@ -28,12 +28,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
+import com.huaweicloud.sdk.iot.device.demo.device.connect.DefaultX509TrustManager;
 import com.huaweicloud.sdk.iot.device.ota.OTAListener;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackage;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackageV2;
+import com.huaweicloud.sdk.iot.device.ota.OTAQueryInfo;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 
@@ -236,7 +238,8 @@ public class OTAV2Sample implements OTAListener {
     }
 
     @Override
-    public void onQueryVersion() {
+    public void onQueryVersion(OTAQueryInfo queryInfo) {
+        log.info("queryInfo is {}", queryInfo);
         otaService.reportVersion(version);
     }
 
@@ -286,7 +289,8 @@ public class OTAV2Sample implements OTAListener {
             Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
         }
 
-        IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+        // 用户请替换为自己的接入地址。
+        IoTDevice iotDevice = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883",
                 "deviceid", "secret", tmpCAFile);
 
         OTAV2Sample otaV2Sample = new OTAV2Sample(iotDevice, "image.bin");

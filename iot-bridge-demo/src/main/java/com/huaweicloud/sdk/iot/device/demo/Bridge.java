@@ -83,8 +83,8 @@ public class Bridge {
 
     public static void main(String[] args) throws Exception {
 
-        // 默认使用北京4的接入地址，其他region的用户请修改
-        String demoServerUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
+        // 用户请替换为自己的接入地址。
+        String demoServerUri = "ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883";
 
         int port = 8080;
 
@@ -103,7 +103,6 @@ public class Bridge {
         if (session != null) {
             session.getDeviceClient().close();
             deviceIdToSessionMap.remove(session.getDeviceId());
-            log.info("session removed : {}", session.toString());
         }
         channelIdToSessionMap.remove(channelId);
 
@@ -158,7 +157,7 @@ public class Bridge {
         deviceIdToSessionMap.put(deviceId, session);
         channelIdToSessionMap.put(channel.id().asLongText(), session);
 
-        log.info("create new session : {}", session.toString());
+        log.info("create new session");
 
     }
 

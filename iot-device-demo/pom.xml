@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.huaweicloud</groupId>
         <artifactId>iot-device-sdk-java-pom</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>iot-device-demo</artifactId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>iot-device-sdk-java</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <version>2.16.0</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -44,12 +44,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15to18</artifactId>
-            <version>1.78</version>
+            <version>1.70</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15to18</artifactId>
-            <version>1.78</version>
+            <version>1.70</version>
         </dependency>
     </dependencies>
 
@@ -74,14 +74,14 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.huaweicloud.sdk.iot.device.demo.SmokeDetector</mainClass>
+                            <mainClass>com.huaweicloud.sdk.iot.device.demo.device.SmokeDetector</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

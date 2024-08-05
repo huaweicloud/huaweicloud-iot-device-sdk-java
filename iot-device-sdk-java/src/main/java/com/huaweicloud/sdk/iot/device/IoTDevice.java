@@ -31,6 +31,7 @@
 package com.huaweicloud.sdk.iot.device;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.service.AbstractDevice;
 import com.huaweicloud.sdk.iot.device.service.AbstractService;
@@ -75,7 +76,7 @@ public class IoTDevice extends AbstractDevice {
     /**
      * 构造函数，使用密码创建设备
      *
-     * @param serverUri    平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri    平台访问地址，比如ssl://c20c0d18c2.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId     设备id
      * @param deviceSecret 设备密码
      * @param iotCertFile  iot平台的ca证书，用于双向校验时设备侧校验平台
@@ -88,7 +89,7 @@ public class IoTDevice extends AbstractDevice {
     /**
      * 构造函数，使用证书创建设备
      *
-     * @param serverUri   平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri   平台访问地址，比如ssl://c20c0d18c2.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId    设备id
      * @param keyStore    证书容器
      * @param keyPassword 证书密码
@@ -162,5 +163,13 @@ public class IoTDevice extends AbstractDevice {
      */
     public DeviceClient getClient() {
         return super.getClient();
+    }
+
+    /**
+     * 配置自定义连接选项，需要在init方法前调用
+     * @param customOptions 自定义连接选项
+     */
+    public void setCustomOptions(CustomOptions customOptions) {
+        this.customOptions = customOptions;
     }
 }

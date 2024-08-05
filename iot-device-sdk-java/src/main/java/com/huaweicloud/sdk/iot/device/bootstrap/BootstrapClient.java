@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2024 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,20 +30,21 @@
 
 package com.huaweicloud.sdk.iot.device.bootstrap;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 import com.huaweicloud.sdk.iot.device.transport.Connection;
 import com.huaweicloud.sdk.iot.device.transport.RawMessage;
 import com.huaweicloud.sdk.iot.device.transport.RawMessageListener;
 import com.huaweicloud.sdk.iot.device.transport.mqtt.MqttConnection;
-import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
+import com.huaweicloud.sdk.iot.device.utils.IotUtil;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.KeyStore;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -109,7 +110,8 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      * @param platformCaProvider 平台CA证书提供者
      * @since 1.1.3
      */
-    public BootstrapClient(String bootstrapUri, String deviceId, String deviceSecret, PlatformCaProvider platformCaProvider) {
+    public BootstrapClient(String bootstrapUri, String deviceId, String deviceSecret,
+        PlatformCaProvider platformCaProvider) {
 
         ClientConf conf = new ClientConf();
         conf.setServerUri(bootstrapUri);
@@ -148,7 +150,8 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      * @param platformCaProvider 平台CA证书提供者
      * @since 1.1.3
      */
-    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, PlatformCaProvider platformCaProvider) {
+    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword,
+        PlatformCaProvider platformCaProvider) {
 
         ClientConf conf = new ClientConf();
         conf.setServerUri(bootstrapUri);
@@ -175,7 +178,8 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
      * String scopeId, PlatformCaProvider platformCaProvider)} 替代本方法
      */
     @Deprecated
-    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword, String scopeId) {
+    public BootstrapClient(String bootstrapUri, String deviceId, KeyStore keyStore, String keyPassword,
+        String scopeId) {
         this(bootstrapUri, deviceId, keyStore, keyPassword, scopeId, getPlatformCaProvider());
     }
 
@@ -206,15 +210,35 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
         log.info("create BootstrapClient, the deviceId is {}", conf.getDeviceId());
     }
 
+    /**
+     * 造函数，自注册场景下注册组秘钥创建
+     *
+     * @param bootstrapUri       bootstrap server地址，比如ssl://iot-bs.cn-north-4.myhuaweicloud.com:8883
+     * @param deviceId           设备id
+     * @param groupSecret        注册组秘钥
+     * @param scopeId            scopeId, 自注册场景可从物联网平台获取
+     * @param platformCaProvider 平台CA证书提供者
+     */
+    public BootstrapClient(String bootstrapUri, String deviceId, String groupSecret, String scopeId,
+        PlatformCaProvider platformCaProvider) {
+        ClientConf conf = new ClientConf();
+        conf.setServerUri(bootstrapUri);
+        conf.setFile(platformCaProvider.getBootstrapCaFile());
+        conf.setDeviceId(deviceId);
+        conf.setSecret(IotUtil.shaHMac(Base64.getDecoder().decode(groupSecret), deviceId, conf.getCheckStamp()));
+        conf.setScopeId(scopeId);
+        this.clientConf = conf;
+        this.deviceId = deviceId;
+        this.platformCaProvider = platformCaProvider;
+        this.connection = new MqttConnection(conf, this);
+        log.info("create BootstrapClient, the deviceId is {}", conf.getDeviceId());
+    }
+
     @Override
     public void onMessageReceived(RawMessage message) {
         String bsTopic = String.format(BOOTSTRAP_SUBSCRIBE_TOPIC, this.deviceId);
         if (message.getTopic().equals(bsTopic)) {
-            ObjectNode node = JsonUtil.convertJsonStringToObject(message.toString(), ObjectNode.class);
-            String address = node.get("address").asText();
-            log.info("bootstrap ok, the address is {}", address);
-
-            Future<String> success = executorService.submit(() -> listener.onSuccess(address), "success");
+            Future<String> success = executorService.submit(() -> listener.onSuccess(message.toString()), "success");
             String result = "";
             try {
                 result = success.get();
@@ -261,6 +285,34 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
     }
 
     /**
+     * 发起设备引导
+     *
+     * @param listener 监听器用来接收引导结果
+     * @param message 上报的json数据
+     * @throws IllegalArgumentException 参数非法异常
+     */
+    public void bootstrap(ActionListener listener, String message) throws IllegalArgumentException {
+
+        this.listener = listener;
+
+        if (connection.connect() != 0) {
+            log.error("connect failed");
+            listener.onFailure(null, new Exception("connect failed"));
+            return;
+        }
+
+        String bsTopic = String.format(BOOTSTRAP_SUBSCRIBE_TOPIC, this.deviceId);
+
+        connection.subscribeTopic(bsTopic, null, 0);
+
+        String topic = String.format(BOOTSTRAP_PUBLISH_TOPIC, this.deviceId);
+        RawMessage rawMessage = new RawMessage(topic, message);
+
+        connection.publishMessage(rawMessage, null);
+
+    }
+
+    /**
      * 获取IoTDevice
      *
      * @param serverUri 服务端地址
@@ -291,5 +343,9 @@ public class BootstrapClient implements RawMessageListener, Cloneable {
     @Override
     public BootstrapClient clone() throws CloneNotSupportedException {
         return (BootstrapClient) super.clone();
+    }
+
+    public void setCustomOptions(CustomOptions customOptions) {
+        this.connection.setCustomOptions(customOptions);
     }
 }

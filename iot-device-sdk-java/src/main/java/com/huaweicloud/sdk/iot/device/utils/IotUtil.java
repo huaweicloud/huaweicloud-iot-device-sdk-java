@@ -31,27 +31,21 @@
 package com.huaweicloud.sdk.iot.device.utils;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.constants.Constants;
 import com.huaweicloud.sdk.iot.device.transport.Connection;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -61,6 +55,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
@@ -68,7 +63,13 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.IOUtils;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * IOT工具类
@@ -84,11 +85,11 @@ public class IotUtil {
 
     private static final String HMAC_SM3 = "HmacSM3";
 
-    private static final long MIN_BACKOFF = 1000L;
+    public static final long MIN_BACKOFF = 1000L;
 
-    private static final long MAX_BACKOFF = 30 * 1000L; // 30 seconds
+    public static final long MAX_BACKOFF = 30 * 1000L; // 30 seconds
 
-    private static final long DEFAULT_BACKOFF = 1000L;
+    public static final long DEFAULT_BACKOFF = 1000L;
 
     private static int retryTimes = 0;
 
@@ -190,16 +191,23 @@ public class IotUtil {
      * @param connection
      * @return
      */
-    public static int reConnect(Connection connection) {
+    public static int reConnect(Connection connection, CustomOptions customOptions) {
+        if (customOptions.getCustomBackoffHandler() != null) {
+            return customOptions.getCustomBackoffHandler().backoffHandler(connection);
+        }
+        if (!customOptions.isReConnect()) {
+            return -1;
+        }
         int ret = -1;
         while (ret != 0) {
             // 退避重连
-            int lowBound = (int) (DEFAULT_BACKOFF * 0.8);
-            int highBound = (int) (DEFAULT_BACKOFF * 1.0);
+            int lowBound = (int) (customOptions.getBackoff() * 0.8);
+            int highBound = (int) (customOptions.getBackoff() * 1.0);
             long randomBackOff = random.nextInt(highBound - lowBound);
             int powParameter = retryTimes & 0x0F;
             long backOffWithJitter = (long) (Math.pow(2.0, (double) powParameter)) * (randomBackOff + lowBound);
-            long waitTimeUntilNextRetry = Math.min(MIN_BACKOFF + backOffWithJitter, MAX_BACKOFF);
+            long waitTimeUntilNextRetry = Math.min(customOptions.getMinBackoff() + backOffWithJitter,
+                customOptions.getMaxBackoff());
             try {
                 Thread.sleep(waitTimeUntilNextRetry);
             } catch (InterruptedException e) {
@@ -212,11 +220,12 @@ public class IotUtil {
         return ret;
     }
 
+
     /**
      * HmacSHA256/HmacSM3
      *
-     * @param str       输入字符串
-     * @param timeStamp 时间戳
+     * @param str        输入字符串
+     * @param timeStamp  时间戳
      * @param checkStamp 时间戳校验方法
      * @return hash后的字符串
      */
@@ -229,6 +238,28 @@ public class IotUtil {
             shaHmacMethod.init(secretKey);
             byte[] bytes = shaHmacMethod.doFinal(str.getBytes(StandardCharsets.UTF_8));
             passWord = byteArrayToHexString(bytes);
+        } catch (Exception e) {
+            log.error(ExceptionUtil.getBriefStackTrace(e));
+        }
+        return passWord;
+    }
+
+    /**
+     * HmacSHA256/HmacSM3
+     *
+     * @param bytes      输入字节数组
+     * @param timeStamp  时间戳
+     * @param checkStamp 时间戳校验方法
+     * @return hash后的字符串
+     */
+    public static String shaHMac(byte[] bytes, String timeStamp, int checkStamp) {
+        String passWord = null;
+        try {
+            String algorithm = checkStamp <= Constants.CHECK_STAMP_SHA256_ON ? HMAC_SHA256 : HMAC_SM3;
+            Mac shaHmacMethod = Mac.getInstance(algorithm);
+            SecretKeySpec secretKey = new SecretKeySpec(timeStamp.getBytes(StandardCharsets.UTF_8), algorithm);
+            shaHmacMethod.init(secretKey);
+            passWord = byteArrayToHexString(shaHmacMethod.doFinal(bytes));
         } catch (Exception e) {
             log.error(ExceptionUtil.getBriefStackTrace(e));
         }
@@ -358,4 +389,11 @@ public class IotUtil {
         }
     }
 
+    public static boolean isStringEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
+    public static Integer[] strArrayToInteger(String[] array) {
+        return Arrays.asList(array).stream().map(Integer::valueOf).toArray(Integer[]::new);
+    }
 }

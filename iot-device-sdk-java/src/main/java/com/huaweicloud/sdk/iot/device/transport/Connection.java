@@ -30,6 +30,8 @@
 
 package com.huaweicloud.sdk.iot.device.transport;
 
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
+
 /**
  * IOT连接，代表设备和平台之间的一个连接
  */
@@ -82,4 +84,9 @@ public interface Connection {
      */
     void setConnectActionListener(ConnectActionListener connectActionListener);
 
+    /**
+     * 设置自定义参数选项
+     * @param customOptions 自定义参数选项
+     */
+    void setCustomOptions(CustomOptions customOptions);
 }

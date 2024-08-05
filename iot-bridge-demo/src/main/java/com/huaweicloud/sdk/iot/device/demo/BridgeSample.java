@@ -68,7 +68,7 @@ public class BridgeSample {
      * iot平台连接地址
      */
     private static final String SERVER_URI
-        = "[Please input server uri here, example: ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883]";
+        = "[Please input server uri here, example: ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883]";
 
     /**
      * 网桥设备Id（需要提前在iot平台上注册）
@@ -218,7 +218,6 @@ public class BridgeSample {
                 if (Objects.isNull(services)) {
                     log.warn("the services is null");
                 }
-
                 // 遍历service
                 for (ServiceProperty serviceProperty : services) {
                     log.info("OnPropertiesSet, serviceId is {}", serviceProperty.getServiceId());
@@ -227,7 +226,6 @@ public class BridgeSample {
                         log.info("property name is {}", name);
                         log.info("set property value is {}", serviceProperty.getProperties().get(name));
                     }
-
                 }
 
                 // 修改本地的属性值

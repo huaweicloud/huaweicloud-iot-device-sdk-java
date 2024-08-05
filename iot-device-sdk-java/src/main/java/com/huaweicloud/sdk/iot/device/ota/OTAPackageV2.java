@@ -30,13 +30,57 @@
 
 package com.huaweicloud.sdk.iot.device.ota;
 
-public class OTAPackageV2 {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class OTAPackageV2 extends OTABase {
     private String url;
 
     private String version;
 
+    @JsonProperty("file_size")
+    private long fileSize;
+
+    @JsonProperty("file_name")
+    private String fileName;
+
     private int expires;
 
+    private String sign;
+
+    @JsonProperty("custom_info")
+    private String customInfo;
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public String getCustomInfo() {
+        return customInfo;
+    }
+
+    public void setCustomInfo(String customInfo) {
+        this.customInfo = customInfo;
+    }
 
     public String getUrl() {
         return url;
@@ -62,10 +106,16 @@ public class OTAPackageV2 {
         this.expires = expires;
     }
 
-
     @Override
     public String toString() {
-        return "OTAPackageV2{" + "url='" + url + '\'' + ", version='" + version
-                + '\'' + ", expires=" + expires + '\'' + '}';
+        return "OTAPackageV2{" +
+            "url='" + url + '\'' +
+            ", version='" + version + '\'' +
+            ", fileSize=" + fileSize +
+            ", fileName=" + fileName +
+            ", expires=" + expires +
+            ", sign='" + sign + '\'' +
+            ", customInfo='" + customInfo + '\'' +
+            "} " + super.toString();
     }
 }

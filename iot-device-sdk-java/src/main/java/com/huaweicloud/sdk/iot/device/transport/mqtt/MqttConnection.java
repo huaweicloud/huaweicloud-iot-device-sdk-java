@@ -31,6 +31,7 @@
 package com.huaweicloud.sdk.iot.device.transport.mqtt;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.client.listener.DefaultPublishListenerImpl;
 import com.huaweicloud.sdk.iot.device.client.listener.DefaultSubscribeListenerImpl;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -48,21 +49,21 @@ import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.internal.DisconnectedMessageBuffer;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import javax.net.ssl.SSLContext;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * mqtt连接
@@ -88,7 +89,7 @@ public class MqttConnection implements Connection {
 
     private boolean connectFinished = false;
 
-    private MqttAsyncClient mqttAsyncClient;
+    private IotMqttAsyncClient mqttAsyncClient;
 
     private ConnectListener connectListener;
 
@@ -98,11 +99,22 @@ public class MqttConnection implements Connection {
 
     private int connectResultCode;
 
+    private CustomOptions customOptions = new CustomOptions();
+
+    private DisconnectedMessageBuffer disconnectedMessageBuffer;
+
     public MqttConnection(ClientConf clientConf, RawMessageListener rawMessageListener) {
         this.clientConf = clientConf;
         this.rawMessageListener = rawMessageListener;
+        initDisconnectedMessageBuffer(5000);
     }
 
+    private void initDisconnectedMessageBuffer(int offlineBufferSize) {
+        DisconnectedBufferOptions bufferOptions = new DisconnectedBufferOptions();
+        bufferOptions.setBufferEnabled(true);
+        bufferOptions.setBufferSize(offlineBufferSize);
+        disconnectedMessageBuffer = new DisconnectedMessageBuffer(bufferOptions);
+    }
     private final MqttCallback callback = new MqttCallbackExtended() {
 
         @Override
@@ -112,7 +124,11 @@ public class MqttConnection implements Connection {
                 connectListener.connectionLost(cause);
             }
 
-            IotUtil.reConnect(MqttConnection.this);
+            if (customOptions.getConnectListener() != null) {
+                customOptions.getConnectListener().connectionLost(cause);
+            }
+
+            IotUtil.reConnect(MqttConnection.this, customOptions);
         }
 
         @Override
@@ -142,6 +158,10 @@ public class MqttConnection implements Connection {
             if (connectListener != null) {
                 connectListener.connectComplete(reconnect, serverURI);
             }
+
+            if (customOptions.getConnectListener() != null) {
+                customOptions.getConnectListener().connectComplete(reconnect, serverURI);
+            }
         }
     };
 
@@ -155,17 +175,12 @@ public class MqttConnection implements Connection {
             String clientId = generateClientId(timeStamp);
 
             try {
-                mqttAsyncClient = new MqttAsyncClient(clientConf.getServerUri(), clientId, new MemoryPersistence());
+                mqttAsyncClient = new IotMqttAsyncClient(clientConf.getServerUri(), clientId, new MemoryPersistence());
             } catch (MqttException e) {
                 log.error(ExceptionUtil.getBriefStackTrace(e));
             }
 
-            DisconnectedBufferOptions bufferOptions = new DisconnectedBufferOptions();
-            bufferOptions.setBufferEnabled(true);
-            if (clientConf.getOfflineBufferSize() != null) {
-                bufferOptions.setBufferSize(clientConf.getOfflineBufferSize());
-            }
-            if (createMqttConnection(timeStamp, bufferOptions)) {
+            if (createMqttConnection(timeStamp)) {
                 return -1;
             }
 
@@ -197,9 +212,9 @@ public class MqttConnection implements Connection {
         return connectResultCode;
     }
 
-    private boolean createMqttConnection(String timeStamp, DisconnectedBufferOptions bufferOptions)
+    private boolean createMqttConnection(String timeStamp)
         throws MqttException {
-        mqttAsyncClient.setBufferOpts(bufferOptions);
+        mqttAsyncClient.setDisconnectedMessageBuffer(disconnectedMessageBuffer);
 
         MqttConnectOptions options = new MqttConnectOptions();
         if (clientConf.getServerUri().contains("ssl:")) {
@@ -216,7 +231,7 @@ public class MqttConnection implements Connection {
         options.setHttpsHostnameVerificationEnabled(false);
         options.setCleanSession(true);
         options.setUserName(clientConf.getDeviceId());
-        options.setMaxInflight(MAX_FLIGHT_COUNT);
+        options.setMaxInflight(customOptions.getMaxInflight());
 
         String secret = clientConf.getSecret();
 
@@ -242,7 +257,12 @@ public class MqttConnection implements Connection {
             clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_BRIDGE_DEVICE, Integer.toString(clientConf.getCheckStamp()),
                 timeStamp);
         } else if (clientConf.getScopeId() != null) {
-            clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, clientConf.getScopeId());
+            if (clientConf.getSecret() != null) {
+                clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, clientConf.getScopeId(), Integer.toString(clientConf.getCheckStamp()),
+                    timeStamp);
+            } else {
+                clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, clientConf.getScopeId());
+            }
         } else {
             clientId = String.join("_", clientConf.getDeviceId(), CONNECT_TYPE_OF_DEVICE, Integer.toString(clientConf.getCheckStamp()), timeStamp);
         }
@@ -332,6 +352,12 @@ public class MqttConnection implements Connection {
     @Override
     public void setConnectActionListener(ConnectActionListener connectActionListener) {
         this.connectActionListener = connectActionListener;
+    }
+
+    @Override
+    public void setCustomOptions(CustomOptions customOptions) {
+        this.customOptions = customOptions;
+        initDisconnectedMessageBuffer(customOptions.getOfflineBufferSize());
     }
 
     public void setRawMessageListener(RawMessageListener rawMessageListener) {

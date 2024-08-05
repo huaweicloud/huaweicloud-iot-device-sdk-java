@@ -70,7 +70,7 @@ public class JsonUtil {
         }
     }
 
-    private static <T> T convertValue(Object fromValue, Class<T> toValueType) {
+    public static <T> T convertValue(Object fromValue, Class<T> toValueType) {
         try {
             return objectMapper.convertValue(fromValue, toValueType);
         } catch (IllegalArgumentException e) {

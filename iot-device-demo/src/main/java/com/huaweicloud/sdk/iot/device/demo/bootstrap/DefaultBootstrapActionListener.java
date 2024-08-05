@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2024 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,10 +30,12 @@
 
 package com.huaweicloud.sdk.iot.device.demo.bootstrap;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.bootstrap.BootstrapClient;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import com.huaweicloud.sdk.iot.device.utils.JsonUtil;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +58,8 @@ public class DefaultBootstrapActionListener implements ActionListener {
     @Override
     public void onSuccess(Object context) {
         // 引导成功，获取到iot平台的地址
-        String address = (String) context;
+        ObjectNode node = JsonUtil.convertJsonStringToObject((String) context, ObjectNode.class);
+        String address = node.get("address").asText();
         log.info("bootstrap success, the address is {}", address);
 
         // 引导成功后关闭客户端

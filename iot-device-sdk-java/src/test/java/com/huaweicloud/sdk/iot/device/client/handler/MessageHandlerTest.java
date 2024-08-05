@@ -93,7 +93,7 @@ public class MessageHandlerTest {
         RawDeviceMessageListener rawDeviceMessageListenerMock = PowerMockito.mock(RawDeviceMessageListener.class);
         DeviceMessageListener deviceMessageListenerMock = PowerMockito.mock(DeviceMessageListener.class);
 
-        AbstractDevice abstractDeviceMock = PowerMockito.mock(AbstractDevice.class);;
+        AbstractDevice abstractDeviceMock = PowerMockito.mock(AbstractDevice.class);
 
         when(deviceClientMock.getDeviceMessageListener()).thenReturn(deviceMessageListenerMock);
         when(deviceClientMock.getRawDeviceMessageListener()).thenReturn(rawDeviceMessageListenerMock);

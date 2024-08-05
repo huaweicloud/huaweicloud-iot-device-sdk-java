@@ -31,6 +31,7 @@
 package com.huaweicloud.sdk.iot.device.service;
 
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.requests.Command;
@@ -41,10 +42,12 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsGet;
 import com.huaweicloud.sdk.iot.device.client.requests.PropsSet;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.client.requests.Shadow;
 import com.huaweicloud.sdk.iot.device.constants.Constants;
 import com.huaweicloud.sdk.iot.device.devicelog.DeviceLogService;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnActionLogListener;
 import com.huaweicloud.sdk.iot.device.devicelog.listener.DefaultConnLogListener;
+import com.huaweicloud.sdk.iot.device.devicerule.DeviceRuleService;
 import com.huaweicloud.sdk.iot.device.filemanager.FileManagerService;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.timesync.TimeSyncService;
@@ -82,6 +85,10 @@ public class AbstractDevice {
 
     private DeviceLogService deviceLogService;
 
+    private DeviceRuleService deviceRuleService;
+
+    protected CustomOptions customOptions = new CustomOptions();
+
     /**
      * 构造函数，使用密码创建设备
      *
@@ -99,6 +106,7 @@ public class AbstractDevice {
         clientConf.setFile(iotCertFile);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
+        this.client.setCustomOptions(customOptions);
         initSysServices();
         log.info("create device, the deviceId is {}", clientConf.getDeviceId());
 
@@ -123,6 +131,7 @@ public class AbstractDevice {
         clientConf.setFile(iotCertFile);
         this.deviceId = deviceId;
         this.client = new DeviceClient(clientConf, this);
+        this.client.setCustomOptions(customOptions);
         initSysServices();
         log.info("create device {} ", clientConf.getDeviceId());
     }
@@ -135,6 +144,7 @@ public class AbstractDevice {
     public AbstractDevice(ClientConf clientConf) {
         if (clientConf.getMode() == Constants.CONNECT_OF_NORMAL_DEVICE_MODE) {
             this.client = new DeviceClient(clientConf, this);
+            this.client.setCustomOptions(customOptions);
         }
 
         this.deviceId = clientConf.getDeviceId();
@@ -157,6 +167,9 @@ public class AbstractDevice {
 
         this.deviceLogService = new DeviceLogService();
         this.addService("$log", deviceLogService);
+
+        this.deviceRuleService = new DeviceRuleService();
+        this.addService("$device_rule", deviceRuleService);
     }
 
     /**
@@ -440,6 +453,16 @@ public class AbstractDevice {
     }
 
     /**
+     * 影子回调函数，由SDK自动调用
+     *
+     * @param requestId 请求id
+     * @param shadow   影子
+     */
+    public void onShadow(String requestId, Shadow shadow) {
+
+    }
+
+    /**
      * 获取OTA服务
      *
      * @return OTAService
@@ -463,6 +486,10 @@ public class AbstractDevice {
 
     public FileManagerService getFileManagerService() {
         return fileManagerService;
+    }
+
+    public DeviceRuleService getDeviceRuleService() {
+        return deviceRuleService;
     }
 
     public void setFileManagerService(FileManagerService fileManagerService) {

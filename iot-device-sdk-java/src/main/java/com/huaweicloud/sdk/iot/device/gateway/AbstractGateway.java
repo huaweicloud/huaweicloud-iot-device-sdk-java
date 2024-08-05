@@ -79,7 +79,7 @@ public abstract class AbstractGateway extends IoTDevice {
      * 构造函数，通过设备密码认证
      *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri             平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri             平台访问地址，比如ssl://c20c0d18c2.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId              设备id
      * @param deviceSecret          设备密码
      * @param file                  iot平台的ca证书，用于双向校验时设备侧校验平台
@@ -101,13 +101,14 @@ public abstract class AbstractGateway extends IoTDevice {
                 syncSubDevices();
             }
         });
+
     }
 
     /**
      * 构造函数，通过设备证书认证
      *
      * @param subDevicesPersistence 子设备持久化，提供子设备信息保存能力
-     * @param serverUri             平台访问地址，比如ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883
+     * @param serverUri             平台访问地址，比如ssl://c20c0d18c2.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883
      * @param deviceId              设备id
      * @param keyStore              证书容器
      * @param keyPassword           证书密码
@@ -180,7 +181,7 @@ public abstract class AbstractGateway extends IoTDevice {
     public void reportSubDevList(List<DeviceInfo> deviceInfos, ActionListener listener) {
 
         DeviceEvent deviceEvent = new DeviceEvent();
-        deviceEvent.setServiceId("$sub_device_discovery");
+        deviceEvent.setServiceId("sub_device_discovery");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
         deviceEvent.setEventType("scan_result");
 
@@ -363,7 +364,6 @@ public abstract class AbstractGateway extends IoTDevice {
                 if (gtwOperateSubDeviceListener != null) {
                     gtwOperateSubDeviceListener.onAddSubDeviceRsp(gtwAddSubDeviceRsp, deviceEvent.getEventId());
                 }
-
             } else if ("delete_sub_device_response".equals(deviceEvent.getEventType())) {
 
                 // 跟接收子设备删除通知处理逻辑不一致
@@ -373,6 +373,8 @@ public abstract class AbstractGateway extends IoTDevice {
                 if (gtwOperateSubDeviceListener != null) {
                     gtwOperateSubDeviceListener.onDelSubDeviceRsp(gtwDelSubDeviceRsp, deviceEvent.getEventId());
                 }
+            } else {
+                this.onSubdevEvent(deviceEvents.getDeviceId(), deviceEvent);
             }
         }
     }
@@ -484,7 +486,7 @@ public abstract class AbstractGateway extends IoTDevice {
 
         DeviceEvent deviceEvent = new DeviceEvent();
         deviceEvent.setEventType("sub_device_sync_request");
-        deviceEvent.setServiceId("$sub_device_manager");
+        deviceEvent.setServiceId("sub_device_manager");
         deviceEvent.setEventTime(IotUtil.getTimeStamp());
 
         Map<String, Object> para = new HashMap<>();
@@ -524,4 +526,12 @@ public abstract class AbstractGateway extends IoTDevice {
      * @param message 设备消息
      */
     public abstract void onSubdevMessage(DeviceMessage message);
+
+    /**
+     * 子设备事件下发，网关需要转发给子设备，需要子类实现
+     *
+     * @param deviceId 子设备ID
+     * @param deviceEvent 事件服务
+     */
+    public abstract void onSubdevEvent(String deviceId, DeviceEvent deviceEvent);
 }

@@ -166,7 +166,8 @@ public class OTAService extends AbstractService {
         }
 
         if (deviceEvent.getEventType().equalsIgnoreCase("version_query")) {
-            otaListener.onQueryVersion();
+            OTAQueryInfo queryInfo = JsonUtil.convertMap2Object(deviceEvent.getParas(), OTAQueryInfo.class);
+            otaListener.onQueryVersion(queryInfo);
             return;
         } else if (deviceEvent.getEventType().equalsIgnoreCase("firmware_upgrade")
             || deviceEvent.getEventType().equalsIgnoreCase("software_upgrade")) {

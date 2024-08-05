@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2023 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2024 Huawei Cloud Computing Technology Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -48,6 +48,7 @@ import com.huaweicloud.bridge.sdk.listener.BridgePropertyListener;
 import com.huaweicloud.bridge.sdk.listener.ResetDeviceSecretListener;
 import com.huaweicloud.bridge.sdk.request.RequestIdCache;
 import com.huaweicloud.sdk.iot.device.client.ClientConf;
+import com.huaweicloud.sdk.iot.device.client.CustomOptions;
 import com.huaweicloud.sdk.iot.device.client.DeviceClient;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
 import com.huaweicloud.sdk.iot.device.client.handler.MessageReceivedHandler;
@@ -161,6 +162,7 @@ public class BridgeClient extends DeviceClient {
      * 网关设备登录requestId对应缓存
      */
     private RequestIdCache requestIdCache;
+
 
     public BridgeClient() {
         super();
@@ -481,4 +483,8 @@ public class BridgeClient extends DeviceClient {
         connection.publishMessage(rawMessage, null);
     }
 
+    @Override
+    public void setCustomOptions(CustomOptions customOptions) {
+        super.setCustomOptions(customOptions);
+    }
 }
