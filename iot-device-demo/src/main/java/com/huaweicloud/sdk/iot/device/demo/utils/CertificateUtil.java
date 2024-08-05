@@ -80,7 +80,7 @@ public class CertificateUtil {
         KeyPair keyPair = null;
         try (FileInputStream keyInput = new FileInputStream(privateKeyFile);
             InputStreamReader inputStreamReader = new InputStreamReader(keyInput, StandardCharsets.UTF_8);
-            PEMParser pemParser = new PEMParser(inputStreamReader);
+            PEMParser pemParser = new PEMParser(inputStreamReader)
         ) {
             Object object = pemParser.readObject();
             BouncyCastleProvider provider = new BouncyCastleProvider();
@@ -133,7 +133,7 @@ public class CertificateUtil {
         KeyPair keyPair = null;
         try (FileInputStream keyInput = new FileInputStream(gmCert.getKeyFile());
              InputStreamReader inputStreamReader = new InputStreamReader(keyInput, StandardCharsets.UTF_8);
-             PEMParser pemParser = new PEMParser(inputStreamReader);
+             PEMParser pemParser = new PEMParser(inputStreamReader)
         ) {
             Object object = pemParser.readObject();
             BouncyCastleProvider provider = new BouncyCastleProvider();
@@ -176,7 +176,7 @@ public class CertificateUtil {
         }
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        try (FileInputStream fileInputStream = new FileInputStream(certificateFile);) {
+        try (FileInputStream fileInputStream = new FileInputStream(certificateFile)) {
             keyStore.load(fileInputStream, keyPassword.toCharArray());
         } catch (Exception e) {
             log.error("load keyStore failed, the reason is {}", e.getMessage());

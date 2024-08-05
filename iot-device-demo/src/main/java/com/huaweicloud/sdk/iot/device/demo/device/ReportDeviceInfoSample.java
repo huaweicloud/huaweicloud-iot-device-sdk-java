@@ -28,25 +28,47 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
-import java.security.cert.X509Certificate;
+import com.huaweicloud.sdk.iot.device.IoTDevice;
 
-import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
-public class DefaultX509TrustManager implements X509TrustManager {
-    @Override
-    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-    }
+/**
+ * 设备信息样例，建议在设备建链成功后调用。
+ */
+public class ReportDeviceInfoSample {
 
-    @Override
-    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+    private static final String IOT_ROOT_CA_RES_PATH = "ca.jks";
 
-    }
+    private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
-    @Override
-    public X509Certificate[] getAcceptedIssuers() {
-        return new X509Certificate[0];
+    public static void main(String[] args) throws IOException {
+        // 用户请替换为自己的接入地址。
+        String serverUri = "ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883";
+        String deviceId = "702b1038-a174-4a1d-969f-f67f8df43c4a";
+        String password = "password";
+
+        // 加载iot平台的ca证书，进行服务端校验
+        File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
+        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+            Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
+        }
+
+        // 创建设备
+        IoTDevice device = new IoTDevice(serverUri, deviceId, password, tmpCAFile);
+
+        if (device.init() != 0) {
+            return;
+        }
+
+        String swVersion = "v1.0";
+        String fwVersion = "v1.0";
+        device.getClient().reportDeviceInfo(swVersion, fwVersion, null);
     }
 }

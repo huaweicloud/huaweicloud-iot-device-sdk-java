@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandV3Listener;
@@ -67,7 +67,7 @@ public class PropertyV3AndCmdV3Sample {
     public static void main(String[] args) throws IOException {
 
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
-        String secret = "mysecret";
+        String password = "password";
 
         // 加载iot平台的ca证书，进行服务端校验
         File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
@@ -75,9 +75,9 @@ public class PropertyV3AndCmdV3Sample {
             Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
         }
 
-        // 创建设备并初始化
-        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
-            deviceId, secret, tmpCAFile);
+        // 创建设备并初始化, 用户请替换为自己的接入地址。
+        IoTDevice device = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883",
+            deviceId, password, tmpCAFile);
         if (device.init() != 0) {
             return;
         }
@@ -137,7 +137,7 @@ public class PropertyV3AndCmdV3Sample {
                 log.info("onCommand, mid = {}", commandV3.getMid());
                 log.info("onCommand, paras = {}", commandV3.getParas().toString());
 
-                // 处理命令
+                // 用户可以在该处进行处理命令
 
                 // 上报命令响应
                 CommandRspV3 commandRspV3 = new CommandRspV3("deviceRsp", commandV3.getMid(), 0);

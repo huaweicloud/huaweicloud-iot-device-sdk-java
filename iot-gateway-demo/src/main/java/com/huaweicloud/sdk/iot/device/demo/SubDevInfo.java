@@ -39,19 +39,19 @@ public class SubDevInfo {
 
     private Map<String, DeviceInfo> subdevices;
 
-    long getVersion() {
+    public long getVersion() {
         return version;
     }
 
-    void setVersion(long version) {
+    public void setVersion(long version) {
         this.version = version;
     }
 
-    Map<String, DeviceInfo> getSubdevices() {
+    public Map<String, DeviceInfo> getSubdevices() {
         return subdevices;
     }
 
-    void setSubdevices(Map<String, DeviceInfo> subdevices) {
+    public void setSubdevices(Map<String, DeviceInfo> subdevices) {
         this.subdevices = subdevices;
     }
 

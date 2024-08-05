@@ -28,13 +28,15 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
+import com.huaweicloud.sdk.iot.device.demo.device.connect.DefaultX509TrustManager;
 import com.huaweicloud.sdk.iot.device.ota.OTAListener;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackage;
 import com.huaweicloud.sdk.iot.device.ota.OTAPackageV2;
+import com.huaweicloud.sdk.iot.device.ota.OTAQueryInfo;
 import com.huaweicloud.sdk.iot.device.ota.OTAService;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
 
@@ -254,7 +256,8 @@ public class OTASample implements OTAListener {
     }
 
     @Override
-    public void onQueryVersion() {
+    public void onQueryVersion(OTAQueryInfo queryInfo) {
+        log.info("queryInfo is {}", queryInfo);
         otaService.reportVersion(version);
     }
 
@@ -306,11 +309,12 @@ public class OTASample implements OTAListener {
 
         // 加载iot平台的ca证书，进行服务端校验
         File tmpCAFile = new File(IOT_ROOT_CA_TMP_PATH);
-        try (InputStream resource = CommandSample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
+        try (InputStream resource = OTASample.class.getClassLoader().getResourceAsStream(IOT_ROOT_CA_RES_PATH)) {
             Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
         }
 
-        IoTDevice ioTDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+        // 用户请替换为自己的接入地址。
+        IoTDevice ioTDevice = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883",
                 "deviceid", "secret", tmpCAFile);
 
         OTASample otaSample = new OTASample(ioTDevice, "image.bin");

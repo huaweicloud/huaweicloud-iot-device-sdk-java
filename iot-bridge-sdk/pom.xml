@@ -5,7 +5,7 @@
     <parent>
         <artifactId>iot-device-sdk-java-pom</artifactId>
         <groupId>com.huaweicloud</groupId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>iot-bridge-sdk</artifactId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>iot-device-sdk-java</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <version>32.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -49,11 +49,37 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>2.0.9</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito2</artifactId>
             <version>2.0.9</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.huawei.fuxi</groupId>
+                <artifactId>fuxicov-maven-plugin</artifactId>
+                <version>1.0.9-SNAPSHOT</version>
+                <executions>
+                    <!--覆盖报告插桩部分-->
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!--include表示采集覆盖率的包的范围，可配置多条-->
+                            <includes>
+                                <include>com.huawei.*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

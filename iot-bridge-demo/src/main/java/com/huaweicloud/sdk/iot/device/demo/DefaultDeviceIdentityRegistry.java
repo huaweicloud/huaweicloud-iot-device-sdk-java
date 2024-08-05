@@ -53,7 +53,7 @@ public class DefaultDeviceIdentityRegistry implements DeviceIdentityRegistry {
 
         String content = null;
         try (InputStream inputStream = DefaultDeviceIdentityRegistry.class.getClassLoader()
-            .getResourceAsStream("deviceIdentity.json");) {
+            .getResourceAsStream("deviceIdentity.json")) {
             content = readInputStream2String(inputStream);
         } catch (IOException e) {
             log.error("get the file of DeviceIdIdentity failed : " + e.toString());

@@ -40,5 +40,5 @@ public interface CommandV3Listener {
      * 处理命令
      * @param commandV3
      */
-    public void onCommandV3(CommandV3 commandV3);
+    void onCommandV3(CommandV3 commandV3);
 }

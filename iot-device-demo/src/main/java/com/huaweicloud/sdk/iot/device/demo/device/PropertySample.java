@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.IotResult;
@@ -71,8 +71,8 @@ public class PropertySample {
             Files.copy(resource, tmpCAFile.toPath(), REPLACE_EXISTING);
         }
 
-        // 创建设备并初始化
-        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+        // 创建设备并初始化. 用户请替换为自己的接入地址。
+        IoTDevice device = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883",
             "5e06bfee334dd4f33759f5b3_demo", "mysecret", tmpCAFile);
         if (device.init() != 0) {
             return;
@@ -80,21 +80,17 @@ public class PropertySample {
 
         // 接收平台下发的属性读写
         device.getClient().setPropertyListener(new PropertyListener() {
-
             // 处理写属性
             @Override
             public void onPropertiesSet(String requestId, List<ServiceProperty> services) {
                 // 遍历service
                 for (ServiceProperty serviceProperty : services) {
-
                     log.info("OnPropertiesSet, serviceId is {}", serviceProperty.getServiceId());
-
                     // 遍历属性
                     for (String name : serviceProperty.getProperties().keySet()) {
                         log.info("property name is {}", name);
                         log.info("set property value is {}", serviceProperty.getProperties().get(name));
                     }
-
                 }
                 // 修改本地的属性值
                 device.getClient().respondPropsSet(requestId, IotResult.SUCCESS);
@@ -149,7 +145,6 @@ public class PropertySample {
                     log.error("reportProperties failed" + var2.toString());
                 }
             });
-
             Thread.sleep(10000);
         }
     }

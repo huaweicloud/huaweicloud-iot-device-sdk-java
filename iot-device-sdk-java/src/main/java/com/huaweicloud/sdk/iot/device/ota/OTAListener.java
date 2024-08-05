@@ -37,7 +37,7 @@ public interface OTAListener {
     /**
      * 接收查询版本通知
      */
-    void onQueryVersion();
+    void onQueryVersion(OTAQueryInfo queryInfo);
 
     /**
      * 接收新版本通知

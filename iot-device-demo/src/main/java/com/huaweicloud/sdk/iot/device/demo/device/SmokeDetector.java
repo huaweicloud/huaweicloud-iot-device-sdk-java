@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.huaweicloud.sdk.iot.device.demo;
+package com.huaweicloud.sdk.iot.device.demo.device;
 
 import com.huaweicloud.sdk.iot.device.IoTDevice;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
@@ -61,7 +61,8 @@ public class SmokeDetector {
     private static final String IOT_ROOT_CA_TMP_PATH = "huaweicloud-iotda-tmp-" + IOT_ROOT_CA_RES_PATH;
 
     public static void main(String[] args) throws IOException {
-        String serverUri = "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883";
+        // 用户请替换为自己的接入地址。
+        String serverUri = "ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883";
         String deviceId = "5e06bfee334dd4f33759f5b3_demo";
         String secret = "secret";
 

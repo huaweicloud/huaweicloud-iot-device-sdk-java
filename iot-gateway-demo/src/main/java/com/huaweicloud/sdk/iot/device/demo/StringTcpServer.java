@@ -32,6 +32,27 @@ package com.huaweicloud.sdk.iot.device.demo;
 
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.gateway.GtwOperateSubDeviceListener;
+import com.huaweicloud.sdk.iot.device.gateway.requests.AddedSubDeviceInfo;
+import com.huaweicloud.sdk.iot.device.gateway.requests.GtwAddSubDeviceRsp;
+import com.huaweicloud.sdk.iot.device.gateway.requests.GtwDelSubDeviceRsp;
+import com.huaweicloud.sdk.iot.device.transport.ActionListener;
+import com.huaweicloud.sdk.iot.device.utils.ExceptionUtil;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -46,15 +67,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 一个传输字符串数据的tcp server，客户端建链后，首条消息是鉴权消息，携带设备标识nodeId。server将收到的消息通过gateway转发给平台
@@ -82,21 +94,106 @@ public class StringTcpServer {
         URL resource = StringTcpServer.class.getClassLoader().getResource("ca.jks");
         File file = new File(resource.getPath());
 
+        // 用户请替换为自己的接入地址。
         simpleGateway = new SimpleGateway(new SubDevicesFilePersistence(),
-            "ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+            "ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883",
             "5e06bfee334dd4f33759f5b3_demo", "secret", file);
+
+        simpleGateway.setGtwOperateSubDeviceListener(new GtwOperateSubDeviceListener() {
+            @Override
+            public void onAddSubDeviceRsp(GtwAddSubDeviceRsp gtwAddSubDeviceRsp, String eventId) {
+                log.info("add device result={}", gtwAddSubDeviceRsp);
+            }
+
+            @Override
+            public void onDelSubDeviceRsp(GtwDelSubDeviceRsp gtwDelSubDeviceRsp, String eventId) {
+                log.info("delete result={}", gtwDelSubDeviceRsp);
+            }
+        });
 
         if (simpleGateway.init() != 0) {
             return;
         }
 
-        /*
-         * 如果网关需要主动增加、删除子设备，可参考如下接口样例
-         * gtwOperateSubDevices();
-         */
+        // 如果网关需要主动增加、删除子设备，可参考如下接口样例
+        gtwOperateSubDevices();
 
         new StringTcpServer(serverPort).run();
+    }
 
+    private static boolean addSubDevices(String[] lines) {
+        if (lines.length != 3) {
+            log.warn("please input add [productId] [nodeId] or delete [deviceId]");
+            return false;
+        }
+        List<AddedSubDeviceInfo> addedSubDeviceInfos = new ArrayList<>();
+        AddedSubDeviceInfo addedSubDeviceInfo = new AddedSubDeviceInfo();
+        addedSubDeviceInfo.setProductId(lines[1]);
+        addedSubDeviceInfo.setNodeId(lines[2]);
+        addedSubDeviceInfos.add(addedSubDeviceInfo);
+        simpleGateway.gtwAddSubDevice(addedSubDeviceInfos, null, new ActionListener() {
+            @Override
+            public void onSuccess(Object context) {
+                log.info("gtwAddSubDevice success");
+            }
+
+            @Override
+            public void onFailure(Object context, Throwable var2) {
+                log.warn("gtwAddSubDevice failed, nodeId={}, error={}", lines[1],
+                        ExceptionUtil.getBriefStackTrace(var2));
+            }
+        });
+        return true;
+    }
+
+    private static boolean deleteSubDevices(String[] lines) {
+        if (lines.length != 2) {
+            log.warn("please input add [productId] [nodeId] or delete [deviceId]");
+            return false;
+        }
+        List<String> delSubDevices = new ArrayList<>();
+        delSubDevices.add(lines[1]);
+        simpleGateway.gtwDelSubDevice(delSubDevices, null, new ActionListener() {
+            @Override
+            public void onSuccess(Object context) {
+                log.info("gtwDelSubDevice success");
+            }
+
+            @Override
+            public void onFailure(Object context, Throwable var2) {
+                log.warn("gtwDelSubDevice failed, deviceId={}, error={}", lines[1],
+                        ExceptionUtil.getBriefStackTrace(var2));
+            }
+        });
+        return true;
+    }
+
+    private static void setSubDevice(BufferedReader in) throws IOException {
+        String line = in.readLine();
+        final String[] s = line.split("\\s+");
+        // add productId nodeId
+        if ("add".equals(s[0])) {
+            addSubDevices(s);
+        } else if ("delete".equals(s[0])) {  // delete deviceId
+            deleteSubDevices(s);
+        } else {
+            log.warn("please input add [productId] [nodeId] or delete [deviceId]");
+        }
+    }
+
+    public static void gtwOperateSubDevices() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+                    while (true) {
+                        setSubDevice(in);
+                    }
+                } catch (Exception e) {
+                    log.error("gtwOperateSubDevices failed" + e.getMessage());
+                }
+            }
+        }).start();
     }
 
     private void run() throws Exception {
@@ -115,7 +212,6 @@ public class StringTcpServer {
 
             ChannelFuture f = b.bind(port).sync();
             f.channel().closeFuture().sync();
-
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

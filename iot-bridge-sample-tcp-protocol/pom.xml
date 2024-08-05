@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.huaweicloud</groupId>
         <artifactId>iot-device-sdk-java-pom</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>iot-bridge-sample-tcp-protocol</artifactId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <version>2.16.0</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -53,12 +53,12 @@
                     <groupId>org.checkerframework</groupId>
                 </exclusion>
             </exclusions>
-            <version>${guava.version}</version>
+            <version>32.0.1-jre</version>
         </dependency>
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>iot-bridge-sdk</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
 
@@ -79,7 +79,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

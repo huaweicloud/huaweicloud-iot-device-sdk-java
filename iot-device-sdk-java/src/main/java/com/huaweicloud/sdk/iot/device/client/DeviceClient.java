@@ -38,12 +38,14 @@ import com.huaweicloud.sdk.iot.device.client.handler.MessageHandler;
 import com.huaweicloud.sdk.iot.device.client.handler.MessageReceivedHandler;
 import com.huaweicloud.sdk.iot.device.client.handler.PropertyGetHandler;
 import com.huaweicloud.sdk.iot.device.client.handler.PropertySetHandler;
+import com.huaweicloud.sdk.iot.device.client.handler.ShadowHandler;
 import com.huaweicloud.sdk.iot.device.client.handler.ShadowResponseHandler;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandListener;
 import com.huaweicloud.sdk.iot.device.client.listener.CommandV3Listener;
 import com.huaweicloud.sdk.iot.device.client.listener.DeviceMessageListener;
 import com.huaweicloud.sdk.iot.device.client.listener.PropertyListener;
 import com.huaweicloud.sdk.iot.device.client.listener.RawDeviceMessageListener;
+import com.huaweicloud.sdk.iot.device.client.listener.ShadowListener;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRsp;
 import com.huaweicloud.sdk.iot.device.client.requests.CommandRspV3;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceEvent;
@@ -52,6 +54,8 @@ import com.huaweicloud.sdk.iot.device.client.requests.DeviceMessage;
 import com.huaweicloud.sdk.iot.device.client.requests.DeviceProperties;
 import com.huaweicloud.sdk.iot.device.client.requests.DevicePropertiesV3;
 import com.huaweicloud.sdk.iot.device.client.requests.ServiceProperty;
+import com.huaweicloud.sdk.iot.device.client.requests.ShadowRequest;
+import com.huaweicloud.sdk.iot.device.devicerule.ActionHandler;
 import com.huaweicloud.sdk.iot.device.gateway.requests.DeviceProperty;
 import com.huaweicloud.sdk.iot.device.service.AbstractDevice;
 import com.huaweicloud.sdk.iot.device.transport.ActionListener;
@@ -75,6 +79,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -96,7 +101,7 @@ public class DeviceClient implements RawMessageListener {
 
     private static final String DEFAULT_GZIP_ENCODING = "UTF-8";
 
-    private static final String SDK_VERSION = "JAVA_v1.2.0";
+    private static final String SDK_VERSION = "JAVA_v1.2.1";
 
     private static final String MESSAGE_DOWN_TOPIC = "/messages/down";
 
@@ -107,6 +112,8 @@ public class DeviceClient implements RawMessageListener {
     private static final String PROPERTY_GET_TOPIC = "/sys/properties/get/request_id";
 
     private static final String SHADOW_RESPONSE_TOPIC = "/desired/properties/get/response";
+
+    private static final String SHADOW_GET_RESPONSE_TOPIC = "/sys/shadow/get/response/request_id";
 
     private static final String EVENT_DOWN_TOPIC = "/sys/events/down";
 
@@ -119,6 +126,10 @@ public class DeviceClient implements RawMessageListener {
     private PropertyListener propertyListener;
 
     private CommandListener commandListener;
+
+    private ShadowListener shadowListener;
+
+    private ActionHandler actionHandler;
 
     private CommandV3Listener commandV3Listener;
 
@@ -142,6 +153,8 @@ public class DeviceClient implements RawMessageListener {
 
     Map<String, MessageReceivedHandler> functionMap = new HashMap<>();
 
+    private CustomOptions customOptions = new CustomOptions();
+
     public DeviceClient() {
     }
 
@@ -162,6 +175,7 @@ public class DeviceClient implements RawMessageListener {
         functionMap.put(SHADOW_RESPONSE_TOPIC, new ShadowResponseHandler(this));
         functionMap.put(EVENT_DOWN_TOPIC, new EventDownHandler(this));
         functionMap.put(COMMAND_DOWN_TOPIC_OF_V3, new CommandV3Handler(this));
+        functionMap.put(SHADOW_GET_RESPONSE_TOPIC, new ShadowHandler(this));
     }
 
     public ClientConf getClientConf() {
@@ -179,7 +193,7 @@ public class DeviceClient implements RawMessageListener {
             throw new IllegalArgumentException("secret and keystore is null");
         }
         if (clientConf.getServerUri() == null) {
-            throw new IllegalArgumentException("clientConf.getSecret() is null");
+            throw new IllegalArgumentException("clientConf.getServerUri() is null");
         }
         if (!clientConf.getServerUri().startsWith("tcp://") && (!clientConf.getServerUri().startsWith("ssl://"))) {
             throw new IllegalArgumentException("invalid serverUri");
@@ -207,7 +221,7 @@ public class DeviceClient implements RawMessageListener {
         }
 
         if (ret != MQTT_CONNECT_SUCCESS) {
-            ret = IotUtil.reConnect(connection);
+            ret = IotUtil.reConnect(connection, customOptions);
         }
 
         // 建链成功后，SDK自动上报版本号，软固件版本号由设备上报
@@ -289,9 +303,26 @@ public class DeviceClient implements RawMessageListener {
         ObjectNode jsonObject = JsonUtil.createObjectNode();
         jsonObject.putPOJO("services", properties);
 
+        // 端测规则处理
+        device.getDeviceRuleService().handleRule(properties);
         RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
         connection.publishMessage(rawMessage, listener);
 
+    }
+
+    /**
+     * 获取设备影子
+     *
+     * @param shadowRequest 请求设备影子参数
+     * @param listener      发布监听器
+     */
+    public void getShadow(ShadowRequest shadowRequest, ActionListener listener) {
+        String topic = "$oc/devices/" + this.deviceId + "/sys/shadow/get/request_id=" + UUID.randomUUID().toString();
+        ObjectNode jsonObject = JsonUtil.createObjectNode();
+        jsonObject.put("object_device_id", shadowRequest.getDeviceId());
+        jsonObject.put("service_id", shadowRequest.getServiceId());
+        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(jsonObject));
+        connection.publishMessage(rawMessage, listener);
     }
 
     /**
@@ -573,6 +604,33 @@ public class DeviceClient implements RawMessageListener {
         return commandListener;
     }
 
+    public ShadowListener getShadowListener() {
+        return shadowListener;
+    }
+
+    /**
+     * 设置设备影子监听器，用于接收设备侧请求平台下发的设备影子数据。
+     * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     * @param shadowListener 设备影子监听器
+     */
+    public void setShadowListener(ShadowListener shadowListener) {
+        this.shadowListener = shadowListener;
+    }
+
+    public ActionHandler getActionHandler() {
+        return actionHandler;
+    }
+
+    /**
+     * 设置端侧规则监听器，用于自定义处理端侧规则.
+     * 此监听器只能接收平台到直连设备的请求，子设备的请求由AbstractGateway处理
+     *
+     * @param actionHandler 端侧规则监听器
+     */
+    public void setActionHandler(ActionHandler actionHandler) {
+        this.actionHandler = actionHandler;
+    }
+
     public AbstractDevice getDevice() {
         return device;
     }
@@ -657,16 +715,7 @@ public class DeviceClient implements RawMessageListener {
      * @param listener 监听器
      */
     public void reportEvent(DeviceEvent event, ActionListener listener) {
-
-        DeviceEvents events = new DeviceEvents();
-        events.setDeviceId(getDeviceId());
-        events.setServices(Collections.singletonList(event));
-        String deviceIdTmp = clientConf.getDeviceId();
-        String topic = "$oc/devices/" + deviceIdTmp + "/sys/events/up";
-
-        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
-        connection.publishMessage(rawMessage, listener);
-
+        reportEvent(null, event, listener);
     }
 
     public Future<?> scheduleTask(Runnable runnable) {
@@ -685,8 +734,26 @@ public class DeviceClient implements RawMessageListener {
         return CLIENT_THREAD_COUNT;
     }
 
-    // 在网桥场景下会使用到，主要用于bridgeClient重写
+    /**
+     * 1、在网桥场景下会使用到，主要用于bridgeClient重写
+     * 2、默认为网关上报子设备事件
+     *
+     * @param deviceId 子设备ID
+     * @param event 事件
+     * @param listener 监听器
+     */
     public void reportEvent(String deviceId, DeviceEvent event, ActionListener listener) {
+        DeviceEvents events = new DeviceEvents();
+        events.setDeviceId(deviceId == null ? getDeviceId() : deviceId);
+        events.setServices(Collections.singletonList(event));
+        String deviceIdTmp = clientConf.getDeviceId();
+        String topic = "$oc/devices/" + deviceIdTmp + "/sys/events/up";
+
+        RawMessage rawMessage = new RawMessage(topic, JsonUtil.convertObject2String(events));
+        connection.publishMessage(rawMessage, listener);
     }
 
+    public void setCustomOptions(CustomOptions customOptions) {
+        this.customOptions = customOptions;
+    }
 }
