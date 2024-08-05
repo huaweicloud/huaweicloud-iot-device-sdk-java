@@ -42,8 +42,8 @@ Dependent versions:
 Create and initialize a device. Currently, communication secured with Chinese cryptography algorithms is supported.
 Before enabling the Chinese cryptography algorithms, see the [BGMProvider Installation Guide](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97).
 ```java
-        IoTDevice device = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883", "your device id", "your device secret", file);
-        // 用户请替换为自己的接入地址。
+        IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+                "your device id", "your device secret", file);
         //International encrypted communication is used by default. To use Chinese encrypted communication, set Gmssl to true.
         //device.getClient().getClientConf().setGmssl(true);
         //The timestamp is not verified by default. To verify the timestamp, set the corresponding parameter to select the hash algorithm.
@@ -315,8 +315,8 @@ After the service is defined,
 create a device, register the smoke sensor service, and initialize the device.
 ```java
     // Create a device.
-    // 用户请替换为自己的接入地址。
-   IoTDevice device = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883", "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
+   IoTDevice device = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+           "5e06bfee334dd4f33759f5b3_demo", "mysecret", file);
 
    // Create a device service.
    SmokeDetectorService smokeDetectorService = new SmokeDetectorService();
@@ -367,8 +367,8 @@ For device access in Chinese cryptographic algorithm scenario, import two certif
 
 Use the certificate to create a device.
 ```java
-    // 用户请替换为自己的接入地址。
-    IoTDevice iotDevice = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhuaweicloud.com:8883", "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword", file);
+    IoTDevice iotDevice = new IoTDevice("ssl://iot-mqtts.cn-north-4.myhuaweicloud.com:8883",
+                "5e06bfee334dd4f33759f5b3_demo3", keyStore, "keypassword", file);
 ```
 
 ### Using a Certificate for Authentication
@@ -384,7 +384,6 @@ When you connect multiple devices to the IoT platform, you are advised to use th
 
 | Version Number| Change Type| Description                                                        |
 | ------ | -------- | ------------------------------------------------------------ |
-| 1.2.1  | New feature| The OTA upgrade in gateway mode were added.                         |
 | 1.2.0  | New features| The generic protocol, Chinese cryptographic algorithms, and OBS upgrade packages were added.                         |
 |        | Function enhancement| 1. Optimized the method of transferring the platform root CA certificate to the BootstrapClient construction method . The original construction method was marked as discarded.<br>2. Updated **ca.jks** in Samples to all authoritative root CA certificates that contain device certificates of instances in each region.<br>3. Fixed some spelling mistakes.<br>4. Upgraded paho.<br>5. Fixed the issue where the system did not retry after a backoff reconnection.|
 | 1.1.2  | Function enhancement| Modified the provisioning function and compatible with scenarios where different certificates are used in multiple regions.                |
