@@ -61,25 +61,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.huawei.fuxi</groupId>
-                <artifactId>fuxicov-maven-plugin</artifactId>
-                <version>1.0.9-SNAPSHOT</version>
-                <executions>
-                    <!--覆盖报告插桩部分-->
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <!--include表示采集覆盖率的包的范围，可配置多条-->
-                            <includes>
-                                <include>com.huawei.*</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
