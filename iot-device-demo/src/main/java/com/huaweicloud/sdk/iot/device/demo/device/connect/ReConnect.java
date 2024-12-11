@@ -54,13 +54,13 @@ public class ReConnect {
                         log.error("sleep failed, the reason is {}", e.getMessage());
                     }
                     retryTimes++;
-                    ret = device.getClient().connect();
+                    ret = connection.connect();
                 }
                 retryTimes = 0;
                 return 0;
             }
         });
-        device.getClient().setCustomOptions(customOptionsnew);
+        device.setCustomOptions(customOptionsnew);
 
         // 建链
         if (device.init() != 0) {

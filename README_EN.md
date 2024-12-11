@@ -72,7 +72,7 @@ Report a device message.
 
 ```
 
-Report a message using a custom topic, which must be configured on the platform first.
+Report custom topic messages (starting with $oc, note that custom topics need to be configured on the platform first)
 ```java
 		String topic = "$oc/devices/"+  device.getDeviceId() + "/user/wpy";
 		device.getClient().publishRawMessage(new RawMessage(topic, "hello raw message "),
