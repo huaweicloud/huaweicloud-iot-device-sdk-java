@@ -193,7 +193,7 @@ public class MessageSample implements ConnectListener {
   });
   ```
 
-- 上报自定topic消息（非$oc开头，可用设备topic策略控制权限）
+- 上报自定义topic消息（非$oc开头，可用设备topic策略控制权限）
 
   ```java
   String topic = "hello/world";
