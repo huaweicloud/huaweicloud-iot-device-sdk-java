@@ -53,11 +53,8 @@ SDK面向运算、存储能力较强的嵌入式终端设备，开发者通过�
 
 
 
-<h2 id="3.0">设备初始化</h2>
-
-创建设备并初始化，当前已支持国密通信
-启用国密前请参考[BGMProvider安装指南](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97)进行配置
-
+<h2  id  =  "3.0">3.0 设备初始化</h2>
+创建设备并初始化，当前已支持国密通信，启用国密前请参考[BGMProvider安装指南](https://gitee.com/openeuler/bgmprovider/wikis/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3/BGMProvider%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97)进行配置。
 
 - 设备密钥认证：
 ```java
@@ -104,7 +101,6 @@ IoTDevice iotDevice = new IoTDevice("ssl://xxx.st1.iotda-device.cn-north-4.myhua
 
 完整代码参见X509CertificateDeviceSample.java
 
-
 <h2  id  =  "3.1">3.1 自定义选项</h2>
 设备初始化前，可以通过CustomOptions类配置自定义断线重连、离线最大缓存消息数量、正在传输但还未收到确认的消息数量等功能。
 
@@ -119,7 +115,6 @@ device.setCustomOptions(CustomOptions customOptions)
 // offlineBufferSize 离线消息缓存队列大小，默认5000
 // connectListener 连接监听器，监听设备的连接状态
 ```
-
 
 <h2  id  =  "3.2">3.2  断线重连</h2>
 在SDK中内置了一个断线重连，若需要自定义断线重连，可以重写SDK：com.huaweicloud.sdk.iot.device.client.handler.CustomBackoffHandler中backoffHandler方法。自定义断线重连可见demo：src/main/java/com/huaweicloud/sdk/iot/device/demo/device/connect/ReConnect.java。
@@ -175,7 +170,8 @@ public class MessageSample implements ConnectListener {
 
 
 <h2  id  =  "3.3">3.3  消息上报、下发</h2>
-示例代码可见：MessageSample.java。					
+示例代码可见：MessageSample.java。
+自定义topic示例可见：CustomizeTopicSample.java。
 
 - 上报设备消息
 
@@ -247,7 +243,24 @@ public class MessageSample implements ConnectListener {
           int qos)
   ```
 
+  ```java
+  // 订阅下行消息
+  String topic = "hello/world";
+  iotDevice.getClient().subscribeTopic(topic, new ActionListener() {
+      @Override
+      public void onSuccess(Object context) {
+          log.info("subscribe success topic = {}", topic);
+      }
 
+      @Override
+      public void onFailure(Object context, Throwable var2) {
+          log.error("subscribe failed topic = {}", topic);
+      }}, message -> {
+            log.info("Received message = {} ", message);
+            // 在这里处理接收到的消息
+      },0);
+     // 示例代码可见：CustomizeTopicSample.java，其中的RawMessageListener为接收监听器。
+  ```
 
 <h2  id  =  "3.4">3.4 属性上报、设置、查询</h2>
 示例代码可见：PropertySample.java。
@@ -347,7 +360,6 @@ device.getClient().setCommandListener(new CommandListener() {
 	}
 });
 ```
-
 <h2  id  =  "3.6">3.6  获取设备影子</h2>
 示例代码可见SDK：ShadowSample.java。
 
@@ -376,7 +388,6 @@ device.getClient().getShadow(shadowRequest, new ActionListener() {
 });
 ```
 
-
 <h2  id  =  "3.7">3.7 软固件（OTA）升级</h2>
 示例代码可见SDK： OTASample.java和OTAV2Sample.java
 
@@ -397,7 +408,6 @@ public void onNewPackageV2(OTAPackageV2 pkg) {
 //设备上报升级结果
 otaService.reportOtaStatus(OTAService.OTA_CODE_SUCCESS, 100, version, "upgrade success");
 ```
-
 
 <h2  id  =  "3.8">3.8 时间同步</h2>
 示例代码可见SDK：NtpSample.java
@@ -420,7 +430,6 @@ timeSyncService.setListener((deviceSendTime, serverRecvTime, serverSendTime) -> 
 
 timeSyncService.requestTimeSync();
 ```
-
 
 <h2  id  =  "3.9">3.9 网关与子设备</h2>
 此功能参考[网关与子设备](https://support.huaweicloud.com/usermanual-iothub/iot_01_0052.html)。
@@ -769,7 +778,6 @@ device.getClient().setActionHandler(new ActionHandler() {
 });
 ```
 
-
 <h2  id  =  "3.12">3.12 设备发放</h2>
 设备发放功能，可以将设备发放到不同的region，参考文档：[设备发放示例](https://support.huaweicloud.com/qs-iotps/iot_03_0006.html)。注意：流程可参考“快速入门”中的各种接入示例，SDK已自动实现示例中的“引导设备”。详细的步骤可参考链接中的“用户指南”。设备发放主要分为两种发放方式，分别为手动注册发放与注册组发放。相关代码示例可见SDK：BootstrapSelfRegGroupPasswordSample.java和BootstrapSelfRegSample.java
 
@@ -789,7 +797,6 @@ BootstrapClient bootstrapClient = new BootstrapClient(BOOTSTRAP_URI, deviceId, g
 bootstrapClient.bootstrap(new SimpleBootstrapActionListener(bootstrapClient));
 
 ```
-
 
 <h2  id  =  "3.13">3.13  面向物模型编程</h2>
 面向物模型编程指的是，基于SDK提供的物模型抽象能力，设备代码只需要按照物模型定义设备服务，SDK就能自动的和平台通讯，完成属性的同步和命令的调用。
@@ -904,7 +911,6 @@ setter接口为写接口，在平台修改属性时被sdk调用，如果属性�
 
 ### 使用设备代码生成器
 上面基于物模型编程中，要求服务的定义必须和产品模型保持一致，基于这一点，我们提供了代码生成器，能根据产品模型自动生成设备代码。代码生成器的源码在iot-device-code-generator目录，详情可见：[代码自动生成说明](https://github.com/huaweicloud/huaweicloud-iot-device-sdk-java/tree/master/iot-device-code-generator/README.md)。
-
 
 
 <h2  id  =  "3.14">3.14 泛协议开发</h2>
